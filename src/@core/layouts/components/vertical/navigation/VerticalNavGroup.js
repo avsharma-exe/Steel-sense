@@ -315,7 +315,7 @@ const VerticalNavGroup = props => {
             in={groupActive.includes(item.title)}
             sx={{
               pl: 0,
-              width: '100%',
+              width: '100%', 
               ...menuGroupCollapsedStyles,
               transition: 'all .25s ease-in-out'
             }}

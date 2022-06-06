@@ -67,22 +67,17 @@ const AuthProvider = ({ children }) => {
     axios
       .post(api_configs.auth.login, params)
       .then(async res => {
-        window.localStorage.setItem(authConfig.storageTokenKeyName, res.data.accessToken)
-      })
-      .then(() => {
-        axios
-          .get(authConfig.meEndpoint, {
-            headers: {
-              Authorization: window.localStorage.getItem(authConfig.storageTokenKeyName)
-            }
-          })
-          .then(async response => {
-            const returnUrl = router.query.returnUrl
-            setUser({ ...response.data.userData })
-            await window.localStorage.setItem('userData', JSON.stringify(response.data.userData))
-            const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
-            router.replace(redirectURL)
-          })
+        if (res.data && !res.data.error) {
+          await window.localStorage.setItem('token', res.data.token)
+          await window.localStorage.setItem('userData', JSON.stringify(res.data.user))
+          setUser({ ...res.data.user })
+          const returnUrl = router.query.returnUrl
+          const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
+          
+          router.replace(redirectURL)
+        }
+
+        return errorCallback(res.data)
       })
       .catch(err => {
         if (errorCallback) errorCallback(err)

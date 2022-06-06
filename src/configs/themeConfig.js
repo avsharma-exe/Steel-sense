@@ -10,7 +10,7 @@ import Circle from 'mdi-material-ui/Circle'
 const themeConfig = {
   // ** Layout Configs
   templateName: 'Steel Sense' /* App Name */,
-  layout: 'vertical' /* vertical | horizontal */,
+  layout: 'horizontal' /* vertical | horizontal */,
   mode: 'light' /* light | dark */,
   direction: 'ltr' /* ltr | rtl */,
   skin: 'default' /* default | bordered | semi-dark /*! Note: semi-dark value will only work for Vertical Layout */,
