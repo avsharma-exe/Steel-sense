@@ -181,7 +181,8 @@ const LoginPage = () => {
                 justifyContent: 'center'
               }}
             >
-              <svg width={47} fill='none' height={26} viewBox='0 0 268 150' xmlns='http://www.w3.org/2000/svg'>
+              <img src="/assets/images/SteelSenseLogo.jpg" width={50} height={50} />
+              {/* <svg width={47} fill='none' height={26} viewBox='0 0 268 150' xmlns='http://www.w3.org/2000/svg'>
                 <rect
                   rx='25.1443'
                   width='50.2886'
@@ -250,14 +251,14 @@ const LoginPage = () => {
                     <stop offset='1' stopOpacity='0' />
                   </linearGradient>
                 </defs>
-              </svg>
+              </svg> */}
               <Typography variant='h6' sx={{ ml: 2, lineHeight: 1, fontWeight: 700, fontSize: '1.5rem !important' }}>
                 {themeConfig.templateName}
               </Typography>
             </Box>
             <Box sx={{ mb: 6 }}>
               <TypographyStyled variant='h5'>{`Welcome to ${themeConfig.templateName}! 👋🏻`}</TypographyStyled>
-              <Typography variant='body2'>Please sign-in to your account and start the adventure</Typography>
+              <Typography variant='body2'>Please sign-in to your account</Typography>
             </Box>
            
             <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
@@ -274,7 +275,7 @@ const LoginPage = () => {
                       onBlur={onBlur}
                       onChange={onChange}
                       error={Boolean(errors.email)}
-                      placeholder='admin@materialize.com'
+                      placeholder='admin@steelsense.com'
                     />
                   )}
                 />

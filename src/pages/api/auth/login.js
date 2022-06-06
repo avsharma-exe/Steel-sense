@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     values: [body.email]
   })
   
-  console.log(result)
+  // console.log(result)
   
   // check if user exists in the DB
   if (result.length > 0) {
@@ -24,7 +24,6 @@ export default async function handler(req, res) {
     //compare the password with bcrypt
     comparePassword(body.password, user['Password'], async (err, isMatch) => {
       if (err) throw err
-      
       // is password match
       if (isMatch) {
         await changeLastLoginDate(user["User_ID"])
