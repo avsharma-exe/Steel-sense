@@ -30,7 +30,7 @@ export default async function handler(req, res) {
       // is password match
       if (isMatch) {
         await changeLastLoginDate(user['User_ID'])
-        const companyDetails = await getUserCompany(user['User_ID'])
+        // const companyDetails = await getUserCompany(user['User_ID'])
         const jwtToken = createJwt(user)
         user['role'] = 'admin'
         res.send({
