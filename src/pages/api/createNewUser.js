@@ -1,5 +1,6 @@
 import executeQuery from '../../server/Connection'
 import { cryptPassword } from '../../helpers/encrypt'
+import User from '../../server/queries/User/User'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -14,19 +15,21 @@ export default async function handler(req, res) {
     cryptPassword(body.FirstName + '@' + mobile.substr(mobile.length - 4), async (err, hash) => {
       if (err) throw err
       body.Password = hash
+      const otherDetails = body.otherDetails;
+      delete body.otherDetails;
 
       // add new user to UserMaster
-      let result = await executeQuery({
-        query: 'INSERT INTO User_Master SET ?',
-        values: body
-      })
+      let result = await User.createNewUser(body);
+      otherDetails['User_ID'] = result.insertId;
+      let other_details = await User.insertCompanyUserMap(otherDetails);
 
       if (result) {
         // TODO: add mail service to send the credentials
         res.send({
           error: false,
           msg: 'User added successfully',
-          result
+          result,
+          other_details
         })
       }
     })
