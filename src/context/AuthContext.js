@@ -51,7 +51,6 @@ const AuthProvider = ({ children }) => {
           })
           .catch(() => {
             localStorage.removeItem('userData')
-            localStorage.removeItem('refreshToken')
             localStorage.removeItem('accessToken')
             setUser(null)
             setLoading(false)
@@ -68,7 +67,7 @@ const AuthProvider = ({ children }) => {
       .post(api_configs.auth.login, params)
       .then(async res => {
         if (res.data && !res.data.error) {
-          await window.localStorage.setItem('token', res.data.token)
+          await window.localStorage.setItem('accessToken', res.data.token)
           await window.localStorage.setItem('userData', JSON.stringify(res.data.user))
           setUser({ ...res.data.user })
           const returnUrl = router.query.returnUrl
