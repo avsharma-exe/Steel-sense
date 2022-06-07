@@ -25,7 +25,7 @@ import HelpCircleOutline from 'mdi-material-ui/HelpCircleOutline'
 
 // ** Context
 import { useAuth } from 'src/hooks/useAuth'
-
+import useUserDetails from 'src/hooks/useUserDetails'
 // ** Styled Components
 const BadgeContentSpan = styled('span')(({ theme }) => ({
   width: 8,
@@ -36,6 +36,7 @@ const BadgeContentSpan = styled('span')(({ theme }) => ({
 }))
 
 const UserDropdown = props => {
+  const userDetails = useUserDetails()
   // ** Props
   const { settings } = props
 
@@ -78,6 +79,7 @@ const UserDropdown = props => {
       color: 'text.secondary'
     }
   }
+  
 
   return (
     <Fragment>
@@ -136,12 +138,12 @@ const UserDropdown = props => {
                 flexDirection: 'column'
               }}
             >
-              <Typography sx={{ fontWeight: 600 }}>John Doe</Typography>
+              <Typography sx={{ fontWeight: 600 }}>{userDetails.FirstName + " " + userDetails.LastName}</Typography>
               <Typography
                 variant='body2'
                 sx={{ fontSize: '0.8rem', color: 'text.disabled' }}
               >
-                Admin
+                {userDetails.role}
               </Typography>
             </Box>
           </Box>
@@ -153,18 +155,7 @@ const UserDropdown = props => {
             Profile
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <EmailOutline sx={{ marginRight: 2 }} />
-            Inbox
-          </Box>
-        </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <MessageOutline sx={{ marginRight: 2 }} />
-            Chat
-          </Box>
-        </MenuItem>
+       
         <Divider />
         <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
           <Box sx={styles}>
@@ -172,19 +163,7 @@ const UserDropdown = props => {
             Settings
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <CurrencyUsd sx={{ marginRight: 2 }} />
-            Pricing
-          </Box>
-        </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <HelpCircleOutline sx={{ marginRight: 2 }} />
-            FAQ
-          </Box>
-        </MenuItem>
-        <Divider />
+       
         <MenuItem sx={{ py: 2 }} onClick={handleLogout}>
           <LogoutVariant
             sx={{

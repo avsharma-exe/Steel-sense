@@ -41,6 +41,7 @@ const UserLayout = ({ children }) => {
       {...(settings.layout === 'horizontal'
         ? {
             // ** Navigation Items
+            //TODO: add ACL Objects here
             horizontalNavItems: HorizontalNavItems(),
 
             // Uncomment the below line when using server-side menu in horizontal layout and comment the above line
