@@ -2,7 +2,7 @@ import executeQuery from '../../../server/Connection'
 import { comparePassword } from '../../../helpers/encrypt'
 import { createJwt } from '../../../helpers/jwt'
 import User from '../../../server/queries/User/User'
-import Role from '../../../server/queries/User/Role'
+import Role from '../../../server/queries/Role/Role'
 import Company from '../../../server/queries/Company/Company'
 
 
@@ -15,7 +15,7 @@ export default async function handler(req, res) {
 
   let body = req.body
 
-  let result = await User.getUserDetails(body.email)
+  let result = await User.Read.getUserDetails(body.email)
 
   // console.log(result)
 
@@ -28,13 +28,13 @@ export default async function handler(req, res) {
       if (err) throw err
       // is password match
       if (isMatch) {
-        await User.changeLastLoginDate(user['User_ID'])
+        await User.Update.changeLastLoginDate(user['User_ID'])
         // const companyDetails = await getUserCompany(user['User_ID'])
-        const companyDetailsMap = await Company.getUserCompanyMap(user['User_ID'])
-        const companyDetails = companyDetailsMap[0].Co_ID && await Company.getUserCompany(companyDetailsMap[0].Co_ID)
-        const roleDetails = await Role.getUserRole(companyDetailsMap[0].Role_ID)
-        // const rolePriviledge = await Role.getUserRolePriviledge(companyDetailsMap.Role_ID)[0]
-        // TODO: Get app_pages from the array of page_ids from role priviledge
+        const companyDetailsMap = await Company.Read.getUserCompanyMap(user['User_ID'])
+        const companyDetails = companyDetailsMap[0].Co_ID && await Company.Read.getUserCompany(companyDetailsMap[0].Co_ID)
+        const roleDetails = await Role.Read.getUserRole(companyDetailsMap[0].Role_ID)
+        // const rolePrivilege = await Role.Read.getUserRolePrivilege(companyDetailsMap.Role_ID)
+        // TODO: Get app_pages from the array of page_ids from role privilege
         const jwtToken = createJwt(user)
         user['role'] = companyDetailsMap[0].Co_ID ? roleDetails[0].RoleName : 'admin'
         res.send({
