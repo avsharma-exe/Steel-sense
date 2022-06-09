@@ -34,7 +34,7 @@ const UserLayout = ({ children }) => {
    *  ! Do not change this value unless you know what you are doing. It can break the template.
    */
   const hidden = useMediaQuery(theme => theme.breakpoints.down('lg'))
-  
+  console.log(acl.userMenu())
   return (
     <Layout
       hidden={hidden}
@@ -55,7 +55,7 @@ const UserLayout = ({ children }) => {
           }
         : {
             // ** Navigation Items
-            verticalNavItems: VerticalNavItems(),
+            verticalNavItems: acl.userMenu(),
 
             // Uncomment the below line when using server-side menu in vertical layout and comment the above line
             // verticalNavItems: ServerSideVerticalNavItems(),

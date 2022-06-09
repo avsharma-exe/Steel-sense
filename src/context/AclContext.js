@@ -1,7 +1,6 @@
 // ** React Imports
 import { createContext, useEffect, useState } from 'react'
 
-
 // icons
 import Users from 'mdi-material-ui/AccountGroupOutline'
 import Company from 'mdi-material-ui/Domain'
@@ -31,21 +30,41 @@ const AclProvider = ({ children }) => {
   const { user } = useAuth()
 
   const getUserMenu = () => {
-    if (user.role === 'admin') {
-      return [
-        {
+    switch (user.role) {
+      case 'admin':
+        return [
+          {
             title: 'Dashboard',
             path: '/home',
             icon: HomeOutline
           },
-         
-        {
-          title: 'Create Company',
-          path: '/add-company',
-          icon: Company
-        },
-       
-      ]
+
+          {
+            title: 'Create Company',
+            path: '/add-company',
+            icon: Company
+          }
+        ]
+
+      case 'SuperAdmin':
+        return [
+          {
+            title: 'Dashboard',
+            path: '/l1/dashboard',
+            icon: HomeOutline
+          },
+          {
+            title: 'Inventory',
+            path: '/inventory',
+            icon: Company
+          },
+          {
+            title: 'Approve Voucher',
+            path: '/l1/approve-voucher',
+            icon: ShieldOutline
+          },
+
+        ]
     }
   }
 

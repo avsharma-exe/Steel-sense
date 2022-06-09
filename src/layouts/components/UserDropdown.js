@@ -13,6 +13,8 @@ import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
 import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
+import Company from 'mdi-material-ui/Domain'
+
 
 // ** Icons Imports
 import CogOutline from 'mdi-material-ui/CogOutline'
@@ -79,7 +81,6 @@ const UserDropdown = props => {
       color: 'text.secondary'
     }
   }
-  
 
   return (
     <Fragment>
@@ -124,11 +125,7 @@ const UserDropdown = props => {
                 horizontal: 'right'
               }}
             >
-              <Avatar
-                alt='John Doe'
-                src='/images/avatars/1.png'
-                sx={{ width: '2.5rem', height: '2.5rem' }}
-              />
+              <Avatar alt='John Doe' src='/images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
             </Badge>
             <Box
               sx={{
@@ -138,11 +135,8 @@ const UserDropdown = props => {
                 flexDirection: 'column'
               }}
             >
-              <Typography sx={{ fontWeight: 600 }}>{userDetails.FirstName + " " + userDetails.LastName}</Typography>
-              <Typography
-                variant='body2'
-                sx={{ fontSize: '0.8rem', color: 'text.disabled' }}
-              >
+              <Typography sx={{ fontWeight: 600 }}>{userDetails.FirstName + ' ' + userDetails.LastName}</Typography>
+              <Typography variant='body2' sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>
                 {userDetails.role}
               </Typography>
             </Box>
@@ -155,7 +149,18 @@ const UserDropdown = props => {
             Profile
           </Box>
         </MenuItem>
-       
+
+        {userDetails.role === 'SuperAdmin' ? (
+          <MenuItem sx={{ p: 0 }} onClick={() => {
+            router.push("/l1/company-details/")
+          }}>
+            <Box sx={styles}>
+              <Company sx={{ marginRight: 2 }} />
+              Company Details
+            </Box>
+          </MenuItem>
+        ) : null}
+
         <Divider />
         <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
           <Box sx={styles}>
@@ -163,7 +168,7 @@ const UserDropdown = props => {
             Settings
           </Box>
         </MenuItem>
-       
+
         <MenuItem sx={{ py: 2 }} onClick={handleLogout}>
           <LogoutVariant
             sx={{
