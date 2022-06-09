@@ -3,7 +3,10 @@ import executeQuery from '../../../../server/Connection'
 const Read = {
   getUserRole,
   getUserRolePrivilege,
-  getUserAppPages
+  getUserAppPages,
+  getAllRolesOfACompany,
+  getAllPrivilegesOfARole,
+  getAllAppPages
 }
 
 /**
@@ -39,6 +42,41 @@ function getUserAppPages(page_id) {
   return executeQuery({
     query: 'SELECT Page_ID, PageName FROM App_Pages where Page_ID = ?',
     values: [page_id]
+  })
+}
+
+/**
+ * gets all the app pages in the system
+ * @returns db data
+ */
+function getAllAppPages() {
+  return executeQuery({
+    query: 'SELECT * FROM App_Pages',
+    values: []
+  })
+}
+
+/**
+ * gets all the roles under a company
+ * @param {*} co_id
+ * @returns db data
+ */
+function getAllRolesOfACompany(co_id) {
+  return executeQuery({
+    query: 'SELECT * FROM User_Roles where Co_ID = ?',
+    values: [co_id]
+  })
+}
+
+/**
+ * gets all the roles under a company
+ * @param {*} co_id
+ * @returns db data
+ */
+function getAllPrivilegesOfARole(role_id, co_id) {
+  return executeQuery({
+    query: 'SELECT * FROM Role_Privilege where Role_ID = ? AND Co_ID = ?',
+    values: [role_id, co_id]
   })
 }
 
