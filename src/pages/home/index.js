@@ -13,9 +13,9 @@ import Send from 'mdi-material-ui/Send'
 
 import Divider from '@mui/material/Divider'
 
-const Home = () => {
-  return (
-    <Grid container spacing={6}>
+
+const L3Dashboard = () => {
+  <Grid container spacing={6}>
       <Grid item md={6}>
         <Card sx={{height: "100%"}}>
           <CardHeader
@@ -113,6 +113,11 @@ const Home = () => {
         </Card>
       </Grid>
     </Grid>
+}
+
+const Home = () => {
+  return (
+   <></> 
   )
 }
 

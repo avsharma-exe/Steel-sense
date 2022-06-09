@@ -32,6 +32,7 @@ import Spinner from 'src/@core/components/spinner'
 
 // ** Contexts
 import { AuthProvider } from 'src/context/AuthContext'
+import { AclProvider } from 'src/context/AclContext'
 import { SettingsConsumer, SettingsProvider } from 'src/@core/context/settingsContext'
 
 // ** Styled Components
@@ -89,19 +90,16 @@ const App = props => {
   const aclAbilities = Component.acl ?? defaultACLObj
 
   return (
-    
-      <CacheProvider value={emotionCache}>
-        <Head>
-          <title>{`${themeConfig.templateName} - An Inventory Management System`}</title>
-          <meta
-            name='description'
-            content={`${themeConfig.templateName} – An Inventory Management System.`}
-          />
-          <meta name='keywords' content='Inventory, Inventory Management, E-Commerce, Steel, SteelSense, ERP' />
-          <meta name='viewport' content='initial-scale=1, width=device-width' />
-        </Head>
+    <CacheProvider value={emotionCache}>
+      <Head>
+        <title>{`${themeConfig.templateName} - An Inventory Management System`}</title>
+        <meta name='description' content={`${themeConfig.templateName} – An Inventory Management System.`} />
+        <meta name='keywords' content='Inventory, Inventory Management, E-Commerce, Steel, SteelSense, ERP' />
+        <meta name='viewport' content='initial-scale=1, width=device-width' />
+      </Head>
 
-        <AuthProvider>
+      <AuthProvider>
+        <AclProvider>
           <SettingsProvider {...(setConfig ? { pageSettings: setConfig() } : {})}>
             <SettingsConsumer>
               {({ settings }) => {
@@ -122,9 +120,9 @@ const App = props => {
               }}
             </SettingsConsumer>
           </SettingsProvider>
-        </AuthProvider>
-      </CacheProvider>
-   
+        </AclProvider>
+      </AuthProvider>
+    </CacheProvider>
   )
 }
 

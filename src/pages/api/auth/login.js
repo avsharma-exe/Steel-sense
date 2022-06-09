@@ -26,14 +26,19 @@ export default async function handler(req, res) {
     //compare the password with bcrypt
     comparePassword(body.password, user['Password'], async (err, isMatch) => {
       if (err) throw err
+
       // is password match
       if (isMatch) {
         await User.Update.changeLastLoginDate(user['User_ID'])
+
         // const companyDetails = await getUserCompany(user['User_ID'])
+
         const companyDetailsMap = await Company.Read.getUserCompanyMap(user['User_ID'])
         const companyDetails = companyDetailsMap[0].Co_ID && await Company.Read.getUserCompany(companyDetailsMap[0].Co_ID)
         const roleDetails = await Role.Read.getUserRole(companyDetailsMap[0].Role_ID)
+
         // const rolePrivilege = await Role.Read.getUserRolePrivilege(companyDetailsMap.Role_ID)
+        
         // TODO: Get app_pages from the array of page_ids from role privilege
         const jwtToken = createJwt(user)
         user['role'] = companyDetailsMap[0].Co_ID ? roleDetails[0].RoleName : 'admin'
