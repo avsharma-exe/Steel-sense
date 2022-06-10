@@ -13,7 +13,7 @@ module.exports = {
     password: 'Steelsense@123',
     database: 'u500659751_steelsense',
     multipleStatements: true,
-    connectionLimit: 100,
+    connectionLimit: 1000,
     waitForConnections: true
   }
 }

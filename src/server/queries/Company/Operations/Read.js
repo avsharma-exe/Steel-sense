@@ -5,6 +5,7 @@ const Read = {
   getUserCompany: getCompanyMasterData,
   getCompanyMasterData,
   getCompanyDetailsData,
+  getAllCompanies
 }
 
 /**
@@ -16,6 +17,18 @@ function getUserCompanyMap(user_id) {
   return executeQuery({
     query: `SELECT Company_User_ID, Co_ID, Div_ID, Role_ID, status FROM Company_User WHERE User_ID = ? AND status = ?`,
     values: [user_id, 50]
+  })
+}
+
+/**
+ * 
+ * @param 
+ * @returns database data
+ */
+function getAllCompanies() {
+  return executeQuery({
+    query: "SELECT * from Company_Master join User_Master on Company_Master.CreatedBy = User_Master.User_ID",
+    values: []
   })
 }
 

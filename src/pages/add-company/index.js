@@ -21,7 +21,7 @@ import FormControl from '@mui/material/FormControl'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
-
+import useUserDetails from "../../hooks/useUserDetails"
 // ** Third Party Imports
 import * as yup from 'yup'
 import toast from 'react-hot-toast'
@@ -76,6 +76,9 @@ const userSchema = yup.object().shape({
 
 // Main Component
 const AddCompany = () => {
+
+  const userDetails = useUserDetails()
+   
   // ** States
   const [activeStep, setActiveStep] = useState(0)
 
@@ -121,6 +124,7 @@ const AddCompany = () => {
       .post(api_paths.company.createNew, {
         CompanyName: data.company.companyName,
         status: data.company.status,
+        user: userDetails.User_ID,
         companyDetails: {
           Address1: '',
           Address2: '',

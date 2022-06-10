@@ -34,7 +34,7 @@ const UserLayout = ({ children }) => {
    *  ! Do not change this value unless you know what you are doing. It can break the template.
    */
   const hidden = useMediaQuery(theme => theme.breakpoints.down('lg'))
-  console.log(acl.userMenu())
+  
   return (
     <Layout
       hidden={hidden}

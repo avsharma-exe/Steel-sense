@@ -6,6 +6,7 @@ export default {
         create: "/user/create"
     },
     company: {
-        createNew: "/company/create"
+        createNew: "/company/create",
+        getAll: "/company/get-all"
     }
 }

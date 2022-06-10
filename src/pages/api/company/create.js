@@ -11,10 +11,14 @@ export default async function handler(req, res) {
   let body = req.body
   try {
       const companyDetails = body.companyDetails
+      const basicUserDetails = body
+      basicUserDetails['CreatedBy'] = body.user
+      basicUserDetails['CreatedDt'] = new Date().getDate()
       delete body.companyDetails
+      delete body.user
 
       // add new user to UserMaster
-      let result = await Company.Create.createNewCompany(body)
+      let result = await Company.Create.createNewCompany(basicUserDetails)
       companyDetails['Co_ID'] = result.insertId
       let company_details = await Company.Create.createCompanyDetails(companyDetails)
 

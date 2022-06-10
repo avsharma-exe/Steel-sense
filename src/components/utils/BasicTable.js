@@ -39,7 +39,7 @@ import TablePagination from '@mui/material/TablePagination'
 
 
 
-const BasicTable = ({rows , columns}) => {
+const BasicTable = ({rows , columns, onRowClickHandle}) => {
   // ** States
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
@@ -69,7 +69,7 @@ const BasicTable = ({rows , columns}) => {
           <TableBody>
             {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(row => {
               return (
-                <TableRow hover role='checkbox' tabIndex={-1} key={row.code}>
+                <TableRow hover role='checkbox' tabIndex={-1} key={row.code} onClick={() => onRowClickHandle(row)}>
                   {columns.map(column => {
                     const value = row[column.id]
 
