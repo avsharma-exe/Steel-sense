@@ -41,7 +41,13 @@ const AclProvider = ({ children }) => {
 
           {
             title: 'Create Company',
-            path: '/add-company',
+            path: '/admin/add-company',
+            icon: Company
+          },
+
+          {
+            title: 'Update Company',
+            path: '/admin/update-company',
             icon: Company
           }
         ]

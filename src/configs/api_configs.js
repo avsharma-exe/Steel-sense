@@ -7,6 +7,7 @@ export default {
     },
     company: {
         createNew: "/company/create",
-        getAll: "/company/get-all"
+        getAll: "/company/get-all",
+        updateCompany: "/company/update"
     }
 }

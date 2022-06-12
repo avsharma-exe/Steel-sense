@@ -164,7 +164,7 @@ const Home = () => {
             ]}
             rows={allCompanies}
             onRowClickHandle={(rowData) => {
-              
+
             }}
           />
         </CardContent>

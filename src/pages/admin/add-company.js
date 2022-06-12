@@ -78,7 +78,7 @@ const userSchema = yup.object().shape({
 const AddCompany = () => {
 
   const userDetails = useUserDetails()
-   
+
   // ** States
   const [activeStep, setActiveStep] = useState(0)
 
@@ -175,7 +175,7 @@ const AddCompany = () => {
       }
       if (createNewCompany(formData)) {
         toast.success('Form Submitted')
-        
+
       }
     }
   }
