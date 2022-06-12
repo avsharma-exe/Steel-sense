@@ -13,10 +13,21 @@ import BasicTable from 'src/components/utils/BasicTable'
 import Button from '@mui/material/Button'
 import Send from 'mdi-material-ui/Send'
 
-import Divider from '@mui/material/Divider'
+import Select from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
+
 import { secureApi } from 'src/helpers/apiGenerator'
 import api_configs from 'src/configs/api_configs'
+import TableActions from '../../components/utils/TableActions'
 import { useEffect, useState } from 'react'
+
+import Dialog from '@mui/material/Dialog'
+import TextField from '@mui/material/TextField'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContentText from '@mui/material/DialogContentText'
+
 const L3Dashboard = () => {
   ;<Grid container spacing={6}>
     <Grid item md={6}>
@@ -119,17 +130,28 @@ const L3Dashboard = () => {
 }
 
 const Home = () => {
-  const [allCompanies , setAllCompanies] = useState([])
+  const [allCompanies, setAllCompanies] = useState([])
+  const [open, setOpen] = useState(false)
+  const [selectedRowData, setSelectedRowData] = useState({})
+  const editRow = rowData => {
+    setOpen(true)
+    setSelectedRowData(rowData)
+  }
+
+  const handleEditRow = () => {
+    console.log(selectedRowData)
+  }
+
   const getAllCompanies = () => {
     secureApi.get(api_configs.company.getAll).then(res => {
-      if(res.data.allCompanies.length > 0){
+      if (res.data.allCompanies.length > 0) {
         let allCompanies = []
         res.data.allCompanies.map(company => {
           allCompanies.push({
             name: company.CompanyName,
             status: company.status,
-            createdon: company.CreatedDT,
-            createdby: company.FirstName + " " + company.LastName
+            createdby: company.FirstName + ' ' + company.LastName,
+            actions: <TableActions editRow={rowData => editRow(rowData)} row={company} />
           })
         })
         setAllCompanies(allCompanies)
@@ -143,6 +165,35 @@ const Home = () => {
 
   return (
     <>
+      <Dialog open={open} onClose={() => setOpen(false)} aria-labelledby='form-dialog-title'>
+        <DialogTitle id='form-dialog-title'>Company Details</DialogTitle>
+        <DialogContent>
+          <TextField
+            id='name'
+            autoFocus
+            fullWidth
+            type='text'
+            label='Company Name'
+            value={selectedRowData.CompanyName}
+            onChange={e => setSelectedRowData({ ...selectedRowData, CompanyName: e.target.value })}
+            sx={{ w: '100%', mt: '5px' }}
+          />
+          <Select
+            value={selectedRowData.status}
+            label='Status'
+            onChange={(e) => setSelectedRowData({...selectedRowData, status: e.target.value})}
+            style={{width: "100%", marginTop: "5px"}}
+
+          >
+            <MenuItem value='0'>Draft</MenuItem>
+            <MenuItem value='50'>Active</MenuItem>
+            <MenuItem value='99'>Inactive</MenuItem>
+          </Select>
+        </DialogContent>
+        <DialogActions className='dialog-actions-dense'>
+          <Button onClick={() => handleEditRow()}>Update</Button>
+        </DialogActions>
+      </Dialog>
       <Card sx={{ height: '100%' }}>
         <CardHeader
           title={
@@ -158,14 +209,11 @@ const Home = () => {
             columns={[
               { id: 'name', label: 'Name', minWidth: 170 },
               { id: 'status', label: 'Status', minWidth: 170 },
-              { id: 'createdon', label: 'Created On', minWidth: 170 },
-              { id: 'createdby', label: 'Created By', minWidth: 170 }
-
+              { id: 'createdby', label: 'Created By', minWidth: 170 },
+              { id: 'actions', label: 'Actions', minWidth: 170 }
             ]}
             rows={allCompanies}
-            onRowClickHandle={(rowData) => {
-
-            }}
+            onRowClickHandle={rowData => {}}
           />
         </CardContent>
       </Card>
