@@ -10,8 +10,7 @@ const Update = {
  * @param {*} body
  * @returns Database insertion object to get the InsertId of the company
  */
-function updateCompany(body) {
-  body.UpdatedDT = Date.now().toISOString().slice(0, 19).replace('T', ' ');;
+function updateCompany(body,companyID) {
   return executeQuery({
     query: 'UPDATE Company_Master SET ? WHERE Co_ID = ?',
     values: [body,companyID]
@@ -24,7 +23,6 @@ function updateCompany(body) {
  * @returns Database insertion object to get the InsertId of the company
  */
 function updateCompanyDetails(body, companyID) {
-  body.UpdatedDT = Date.now().toISOString().slice(0, 19).replace('T', ' ');;
   return executeQuery({
     query: 'UPDATE Company_Details SET ? WHERE Co_ID = ?',
     values: [body,companyID]

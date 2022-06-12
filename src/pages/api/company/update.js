@@ -2,8 +2,8 @@ import { cryptPassword } from '../../../helpers/encrypt'
 import Company from '../../../server/queries/Company/Company'
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    res.status(400).send({ message: 'Only POST requests allowed' })
+  if (req.method !== 'PATCH') {
+    res.status(400).send({ message: 'Only PATCH requests allowed' })
 
     return
   }
@@ -13,10 +13,12 @@ export default async function handler(req, res) {
       const basicCompanyDetails = body
       basicCompanyDetails['UpdatedBy'] = body.user
       basicCompanyDetails['UpdatedDT'] = new Date().getDate()
+      const company_ID = body.company_ID
       delete body.user
+      delete body.company_ID
 
       // add new user to UserMaster
-      let result = await Company.Update.updateCompany(basicCompanyDetails)
+      let result = await Company.Update.updateCompany(basicCompanyDetails,company_ID)
 
       if (result) {
         // TODO: add mail service to send the credentials
@@ -24,7 +26,6 @@ export default async function handler(req, res) {
           error: false,
           msg: 'Company updated successfully',
           result,
-          company_details
         })
       }
   } catch (e) {

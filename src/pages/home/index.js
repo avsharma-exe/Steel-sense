@@ -26,7 +26,8 @@ import TextField from '@mui/material/TextField'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
-import DialogContentText from '@mui/material/DialogContentText'
+import useUserDetails from "../../hooks/useUserDetails"
+import toast from 'react-hot-toast'
 
 const L3Dashboard = () => {
   ;<Grid container spacing={6}>
@@ -138,8 +139,28 @@ const Home = () => {
     setSelectedRowData(rowData)
   }
 
-  const handleEditRow = () => {
-    console.log(selectedRowData)
+  const userDetails = useUserDetails()
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  /**
+   * TODO : Add state management so table component should refresh after dialog box is closed
+   */
+  const handleEditRow = async () => {
+    await secureApi.patch(api_configs.company.updateCompany, {
+          CompanyName: selectedRowData.CompanyName,
+          status: selectedRowData.status,
+          company_ID: selectedRowData.Co_ID,
+          user: userDetails.User_ID,
+        })
+        .then(resp => {
+          if (resp.status === 200) {
+            toast.success('Form Submitted')
+            handleClose()
+          }
+        })
   }
 
   const getAllCompanies = () => {
@@ -162,6 +183,9 @@ const Home = () => {
   useEffect(() => {
     getAllCompanies()
   }, [])
+  // useEffect(() => {
+  //   handleEditRow()
+  // }, [])
 
   return (
     <>
@@ -178,6 +202,8 @@ const Home = () => {
             onChange={e => setSelectedRowData({ ...selectedRowData, CompanyName: e.target.value })}
             sx={{ w: '100%', mt: '5px' }}
           />
+        </DialogContent>
+        <DialogContent>
           <Select
             value={selectedRowData.status}
             label='Status'
