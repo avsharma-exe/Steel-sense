@@ -5,6 +5,7 @@ import { createContext, useEffect, useState } from 'react'
 import Users from 'mdi-material-ui/AccountGroupOutline'
 import Company from 'mdi-material-ui/Domain'
 import HomeOutline from 'mdi-material-ui/HomeOutline'
+import AccountOutline from 'mdi-material-ui/AccountOutline'
 
 import ShieldOutline from 'mdi-material-ui/ShieldOutline'
 // ** Next Import
@@ -44,15 +45,9 @@ const AclProvider = ({ children }) => {
             path: '/admin/add-company',
             icon: Company
           },
-
-          {
-            title: 'Update Company',
-            path: '/admin/update-company',
-            icon: Company
-          }
         ]
 
-      case 'SuperAdmin':
+      case 'L1':
         return [
           {
             title: 'Dashboard',
@@ -63,6 +58,16 @@ const AclProvider = ({ children }) => {
             title: 'Inventory',
             path: '/inventory',
             icon: Company
+          },
+          {
+            title: 'Roles',
+            path: '/l1/roles',
+            icon: ShieldOutline
+          },
+          {
+            title: 'Users',
+            path: '/l1/users',
+            icon: AccountOutline
           },
           {
             title: 'Approve Voucher',

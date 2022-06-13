@@ -12,7 +12,7 @@ const Create = {
  */
 function createNewRole(body) {
   return executeQuery({
-    query: 'INSERT INTO User_Role SET ?',
+    query: 'INSERT INTO User_Roles SET ?',
     values: body
   })
 }

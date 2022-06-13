@@ -150,9 +150,10 @@ const UserDropdown = props => {
           </Box>
         </MenuItem>
 
-        {userDetails.role === 'SuperAdmin' ? (
+        {userDetails.role === 'L1' ? (
           <MenuItem sx={{ p: 0 }} onClick={() => {
             router.push("/l1/company-details/")
+            handleDropdownClose()
           }}>
             <Box sx={styles}>
               <Company sx={{ marginRight: 2 }} />

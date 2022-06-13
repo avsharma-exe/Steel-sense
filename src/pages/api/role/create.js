@@ -9,18 +9,35 @@ export default async function handler(req, res) {
 
   let body = req.body
   try {
-    const privilegeDetails = body.details
-    delete body.details
-    let privilege_details = []
+    let privilegeDetails,
+      privilege_details = []
+    if (body.details) {
+      privilegeDetails = body.details
+      delete body.details
+    }
+    let date = new Date()
+    // 2021-07-02 23:29:08.000000
+    body['CreatedDT'] =
+      date.getFullYear() +
+      '-' +
+      parseInt(date.getMonth() + 1) +
+      '-' +
+      date.getDate() +
+      ' ' +
+      date.getHours() +
+      ':' +
+      date.getMinutes()
 
     // add new user to UserMaster
     let result = await Role.Create.createNewRole(body)
-    privilegeDetails.forEach(element => {
-      element['Role_ID'] = result.insertId
-      privilege_details.push(await Role.Create.createRolePrivilege(element));
-    })
+    if (privilegeDetails && privilegeDetails.length) {
+      privilegeDetails.forEach(async element => {
+        element['Role_ID'] = result.insertId
+        privilege_details.push(await Role.Create.createRolePrivilege(element))
+      })
+    }
 
-    if (result && privilege_details) {
+    if (result) {
       res.send({
         error: false,
         msg: 'Company added successfully',

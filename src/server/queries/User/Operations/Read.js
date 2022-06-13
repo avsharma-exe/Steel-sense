@@ -13,8 +13,8 @@ const Read = {
  */
 function getUserDetails(email) {
   return executeQuery({
-    query: 'SELECT User_Master.User_ID, User_Master.Email, User_Master.Password, User_Master.FirstName, User_Master.LastName, User_Master.MobileNo, User_Master.LastLoginDate, Company_User.Co_ID, Company_User.Div_ID, Company_User.Role_ID, Company_User.status FROM User_Master JOIN Company_User ON Company_User.User_ID = User_Master.User_ID where Email = ?',
-    values: [email]
+    query: 'SELECT User_Master.User_ID, User_Master.Email, User_Master.Password, User_Master.FirstName, User_Master.LastName, User_Master.MobileNo, User_Master.LastLoginDate, Company_User.Co_ID, Company_User.Div_ID, Company_User.Role_ID, Company_User.status, cm.status FROM User_Master LEFT JOIN Company_User ON Company_User.User_ID = User_Master.User_ID LEFT JOIN Company_Master cm on cm.Co_ID = Company_User.Co_ID where Email = ? AND Company_User.status = ? AND cm.status = ?',
+    values: [email, 50, 50]
   })
 }
 

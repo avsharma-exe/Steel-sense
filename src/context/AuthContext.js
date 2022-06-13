@@ -76,6 +76,7 @@ const AuthProvider = ({ children }) => {
           setUser({ ...res.data.user })
           const returnUrl = router.query.returnUrl
           const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
+          console.log(redirectURL);
           
           router.replace(redirectURL)
         }

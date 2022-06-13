@@ -12,7 +12,9 @@ export default async function handler(req, res) {
   try {
       const basicCompanyDetails = body
       basicCompanyDetails['UpdatedBy'] = body.user
-      basicCompanyDetails['UpdatedDT'] = new Date().getDate()
+      let date = new Date()
+      // 2021-07-02 23:29:08.000000
+      basicCompanyDetails['UpdatedDT'] = date.getFullYear() + "-" + parseInt(date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes()
       const company_ID = body.company_ID
       delete body.user
       delete body.company_ID
@@ -21,7 +23,6 @@ export default async function handler(req, res) {
       let result = await Company.Update.updateCompany(basicCompanyDetails,company_ID)
 
       if (result) {
-        // TODO: add mail service to send the credentials
         res.send({
           error: false,
           msg: 'Company updated successfully',

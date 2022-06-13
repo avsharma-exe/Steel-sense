@@ -28,9 +28,10 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import useUserDetails from "../../hooks/useUserDetails"
 import toast from 'react-hot-toast'
+import { getStatusText } from 'src/helpers/statusHelper'
 
 const L3Dashboard = () => {
-  ;<Grid container spacing={6}>
+  <Grid container spacing={6}>
     <Grid item md={6}>
       <Card sx={{ height: '100%' }}>
         <CardHeader
@@ -145,9 +146,6 @@ const Home = () => {
     setOpen(false);
   };
 
-  /**
-   * TODO : Add state management so table component should refresh after dialog box is closed
-   */
   const handleEditRow = async () => {
     await secureApi.patch(api_configs.company.updateCompany, {
           CompanyName: selectedRowData.CompanyName,
@@ -170,7 +168,7 @@ const Home = () => {
         res.data.allCompanies.map(company => {
           allCompanies.push({
             name: company.CompanyName,
-            status: company.status,
+            status: getStatusText(company.status),
             createdby: company.FirstName + ' ' + company.LastName,
             actions: <TableActions editRow={rowData => editRow(rowData)} row={company} />
           })
@@ -182,7 +180,7 @@ const Home = () => {
 
   useEffect(() => {
     getAllCompanies()
-  }, [])
+  }, [open])
   // useEffect(() => {
   //   handleEditRow()
   // }, [])
