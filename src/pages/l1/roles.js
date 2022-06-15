@@ -42,7 +42,7 @@ const Roles = () => {
     setOpen(true)
     setSelectedRowData(rowData)
   }
-  
+
   const addNew = () => {
     setOpenNew(true)
   }
@@ -69,7 +69,7 @@ const Roles = () => {
         }
       })
   }
-  
+
   const handleAddNew = async () => {
     await secureApi
       .post(api_configs.role.create, {
@@ -86,8 +86,8 @@ const Roles = () => {
       })
   }
 
-  const getAllRoles = () => {
-    secureApi.get(api_configs.role.getAll, { params: { coid: userDetails.Co_ID } }).then(res => {
+  const getAllRoles = async () => {
+    await secureApi.get(api_configs.role.getAll, { params: { coid: userDetails.Co_ID } }).then(res => {
       if (res.data.allRoles.length > 0) {
         console.log(res.data.allRoles)
         let allRoles = []
@@ -172,7 +172,7 @@ const Roles = () => {
           <Button onClick={() => handleAddNew()}>Add</Button>
         </DialogActions>
       </Dialog>
-    
+
       <Card sx={{ height: '100%' }}>
         <CardHeader
           title={

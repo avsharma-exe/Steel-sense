@@ -8,7 +8,8 @@ export default {
     company: {
         createNew: "/company/create",
         getAll: "/company/get-all",
-        updateCompany: "/company/update"
+        updateCompany: "/company/update",
+        getCompanyDetails: "/company/get-companyDetails"
     },
     role: {
         create: "/role/create",

@@ -1,208 +1,342 @@
 // ** React Imports
-import { forwardRef, useState } from 'react'
+import { forwardRef, useEffect, useState } from 'react'
 
 // ** MUI Imports
 import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
-import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import CardHeader from '@mui/material/CardHeader'
-import InputLabel from '@mui/material/InputLabel'
-import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 import CardActions from '@mui/material/CardActions'
 import FormControl from '@mui/material/FormControl'
-import OutlinedInput from '@mui/material/OutlinedInput'
-import InputAdornment from '@mui/material/InputAdornment'
-import Select from '@mui/material/Select'
+import Autocomplete from '@mui/material/Autocomplete'
+import Box from '@mui/material/Box'
+import FormHelperText from '@mui/material/FormHelperText'
+import { useForm, Controller } from 'react-hook-form'
+import * as yup from 'yup'
+import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
 
-// ** Third Party Imports
-import DatePicker from 'react-datepicker'
+// ** Server imports
+import useUserDetails from "../../hooks/useUserDetails"
+import { secureApi } from '../../helpers/apiGenerator'
+import api_configs from '../../configs/api_configs'
 
-// ** Icons Imports
-import EyeOutline from 'mdi-material-ui/EyeOutline'
-import EyeOffOutline from 'mdi-material-ui/EyeOffOutline'
-
-const CustomInput = forwardRef((props, ref) => {
-  return <TextField fullWidth {...props} inputRef={ref} label='Birth Date' autoComplete='off' />
-})
 
 const CompanyDetails = () => {
-  // ** States
-  const [date, setDate] = useState(null)
-  const [language, setLanguage] = useState([])
 
-  const [values, setValues] = useState({
-    password: '',
-    password2: '',
-    showPassword: false,
-    showPassword2: false
+  // ** Get Company By Company ID
+  const userDetails = useUserDetails()
+  const getCompanyByID = async () => {
+    await secureApi.get(api_configs.company.getCompanyDetails,{ params: { Co_ID: userDetails.Co_ID } }).then(res => {
+      console.log(res)
+    })
+  }
+
+  useEffect(() => {getCompanyByID()},[])
+
+  // ** RegEx for Mobile Number Validation
+  const phoneRegExp =
+  /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
+
+  const poc = yup.object().shape({
+    mobile: yup.string().required('This field is required').matches(phoneRegExp, 'Enter a Valid Number').max(10).min(10),
+    address: yup.string().required('This field is required'),
+    co_email: yup.string().required('This field is required'),
+    contact_name: yup.string().required('This field is required'),
+    gst_no: yup.string().required('This field is required'),
+    gstinuin: yup.string().required('This field is required'),
+    cin: yup.string().required('This field is required'),
   })
 
-  // Handle Password
-  const handlePasswordChange = prop => event => {
-    setValues({ ...values, [prop]: event.target.value })
+  const {
+    control: userControl,
+    formState: { errors: userErrors },
+    handleSubmit: handleCompanyDetailSubmit,
+  } = useForm({
+    resolver: yupResolver(poc)
+  })
+
+  const onSubmit = async data => {
+
+    console.log(...data)
   }
 
-  const handleClickShowPassword = () => {
-    setValues({ ...values, showPassword: !values.showPassword })
-  }
+  //TODO : Call City array from db
 
-  const handleMouseDownPassword = event => {
-    event.preventDefault()
-  }
+  const [country_id, setCountry_id] = useState(null);
 
-  // Handle Confirm Password
-  const handleConfirmChange = prop => event => {
-    setValues({ ...values, [prop]: event.target.value })
-  }
+  const [state_id, setState_id] = useState(null);
 
-  const handleClickShowConfirmPassword = () => {
-    setValues({ ...values, showPassword2: !values.showPassword2 })
-  }
+  const [city_id, setCity_id] = useState(null);
 
-  const handleMouseDownConfirmPassword = event => {
-    event.preventDefault()
-  }
-
-  // Handle Select
-  const handleSelectChange = event => {
-    setLanguage(event.target.value)
-  }
+  console.log(country_id, state_id )
 
   return (
     <Card>
-      <CardHeader title='Multi Column with Form Separator' titleTypographyProps={{ variant: 'h6' }} />
+      <CardHeader title='Update Company Details' titleTypographyProps={{ variant: 'h6' }} />
       <Divider sx={{ m: 0 }} />
-      <form onSubmit={e => e.preventDefault()}>
+      <form onSubmit={handleCompanyDetailSubmit(onSubmit)}>
         <CardContent>
           <Grid container spacing={5}>
             <Grid item xs={12}>
               <Typography variant='body2' sx={{ fontWeight: 600 }}>
-                1. Account Details
+                1. Basic Details
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField fullWidth label='Username' placeholder='carterLeonard' />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField fullWidth type='email' label='Email' placeholder='carterleonard@gmail.com' />
-            </Grid>
-            <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
-                <InputLabel htmlFor='form-layouts-separator-password'>Password</InputLabel>
-                <OutlinedInput
-                  label='Password'
-                  value={values.password}
-                  id='form-layouts-separator-password'
-                  onChange={handlePasswordChange('password')}
-                  type={values.showPassword ? 'text' : 'password'}
-                  endAdornment={
-                    <InputAdornment position='end'>
-                      <IconButton
-                        edge='end'
-                        onClick={handleClickShowPassword}
-                        onMouseDown={handleMouseDownPassword}
-                        aria-label='toggle password visibility'
-                      >
-                        {values.showPassword ? <EyeOutline /> : <EyeOffOutline />}
-                      </IconButton>
-                    </InputAdornment>
-                  }
+                <Controller
+                  name='address'
+                  control={userControl}
+                  rules={{ required: true }}
+                  render={({ field: { value, onChange } }) => (
+                    <TextField
+                      sx={{ width: '100%' }}
+                      onChange={onChange}
+                      error={Boolean(userErrors['address'])}
+                      id='address-multiline'
+                      label='Address'
+                      multiline
+                      maxRows={3}
+                    />
+                  )}
                 />
+                {userErrors['address'] && (
+                  <FormHelperText sx={{ color: 'error.main' }}>
+                    This field is required
+                  </FormHelperText>
+                )}
               </FormControl>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <InputLabel htmlFor='form-layouts-separator-password-2'>Confirm Password</InputLabel>
-                <OutlinedInput
-                  value={values.password2}
-                  label='Confirm Password'
-                  id='form-layouts-separator-password-2'
-                  onChange={handleConfirmChange('password2')}
-                  type={values.showPassword2 ? 'text' : 'password'}
-                  endAdornment={
-                    <InputAdornment position='end'>
-                      <IconButton
-                        edge='end'
-                        aria-label='toggle password visibility'
-                        onClick={handleClickShowConfirmPassword}
-                        onMouseDown={handleMouseDownConfirmPassword}
-                      >
-                        {values.showPassword2 ? <EyeOutline /> : <EyeOffOutline />}
-                      </IconButton>
-                    </InputAdornment>
-                  }
-                />
-              </FormControl>
-            </Grid>
-            <Grid item xs={12}>
-              <Divider sx={{ mb: 0 }} />
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant='body2' sx={{ fontWeight: 600 }}>
-                2. Personal Info
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField fullWidth label='First Name' placeholder='Leonard' />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField fullWidth label='Last Name' placeholder='Carter' />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <InputLabel id='form-layouts-separator-select-label'>Country</InputLabel>
-                <Select
-                  label='Country'
-                  defaultValue=''
-                  id='form-layouts-separator-select'
-                  labelId='form-layouts-separator-select-label'
-                >
-                  <MenuItem value='UK'>UK</MenuItem>
-                  <MenuItem value='USA'>USA</MenuItem>
-                  <MenuItem value='Australia'>Australia</MenuItem>
-                  <MenuItem value='Germany'>Germany</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <InputLabel id='form-layouts-separator-multiple-select-label'>Language</InputLabel>
-                <Select
-                  multiple
-                  value={language}
-                  onChange={handleSelectChange}
-                  id='form-layouts-separator-multiple-select'
-                  labelId='form-layouts-separator-multiple-select-label'
-                  input={<OutlinedInput label='Language' id='select-multiple-language' />}
-                >
-                  <MenuItem value='English'>English</MenuItem>
-                  <MenuItem value='French'>French</MenuItem>
-                  <MenuItem value='Spanish'>Spanish</MenuItem>
-                  <MenuItem value='Portuguese'>Portuguese</MenuItem>
-                  <MenuItem value='Italian'>Italian</MenuItem>
-                  <MenuItem value='German'>German</MenuItem>
-                  <MenuItem value='Arabic'>Arabic</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <DatePicker
-                selected={date}
-                showYearDropdown
-                showMonthDropdown
-                placeholderText='MM-DD-YYYY'
-                customInput={<CustomInput />}
-                id='form-layouts-separator-date'
-                onChange={date => setDate(date)}
+              <Autocomplete
+                id='country-select'
+                sx={{ width: '100%' }}
+                // value={value}
+                onChange={(event, value) => {
+                  setCountry_id(value.id)
+                }}
+                options={countries}
+                getOptionLabel={option => option.label}
+                renderOption={(props, option) => <Box {...props}>{option.label}</Box>}
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    name='country'
+                    label='Choose a country'
+                    inputProps={{
+                      ...params.inputProps
+                    }}
+                  />
+                )}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField fullWidth label='Phone No.' placeholder='+1-123-456-8790' />
+              <Autocomplete
+                id='state-select'
+                sx={{ width: '100%' }}
+                // value={value}
+                onChange={(event, value) => {
+                  setState_id(value.id)
+                }}
+                options={country_state}
+                getOptionLabel={option => option.label}
+                renderOption={(props, option) => <Box {...props}>{option.label}</Box>}
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    name='state'
+                    label='Choose a State'
+                    inputProps={{
+                      ...params.inputProps
+                    }}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Autocomplete
+                id='city'
+                sx={{ width: '100%' }}
+                // value={value}
+                onChange={(event, value) => {
+                  setCity_id(value.id)
+                }}
+                options={cities}
+                getOptionLabel={option => option.label}
+                renderOption={(props, option) => <Box {...props}>{option.label}</Box>}
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    name='city'
+                    label='Choose a City'
+                    inputProps={{
+                      ...params.inputProps
+                    }}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <Controller
+                  name='co_email'
+                  control={userControl}
+                  rules={{ required: true }}
+                  render={({ field: { value, onChange } }) => (
+                    <TextField
+                      sx={{ width: '100%' }}
+                      onChange={onChange}
+                      error={Boolean(userErrors['co_email'])}
+                      type='email'
+                      label='Email'
+                      placeholder='abc@gmail.com'
+                    />
+                  )}
+                />
+                {userErrors['co_email'] && (
+                  <FormHelperText sx={{ color: 'error.main' }}>
+                    This field is required
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Divider sx={{ mb: 0 }} />
+            </Grid>
+
+            <Grid item xs={12}>
+              <Typography variant='body2' sx={{ fontWeight: 600 }}>
+                2. Point of Contact
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <Controller
+                  name='contact_name'
+                  control={userControl}
+                  rules={{ required: true }}
+                  render={({ field: { value, onChange } }) => (
+                    <TextField
+                      error={Boolean(userErrors['contact_name'])}
+                      onChange={onChange}
+                      fullWidth
+                      label='Contact Name'
+                      placeholder='Leonard'
+                    />
+                  )}
+                />
+                {userErrors['contact_name'] && (
+                  <FormHelperText sx={{ color: 'error.main' }}>
+                    This field is required
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <Controller
+                  name='mobile'
+                  control={userControl}
+                  rules={{ required: true }}
+                  render={({ field: { value, onChange } }) => (
+                    <TextField
+                      value={value}
+                      label='Mobile No.'
+                      onChange={onChange}
+                      placeholder='8888888888'
+                      error={Boolean(userErrors['mobile'])}
+                      aria-describedby='stepper-linear-personal-last-name'
+                    />
+                  )}
+                />
+                {userErrors['mobile'] && (
+                  <FormHelperText sx={{ color: 'error.main' }}>
+                    This field is required
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant='body2' sx={{ fontWeight: 600 }}>
+                3. Company Business Details
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <Controller
+                  name='gst_no'
+                  control={userControl}
+                  rules={{ required: true }}
+                  render={({ field: { value, onChange } }) => (
+                    <TextField
+                      error={Boolean(userErrors['gst_no'])}
+                      onChange={onChange}
+                      fullWidth
+                      label='GST Number'
+                      placeholder='XXXXXXXXXXXXXXXX'
+                    />
+                  )}
+                />
+                {userErrors['gst_no'] && (
+                  <FormHelperText sx={{ color: 'error.main' }}>
+                    This field is required
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <Controller
+                  name='gstuin'
+                  control={userControl}
+                  rules={{ required: true }}
+                  render={({ field: { value, onChange } }) => (
+                    <TextField
+                      error={Boolean(userErrors['gstuin'])}
+                      onChange={onChange}
+                      fullWidth
+                      label='GST UIN'
+                      placeholder='XXXXXXXXXXXXXXXX'
+                    />
+                  )}
+                />
+                {userErrors['gstuin'] && (
+                  <FormHelperText sx={{ color: 'error.main' }}>
+                    This field is required
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <Controller
+                  name='cin'
+                  control={userControl}
+                  rules={{ required: true }}
+                  render={({ field: { value, onChange } }) => (
+                    <TextField
+                      error={Boolean(userErrors['cin'])}
+                      onChange={onChange}
+                      fullWidth
+                      label='CIN'
+                      placeholder='XXXXXXXXXXXXXXXX'
+                    />
+                  )}
+                />
+                {userErrors['cin'] && (
+                  <FormHelperText sx={{ color: 'error.main' }}>
+                    This field is required
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField fullWidth name='logo' label='Logo File Name' placeholder='abc.jpeg' />
             </Grid>
           </Grid>
         </CardContent>
@@ -211,13 +345,40 @@ const CompanyDetails = () => {
           <Button size='large' type='submit' sx={{ mr: 2 }} variant='contained'>
             Submit
           </Button>
-          <Button size='large' color='secondary' variant='outlined'>
-            Cancel
-          </Button>
         </CardActions>
       </form>
     </Card>
   )
 }
+
+const countries = [
+  { id: 1, label: 'India' },
+  { id: 2, label: 'Pakistan' },
+  { id: 3, label: 'Australia' },
+  { id: 4, label: 'Argentina' },
+  { id: 5, label: 'Austria' },
+  { id: 6, label: 'Barbados' },
+  { id: 7, label: 'Brazil' },
+]
+
+const country_state = [
+  { id: 1, label: 'Maharashtra' },
+  { id: 2, label: 'Gujrat' },
+  { id: 3, label: 'Rajasthan' },
+  { id: 4, label: 'Telangana' },
+  { id: 5, label: 'Goa' },
+  { id: 6, label: 'Karnataka' },
+  { id: 7, label: 'Tamil' },
+]
+
+const cities = [
+  { id: 1, label: 'Nagpur' },
+  { id: 2, label: 'Mumbai' },
+  { id: 3, label: 'Jaipur' },
+  { id: 4, label: 'Mount-Abu' },
+  { id: 5, label: 'Chennai' },
+  { id: 6, label: 'Banglore' },
+  { id: 7, label: 'Pune' },
+]
 
 export default CompanyDetails;

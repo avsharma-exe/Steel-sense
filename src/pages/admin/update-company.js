@@ -116,7 +116,6 @@ const UpdateCompany = () => {
                 id="company-selector"
                 options={allCompanies}
                 getOptionLabel={option => option.name}
-                renderInput={(params) => <TextField {...params} label="companies" />}
               />
             </Grid>
 
