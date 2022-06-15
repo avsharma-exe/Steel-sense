@@ -15,5 +15,10 @@ export default {
         create: "/role/create",
         getAll: "/role/get-all",
         updateRole: '/role/update'
+    },
+    locality: {
+      getCountries: "/locality/get-countries",
+      getStates: "/locality/get-states",
+      getCities: "/locality/get-cities",
     }
 }

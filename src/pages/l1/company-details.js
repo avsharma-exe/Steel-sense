@@ -29,13 +29,95 @@ const CompanyDetails = () => {
 
   // ** Get Company By Company ID
   const userDetails = useUserDetails()
+
+  const [allStates,setAllStates] = useState([])
+  const [allCountries,setAllCountries] = useState([])
+  const [allCities,setAllCities] = useState([])
+  const [selectedCountry,setSelectedCountry] = useState(allCountries[0])
+  const [selectedState,setSelectedState] = useState(allStates[0])
+  const [selectedCity,setSelectedCity] = useState(allCities[0])
+  const [co_ID,setCoID] = useState(null)
+  const [state_ID,setStateID] = useState(null)
+  const [city_ID,setCityID] = useState(null)
+
+
+
   const getCompanyByID = async () => {
+    console.log("bbbbbbbbbbb")
     await secureApi.get(api_configs.company.getCompanyDetails,{ params: { Co_ID: userDetails.Co_ID } }).then(res => {
-      console.log(res)
+      if(res.status === 200){
+        setCoID(res.data.companyDetails[0].Country)
+        setStateID(res.data.companyDetails[0].State)
+        setCityID(res.data.companyDetails[0].City)
+      }
     })
   }
 
-  useEffect(() => {getCompanyByID()},[])
+  // ** Get Country State and City
+  const getCountries = async (Co_ID) => {
+    await secureApi.get(api_configs.locality.getCountries).then(res => {
+      if(res.status === 200){
+        setAllCountries(res.data.countries)
+        let selectedcountry = res.data.countries.find((country) => {
+          if(Co_ID === country.id)
+            return country
+        })
+        setSelectedCountry(selectedcountry)
+      }
+    })
+  }
+  const getStates = async (Co_ID) => {
+    console.log(Co_ID,"aaaaaaaaaaaaaaaaaaaaaaa")
+    await secureApi.get(api_configs.locality.getStates).then(res => {
+      if(res.status === 200){
+        let AllStates = res.data.states.filter((state) => {
+          if(Co_ID === state.country_id)
+            return state
+        })
+        // console.log(AllStates)
+        setAllStates(AllStates)
+        console.log(state_ID,"IDDDDD")
+        let selectedstate = res.data.states.find((state) => {
+          if(state_ID === state.id)
+            return state
+        })
+        console.log(selectedstate)
+        setSelectedState(selectedstate)
+        // getCities(state_ID)
+      }
+    })
+  }
+  const getCities = async (s_id) => {
+    await secureApi.get(api_configs.locality.getCities).then(res => {
+      if(res.status === 200){
+        let AllCities = res.data.cities.filter((city) => {
+          if(s_id === city.state_id)
+            return city
+        })
+        // console.log(AllCities)
+        setAllCities(AllCities)
+        let selectedcity = res.data.cities.find((city) => {
+          if(city_ID === city.id)
+            return city
+        })
+        setSelectedCity(selectedcity)
+      }
+    })
+  }
+
+
+  useEffect(() => {
+    getCompanyByID()
+    if(co_ID){
+      getCountries(co_ID)
+    }
+    if(state_ID){
+      getStates(co_ID)
+    }
+    if(city_ID){
+      getCities(state_ID)
+    }
+  },[co_ID,state_ID,city_ID])
 
   // ** RegEx for Mobile Number Validation
   const phoneRegExp =
@@ -64,6 +146,10 @@ const CompanyDetails = () => {
     console.log(...data)
   }
 
+  const setStateValue = () => {
+    setSelectedState(null)
+  }
+
   //TODO : Call City array from db
 
   const [country_id, setCountry_id] = useState(null);
@@ -72,7 +158,7 @@ const CompanyDetails = () => {
 
   const [city_id, setCity_id] = useState(null);
 
-  console.log(country_id, state_id )
+  console.log(country_id,"country", state_id,"state" )
 
   return (
     <Card>
@@ -115,13 +201,15 @@ const CompanyDetails = () => {
               <Autocomplete
                 id='country-select'
                 sx={{ width: '100%' }}
-                // value={value}
+                value={selectedCountry ? selectedCountry : null}
                 onChange={(event, value) => {
                   setCountry_id(value.id)
+                  getStates(value.id)
+                  setStateValue()
                 }}
-                options={countries}
-                getOptionLabel={option => option.label}
-                renderOption={(props, option) => <Box {...props}>{option.label}</Box>}
+                options={allCountries}
+                getOptionLabel={option => option.name}
+                renderOption={(props, option) => <Box {...props}>{option.name}</Box>}
                 renderInput={params => (
                   <TextField
                     {...params}
@@ -138,13 +226,13 @@ const CompanyDetails = () => {
               <Autocomplete
                 id='state-select'
                 sx={{ width: '100%' }}
-                // value={value}
+                value={selectedState ? selectedState : null}
                 onChange={(event, value) => {
                   setState_id(value.id)
                 }}
-                options={country_state}
-                getOptionLabel={option => option.label}
-                renderOption={(props, option) => <Box {...props}>{option.label}</Box>}
+                options={allStates}
+                getOptionLabel={option => option.name}
+                renderOption={(props, option) => <Box {...props}>{option.name}</Box>}
                 renderInput={params => (
                   <TextField
                     {...params}
@@ -161,13 +249,13 @@ const CompanyDetails = () => {
               <Autocomplete
                 id='city'
                 sx={{ width: '100%' }}
-                // value={value}
+                value={selectedCity ? selectedCity : null}
                 onChange={(event, value) => {
                   setCity_id(value.id)
                 }}
-                options={cities}
-                getOptionLabel={option => option.label}
-                renderOption={(props, option) => <Box {...props}>{option.label}</Box>}
+                options={allCities}
+                getOptionLabel={option => option.name}
+                renderOption={(props, option) => <Box {...props}>{option.name}</Box>}
                 renderInput={params => (
                   <TextField
                     {...params}
