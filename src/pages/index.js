@@ -24,7 +24,8 @@ const Home = () => {
   const auth = useAuth()
   const router = useRouter()
   const acl = useAcl()
-  const menu = acl.userMenu().find(item => item.title === 'Dashboard')
+  console.log(acl.userMenu())
+  const menu = acl ? acl.userMenu().find(item => item.title === 'Dashboard') : null
   const homeURL = menu.path
 
   useEffect(() => {

@@ -81,8 +81,8 @@ const CompanyDetails = () => {
           if(state_ID === state.id)
             return state
         })
-        console.log(selectedstate)
-        setSelectedState(selectedstate)
+        if(selectedState === undefined || selectedState === null) setSelectedState(selectedstate)
+        else setSelectedState(selectedstate.id === selectedState.id ? null : selectedstate)
         // getCities(state_ID)
       }
     })
@@ -100,7 +100,9 @@ const CompanyDetails = () => {
           if(city_ID === city.id)
             return city
         })
-        setSelectedCity(selectedcity)
+        if(selectedCity === undefined || selectedCity === null) setSelectedCity(selectedcity)
+        else setSelectedCity(selectedcity.id === selectedCity.id ? null : selectedcity)
+        
       }
     })
   }
@@ -146,9 +148,6 @@ const CompanyDetails = () => {
     console.log(...data)
   }
 
-  const setStateValue = () => {
-    setSelectedState(null)
-  }
 
   //TODO : Call City array from db
 
@@ -203,9 +202,9 @@ const CompanyDetails = () => {
                 sx={{ width: '100%' }}
                 value={selectedCountry ? selectedCountry : null}
                 onChange={(event, value) => {
-                  setCountry_id(value.id)
+                  setSelectedCountry(value)
+                  setSelectedState(null)
                   getStates(value.id)
-                  setStateValue()
                 }}
                 options={allCountries}
                 getOptionLabel={option => option.name}
@@ -228,7 +227,9 @@ const CompanyDetails = () => {
                 sx={{ width: '100%' }}
                 value={selectedState ? selectedState : null}
                 onChange={(event, value) => {
-                  setState_id(value.id)
+                  setSelectedState(value)
+                  setSelectedCity(null)
+                  getCities(value.id)
                 }}
                 options={allStates}
                 getOptionLabel={option => option.name}
@@ -251,7 +252,8 @@ const CompanyDetails = () => {
                 sx={{ width: '100%' }}
                 value={selectedCity ? selectedCity : null}
                 onChange={(event, value) => {
-                  setCity_id(value.id)
+                  setSelectedCity(value)
+                  
                 }}
                 options={allCities}
                 getOptionLabel={option => option.name}
