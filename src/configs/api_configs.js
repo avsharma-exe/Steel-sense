@@ -3,13 +3,16 @@ export default {
         "login": "/api/auth/login",
     },
     user: {
-        create: "/user/create"
+        create: "/user/create",
+        update: "/user/update",
+        getAllCompanyUser: "user/get-all-companyuser"
     },
     company: {
         createNew: "/company/create",
         getAll: "/company/get-all",
         updateCompany: "/company/update",
-        getCompanyDetails: "/company/get-companyDetails"
+        getCompanyDetails: "/company/get-companyDetails",
+        updateCompanyDetails : "/company/updateDetails"
     },
     role: {
         create: "/role/create",
