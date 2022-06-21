@@ -14,66 +14,78 @@ import CircularProgress from '@mui/material/CircularProgress'
 import Box from '@mui/material/Box'
 import Autocomplete from '@mui/material/Autocomplete'
 import Typography from '@mui/material/Typography'
+import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
+import * as yup from 'yup'
 
 // ** Third Party Imports
 import toast from 'react-hot-toast'
 import { useForm, Controller } from 'react-hook-form'
 
 // ** Server imports
-import useUserDetails from "../hooks/useUserDetails"
+import useUserDetails from '../hooks/useUserDetails'
 import { secureApi } from '../helpers/apiGenerator'
 import api_configs from '../configs/api_configs'
-
 
 const defaultValues = {
   first_name: '',
   last_name: '',
   mobile: '',
-  email: '',
+  email: ''
 }
 
 const UserProfile = () => {
-
   // ** Get User Details
   const userDetails = useUserDetails()
 
   // ** States
   const [loading, setLoading] = useState(false)
   // setter for selected items
-  const [selectedFname,setSelectedFname] = useState(userDetails.FirstName)
-  const [selectedLname,setSelectedLname] = useState(userDetails.LastName)
-  const [selectedEmail,setSelectedEmail] = useState(userDetails.Email)
-  const [selectedMobile,setSelectedMobile] = useState(userDetails.MobileNo)
-
+  const [selectedFname, setSelectedFname] = useState(userDetails.FirstName)
+  const [selectedLname, setSelectedLname] = useState(userDetails.LastName)
+  const [selectedEmail, setSelectedEmail] = useState(userDetails.Email)
+  const [selectedMobile, setSelectedMobile] = useState(userDetails.MobileNo)
 
   // ** Hook
   const {
     control,
     handleSubmit,
     formState: { errors }
-  } = useForm({ defaultValues })
+  } = useForm({
+    defaultValues: {
+      first_name: userDetails.FirstName,
+      last_name: userDetails.LastName,
+      mobile: userDetails.Email,
+      email: userDetails.MobileNo
+    },
+    resolver: yupResolver(
+      yup.object().shape({
+        first_name: yup.string().required(),
+        last_name: yup.string().required(),
+        mobile: yup.string().required(),
+        email: yup.string().required()
+      })
+    )
+  })
 
-
-  const onSubmit = async () => {
-    await secureApi.patch(api_configs.user.update, {
-      FirstName : selectedFname,
-      LastName: selectedLname,
-      Email: selectedEmail,
-      MobileNo: selectedMobile,
-      User_ID: userDetails.User_ID
-    })
-    .then(resp => {
-      if (resp.status === 200) {
-        toast.success('Form Submitted')
-      }
-      else{
-        toast.error('Form is Not Submitted')
-      }
-    })
+  const onSubmit = async data => {
+    await secureApi
+      .patch(api_configs.user.update, {
+        FirstName: data.first_name,
+        LastName: data.last_name,
+        Email: data.email,
+        MobileNo: data.mobile,
+        User_ID: userDetails.User_ID
+      })
+      .then(resp => {
+        if (resp.status === 200) {
+          toast.success('Form Submitted')
+        } else {
+          toast.error('Form is Not Submitted')
+        }
+      })
   }
-  useEffect(() => {
 
-  },[])
+  // useEffect(() => {}, [])
 
   return (
     <Card>
@@ -96,7 +108,7 @@ const UserProfile = () => {
                     <TextField
                       value={selectedFname ? selectedFname : null}
                       label='First Name'
-                      onChange={ (e)=>{
+                      onChange={e => {
                         onChange(e)
                         setSelectedFname(e.target.value)
                       }}
@@ -124,7 +136,7 @@ const UserProfile = () => {
                     <TextField
                       value={selectedLname ? selectedLname : null}
                       label='Last Name'
-                      onChange={ (e)=>{
+                      onChange={e => {
                         onChange(e)
                         setSelectedLname(e.target.value)
                       }}
@@ -153,7 +165,7 @@ const UserProfile = () => {
                       type='email'
                       value={selectedEmail ? selectedEmail : null}
                       label='Email'
-                      onChange={(e)=>{
+                      onChange={e => {
                         onChange(e)
                         setSelectedEmail(e.target.value)
                       }}
@@ -181,17 +193,17 @@ const UserProfile = () => {
                     <TextField
                       value={selectedMobile ? selectedMobile : null}
                       label='Mobile Number'
-                      onChange={(e) => {
+                      onChange={e => {
                         onChange(e)
                         setSelectedMobile(e.target.value)
                       }}
-                      error={Boolean(errors.poc_mobile)}
+                      error={Boolean(errors.mobile)}
                       placeholder='xxxxxxxxxx'
                       aria-describedby='validation-poc_mobile'
                     />
                   )}
                 />
-                {errors.poc_mobile && (
+                {errors.mobile && (
                   <FormHelperText sx={{ color: 'error.main' }} id='validation-poc_mobile'>
                     This field is required
                   </FormHelperText>
@@ -222,5 +234,3 @@ const UserProfile = () => {
 }
 
 export default UserProfile
-
-
