@@ -16,10 +16,10 @@ const Read = {
  * @param {*} div_id 
  * @returns database data from Product_Company_Division table
  */
-function getAllProductsIDsOfACompany(co_id, div_id) {
+function getAllProductsIDsOfACompany(co_id) {
   return executeQuery({
-    query: `SELECT * FROM Product_Company_Division WHERE Co_ID = ? AND Div_ID = ?`,
-    values: [co_id, div_id]
+    query: `SELECT * FROM Product_Company_Division WHERE Co_ID = ?`,
+    values: [co_id]
   })
 }
 
@@ -30,8 +30,8 @@ function getAllProductsIDsOfACompany(co_id, div_id) {
  */
 function getProductMasterData(p_id) {
   return executeQuery({
-    query: `SELECT * FROM Product_Master WHERE P_ID = ? AND status = ?`,
-    values: [p_id, 50]
+    query: `SELECT * FROM Product_Master WHERE P_ID = ?`,
+    values: [p_id]
   })
 }
 

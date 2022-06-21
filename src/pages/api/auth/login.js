@@ -5,7 +5,6 @@ import User from '../../../server/queries/User/User'
 import Role from '../../../server/queries/Role/Role'
 import Company from '../../../server/queries/Company/Company'
 
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(400).send({ message: 'Only POST requests allowed' })
@@ -17,11 +16,13 @@ export default async function handler(req, res) {
 
   let result = await User.Read.getUserDetails(body.email)
 
-  // console.log(result)
-
   // check if user exists in the DB
   if (result.length > 0) {
     let user = result[0]
+    if (user['Co_ID'] !== 0 && user['company_master_status'] !== 50) {
+      res.status(400).send({ message: 'User is not active' })
+      return
+    }
 
     //compare the password with bcrypt
     comparePassword(body.password, user['Password'], async (err, isMatch) => {
@@ -34,11 +35,12 @@ export default async function handler(req, res) {
         // const companyDetails = await getUserCompany(user['User_ID'])
 
         const companyDetailsMap = await Company.Read.getUserCompanyMap(user['User_ID'])
-        const companyDetails = companyDetailsMap[0].Co_ID && await Company.Read.getUserCompany(companyDetailsMap[0].Co_ID)
+        const companyDetails =
+          companyDetailsMap[0].Co_ID && (await Company.Read.getUserCompany(companyDetailsMap[0].Co_ID))
         const roleDetails = await Role.Read.getUserRole(companyDetailsMap[0].Role_ID)
 
         // const rolePrivilege = await Role.Read.getUserRolePrivilege(companyDetailsMap.Role_ID)
-        
+
         // TODO: Get app_pages from the array of page_ids from role privilege
         const jwtToken = createJwt(user)
         user['role'] = companyDetailsMap[0].Co_ID ? roleDetails[0].RoleName : 'admin'

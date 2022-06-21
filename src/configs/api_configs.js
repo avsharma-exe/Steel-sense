@@ -20,5 +20,9 @@ export default {
       getCountries: "/locality/get-countries",
       getStates: "/locality/get-states",
       getCities: "/locality/get-cities",
+    },
+    product: {
+        create: "/product/create",
+        getAll: "/product/getAll"
     }
 }

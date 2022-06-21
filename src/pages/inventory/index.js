@@ -9,43 +9,83 @@ import Domain from 'mdi-material-ui/Domain'
 import { Box } from '@mui/material'
 import BasicTable from 'src/components/utils/BasicTable'
 import Button from '@mui/material/Button'
-import { useState } from 'react'
-import Dialog from '@mui/material/Dialog'
-import TextField from '@mui/material/TextField'
-import DialogTitle from '@mui/material/DialogTitle'
-import DialogContent from '@mui/material/DialogContent'
-import DialogActions from '@mui/material/DialogActions'
-import useUserDetails from '../../hooks/useUserDetails'
+import { useState, useEffect } from 'react'
+import AddProductForm from '../../components/inventory/AddProductForm'
+import { secureApi } from 'src/helpers/apiGenerator'
+import api_configs from 'src/configs/api_configs'
+import useUserDetails from 'src/hooks/useUserDetails'
+import Tooltip from '@mui/material/Tooltip'
+import Chip from '@mui/material/Chip'
 
 const Inventory = () => {
+  const userDetails = useUserDetails()
   const [products, setProducts] = useState([])
-  const [open, setOpen] = useState(false)
+  const [showAddProductForm, setShowAddProductForm] = useState(false)
   const [selectedRowData, setSelectedRowData] = useState({})
   const [openNew, setOpenNew] = useState(false)
   const [newRowData, setNewRowData] = useState({})
 
+  const getProducts = () => {
+    secureApi
+      .get(api_configs.product.getAll, {
+        params: {
+          company: userDetails.Co_ID
+        }
+      })
+      .then(resp => {
+        if (resp.status === 200) {
+          let allProducts = []
+          resp.data.allProducts.map(product => {
+            let productRow = {
+              productName:
+                product.productDetails.length > 0 ? (
+                  <Tooltip
+                    title={
+                      "Print Name: " + product.productDetails[0].PPrintName
+                        ? product.productDetails[0].PPrintName
+                        : product.productDetails[0].PName
+                    }
+                    arrow
+                  >
+                    <Typography>{product.productDetails[0].PName}</Typography>
+                  </Tooltip>
+                ) : (
+                  ''
+                ),
+              productGroup:
+                product.productDetails.length > 0 ? (
+                  <Tooltip title={"Product Brand: " + product.productDetails[0].PBrand} arrow>
+                    <Typography>{product.productDetails[0].PGroup}</Typography>
+                  </Tooltip>
+                ) : (
+                  ''
+                ),
+              productItemCode: <Typography>{product.productDetails[0].PItemCode}</Typography>,
+              stock: product.stockDetails.length > 0 ? <><Chip label={product.stockDetails[0].CurrentStock} color='success' /> <span>/</span> <Chip label={product.stockDetails[0].LastStock} color='error' /></> : ""
+            }
+            console.log(productRow)
+            allProducts.push(productRow)
+          })
+
+          setProducts(allProducts)
+        }
+      })
+  }
+
+  useEffect(() => {
+    getProducts()
+  }, [])
+
   return (
     <>
-    <Dialog open={open} onClose={() => setOpen(false)} aria-labelledby='form-dialog-title'>
-        <DialogTitle id='form-dialog-title'>Roles</DialogTitle>
-        
-        <DialogContent>
-          
-        </DialogContent>
-
-        <DialogActions className='dialog-actions-dense'>
-          <Button onClick={() => handleEditRow()}>Update</Button>
-        </DialogActions>
-      </Dialog>
+      {showAddProductForm ? <AddProductForm onCloseHandle={setShowAddProductForm} /> : null}
       <Card sx={{ height: '100%' }}>
         <CardHeader
           title={
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-              <Typography variant={'h6'}>
-                Inventory <Domain sx={{ ml: 2, color: theme => theme.palette.success.main }} />
-              </Typography>
+              <Typography variant={'h6'}>Inventory</Typography>
               <Box sx={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
-                <Button size='small' type='submit' variant='contained' onClick={() => setOpen(true)}>
+                <Button size='small' type='submit' variant='contained' onClick={() => setShowAddProductForm(true)}>
                   Add Product
                 </Button>
               </Box>
@@ -57,11 +97,14 @@ const Inventory = () => {
         <CardContent>
           <BasicTable
             columns={[
-              { id: 'name', label: 'Name', minWidth: 170 },
-              { id: 'description', label: 'Description', minWidth: 170 },
-              { id: 'actions', label: 'Actions', minWidth: 170 }
+              { id: 'productName', label: 'Product Name' },
+              { id: 'productGroup', label: 'Product Group' },
+              { id: 'productItemCode', label: 'Product Item Code' },
+              { id: 'stock', label: 'Current Stock / Last Stock' },
+
+              // { id: 'actions', label: 'Actions', minWidth: 170 }
             ]}
-            rows={[]}
+            rows={products}
             onRowClickHandle={rowData => {}}
           />
         </CardContent>
