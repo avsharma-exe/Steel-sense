@@ -39,7 +39,7 @@ const UserProfile = () => {
 
   // ** States
   const [loading, setLoading] = useState(false)
-  
+
   // setter for selected items
 
   const [selectedFname, setSelectedFname] = useState(userDetails.FirstName)
@@ -56,8 +56,8 @@ const UserProfile = () => {
     defaultValues: {
       first_name: userDetails.FirstName,
       last_name: userDetails.LastName,
-      mobile: userDetails.Email,
-      email: userDetails.MobileNo
+      mobile: userDetails.MobileNo,
+      email: userDetails.Email
     },
     resolver: yupResolver(
       yup.object().shape({

@@ -27,7 +27,11 @@ export default {
     },
     product: {
         create: "/product/create",
-        getAll: "/product/getAll"
+        getAll: "/product/getAll",
+        updateProductMaster: "/product/update-productMaster",
+        updatePriceDetails: "/product/update-priceDetails",
+        updateStockDetails: "/product/update-stockDetails",
+        updateGSTDetails: "/product/update-gstDetails"
     },
     division: {
       getAll: "/division/get-all",

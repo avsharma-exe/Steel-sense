@@ -93,10 +93,10 @@ const otherDetailsSchema = yup.object().shape({})
 const EditProductForm = ({ product, onCloseHandle }) => {
   const [productDetails, setProductDetails] = useState(product.productDetails ? product.productDetails[0] : null)
   const [value, setValue] = useState('product-info')
-
+  const [loader, setLoader] = useState(false)
   const [priceDetails, setPriceDetails] = useState(product.priceDetails ? product.priceDetails[0] : null)
   const [stockDetails, setStockDetails] = useState(product.stockDetails ? product.stockDetails[0] : null)
-  const [gstDetails, setGstDetails] = useState(product.gstDetails ? product.gstDetails : null)
+  const [gstDetails, setGstDetails] = useState(product.gstDetails ? product.gstDetails[0] : null)
   const [otherDetails, setOtherDetails] = useState(defaultOtherDetails)
 
   const {
@@ -161,8 +161,67 @@ const EditProductForm = ({ product, onCloseHandle }) => {
     setValue(newValue)
   }
 
-  const saveProductDetails = e => {
+  const saveProductDetails = async e => {
     e.preventDefault()
+    setLoader(true)
+    await secureApi
+      .patch(api_configs.product.updateProductMaster, {
+        productDetails
+      })
+      .then(resp => {
+        if (resp.status === 200) {
+          toast.success('Form Submitted')
+        }
+      })
+    setLoader(false)
+  }
+
+  const saveProductPricing = async e =>{
+    e.preventDefault()
+    setLoader(true)
+    console.log(priceDetails)
+    await secureApi
+      .patch(api_configs.product.updatePriceDetails, {
+        priceDetails
+      })
+      .then(resp => {
+        if (resp.status === 200) {
+          toast.success('Form Submitted')
+        }
+      })
+    setLoader(false)
+  }
+
+  const saveStockDetails = async e =>{
+    e.preventDefault()
+    setLoader(true)
+    console.log(stockDetails)
+    await secureApi
+      .patch(api_configs.product.updateStockDetails, {
+        stockDetails
+      })
+      .then(resp => {
+        if (resp.status === 200) {
+          toast.success('Form Submitted')
+        }
+      })
+    setLoader(false)
+  }
+
+  const saveGSTDetails = async e =>{
+    e.preventDefault()
+    setLoader(true)
+    console.log(gstDetails)
+    await secureApi
+      .patch(api_configs.product.updateGSTDetails, {
+        gstDetails
+      })
+      .then(resp => {
+        if (resp.status === 200) {
+          toast.success('Form Submitted')
+        }
+      })
+    setLoader(false)
   }
 
   return (
@@ -188,6 +247,16 @@ const EditProductForm = ({ product, onCloseHandle }) => {
             <Tab value='gst-details' label='Gst Details' />
           </TabList>
           <TabPanel value='product-info'>
+            {loader ? (
+              <CircularProgress
+                sx={{
+                  color: 'common.black',
+                  width: '20px !important',
+                  height: '20px !important',
+                  mr: theme => theme.spacing(2)
+                }}
+              />
+            ) : (
             <form onSubmit={e => saveProductDetails(e)}>
               <Grid container spacing={5}>
                 <Grid item xs={12} sm={6}>
@@ -333,9 +402,10 @@ const EditProductForm = ({ product, onCloseHandle }) => {
                 </Grid>
               </Grid>
             </form>
+          )}
           </TabPanel>
           <TabPanel value='stock-details'>
-            <form onSubmit={e => saveProductDetails(e)}>
+            <form onSubmit={e => saveStockDetails(e)}>
               <Grid container spacing={5}>
                 <Grid item xs={12} sm={6}>
                   <FormControl fullWidth>
@@ -373,7 +443,10 @@ const EditProductForm = ({ product, onCloseHandle }) => {
                         <TextField
                           value={value}
                           label='Current Stock'
-                          onChange={onChange}
+                          onChange={e => {
+                            onChange(e)
+                            setStockDetails({ ...stockDetails, CurrentStock: e.target.value })
+                          }}
                           error={Boolean(stockDetailsError.CurrentStock)}
                           aria-describedby='stepper-linear-account-username'
                         />
@@ -398,7 +471,7 @@ const EditProductForm = ({ product, onCloseHandle }) => {
             </form>
           </TabPanel>
           <TabPanel value='price-details'>
-            <form onSubmit={e => saveProductDetails(e)}>
+            <form onSubmit={e => saveProductPricing(e)}>
               <Grid container spacing={5}>
                 <Grid item xs={12} sm={6}>
                   <FormControl fullWidth>
@@ -412,7 +485,7 @@ const EditProductForm = ({ product, onCloseHandle }) => {
                           label='Purchase Price'
                           onChange={e => {
                             onChange(e)
-                            setProductDetails({ ...priceDetails, PurchasePrice: e.target.value })
+                            setPriceDetails({ ...priceDetails, PurchasePrice: e.target.value })
                           }}
                           startAdornment={<InputAdornment position='start'>₹</InputAdornment>}
                           error={Boolean(priceDetailsError.PurchasePrice)}
@@ -439,7 +512,7 @@ const EditProductForm = ({ product, onCloseHandle }) => {
                           label='Sale Price'
                           onChange={e => {
                             onChange(e)
-                            setProductDetails({ ...priceDetails, SalePrice: e.target.value })
+                            setPriceDetails({ ...priceDetails, SalePrice: e.target.value })
                           }}
                           startAdornment={<InputAdornment position='start'>₹</InputAdornment>}
                           error={Boolean(priceDetailsError.SalePrice)}
@@ -466,7 +539,7 @@ const EditProductForm = ({ product, onCloseHandle }) => {
                           label='Min Sale Price'
                           onChange={e => {
                             onChange(e)
-                            setProductDetails({ ...priceDetails, MinSalePrice: e.target.value })
+                            setPriceDetails({ ...priceDetails, MinSalePrice: e.target.value })
                           }}
                           startAdornment={<InputAdornment position='start'>₹</InputAdornment>}
                           error={Boolean(priceDetailsError.MinSalePrice)}
@@ -493,7 +566,7 @@ const EditProductForm = ({ product, onCloseHandle }) => {
             </form>
           </TabPanel>
           <TabPanel value='gst-details'>
-            <form onSubmit={() => {}}>
+            <form onSubmit={e => saveGSTDetails(e)}>
               <Grid container spacing={5}>
                 <Grid item xs={12} sm={6}>
                   <FormControl fullWidth>
@@ -503,7 +576,7 @@ const EditProductForm = ({ product, onCloseHandle }) => {
                       rules={{ required: true }}
                       render={({ field: { value, onChange } }) => (
                         <TextField
-                          value={gstDetails.HSN_SAC_Code}
+                          value={value}
                           label='HSN / SAC Code'
                           onChange={e => {
                             onChange(e)
