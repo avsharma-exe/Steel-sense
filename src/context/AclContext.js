@@ -4,6 +4,10 @@ import { createContext, useEffect, useState } from 'react'
 // icons
 import Users from 'mdi-material-ui/AccountGroupOutline'
 import Company from 'mdi-material-ui/Domain'
+import DatabaseOutline from 'mdi-material-ui/DatabaseOutline'
+import DatabaseArrowDownOutline from 'mdi-material-ui/DatabaseArrowDownOutline'
+import DatabaseArrowUpOutline from 'mdi-material-ui/DatabaseArrowUpOutline'
+import ClipboardListOutline from 'mdi-material-ui/ClipboardListOutline'
 import HomeOutline from 'mdi-material-ui/HomeOutline'
 import AccountOutline from 'mdi-material-ui/AccountOutline'
 
@@ -57,7 +61,7 @@ const AclProvider = ({ children }) => {
           {
             title: 'Inventory',
             path: '/inventory',
-            icon: Company
+            icon: DatabaseOutline
           },
           {
             title: 'Roles',
@@ -73,6 +77,35 @@ const AclProvider = ({ children }) => {
             title: 'Approve Voucher',
             path: '/l1/approve-voucher',
             icon: ShieldOutline
+          },
+
+        ]
+      case 'L3':
+        return [
+          {
+            title: 'Dashboard',
+            path: '/l3/dashboard',
+            icon: HomeOutline
+          },
+          {
+            title: 'Inventory',
+            path: '/inventory',
+            icon: DatabaseOutline
+          },
+          {
+            title: 'Stock Inward',
+            path: '/l3/stockInward',
+            icon: DatabaseArrowDownOutline
+          },
+          {
+            title: 'Stock Outward',
+            path: '/l3/stockOutward',
+            icon: DatabaseArrowUpOutline
+          },
+          {
+            title: 'Indent',
+            path: '/l3/indent',
+            icon: ClipboardListOutline
           },
 
         ]
