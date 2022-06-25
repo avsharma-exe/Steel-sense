@@ -24,8 +24,8 @@ const Inventory = () => {
   const [products, setProducts] = useState([])
   const [showAddProductForm, setShowAddProductForm] = useState(false)
 
-  const [editProduct , setEditProduct] = useState({})
-  const [showEditProductForm , setShowEditProductForm] = useState(false)
+  const [editProduct, setEditProduct] = useState({})
+  const [showEditProductForm, setShowEditProductForm] = useState(false)
 
   const [selectedRowData, setSelectedRowData] = useState({})
   const [openNew, setOpenNew] = useState(false)
@@ -41,7 +41,7 @@ const Inventory = () => {
       .then(resp => {
         if (resp.status === 200) {
           let allProducts = []
-          resp.data.allProducts.map((product , index) => {
+          resp.data.allProducts.map((product, index) => {
             let productRow = {
               srNo: <Typography data={product}>{index + 1}</Typography>,
               productName:
@@ -70,9 +70,11 @@ const Inventory = () => {
               productItemCode: <Typography>{product.productDetails[0].PItemCode}</Typography>,
               stock:
                 product.stockDetails[0].CurrentStock > 50 ? (
-                  <Chip label={product.stockDetails[0].CurrentStock} color='success' />
+                  // <Chip label={product.stockDetails[0].CurrentStock} color='success' />
+                  <Chip label={product.stockDetails[0].CurrentStock} sx={{color: 'green'}} />
                 ) : (
-                  <Chip label={product.stockDetails[0].CurrentStock} color='danger' />
+                  // <Chip label={product.stockDetails[0].CurrentStock} color='danger' />
+                  <Chip label={product.stockDetails[0].CurrentStock} sx={{color: 'red'}} />
                 )
             }
             allProducts.push(productRow)
@@ -90,7 +92,7 @@ const Inventory = () => {
   return (
     <>
       {showAddProductForm ? <AddProductForm onCloseHandle={setShowAddProductForm} /> : null}
-      {showEditProductForm ? <EditProductForm onCloseHandle={setShowEditProductForm} product={editProduct}/> : null}
+      {showEditProductForm ? <EditProductForm onCloseHandle={setShowEditProductForm} product={editProduct} /> : null}
       <Card sx={{ height: '100%' }}>
         <CardHeader
           title={
