@@ -79,7 +79,6 @@ const defaultPriceSchema = yup.object().shape({
   purchasePrice: yup.number().required(),
   salePrice: yup.number().required(),
   minSalePrice: yup.number(),
-  mrp: yup.number()
 })
 
 const defaultStockDetails = {
@@ -89,7 +88,9 @@ const defaultStockDetails = {
 }
 
 const stockDetailsSchema = yup.object().shape({
-  unit: yup.string().required()
+  unit: yup.string().required(),
+  openingStock: yup.string().required()
+
 })
 
 const defaultGstDetails = {
@@ -197,6 +198,7 @@ const AddProductForm = ({ onCloseHandle }) => {
 
   const addProduct = async () => {
     setLoading(true)
+
     const product = {
       productDetails,
       priceDetails,
@@ -473,7 +475,8 @@ const AddProductForm = ({ onCloseHandle }) => {
                     )}
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={6}>
+
+                {/* <Grid item xs={12} sm={6}>
                   <FormControl fullWidth>
                     <Controller
                       name='mrp'
@@ -496,7 +499,7 @@ const AddProductForm = ({ onCloseHandle }) => {
                       </FormHelperText>
                     )}
                   </FormControl>
-                </Grid>
+                </Grid> */}
                 <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
                   <Button size='large' variant='outlined' color='secondary' onClick={handleBack}>
                     Back
@@ -706,7 +709,7 @@ const AddProductForm = ({ onCloseHandle }) => {
                   />
                   {gstDetailsError.sgst && (
                     <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                      {gstDetailsError.cess.message}
+                      {gstDetailsError.sgst.message}
                     </FormHelperText>
                   )}
                 </FormControl>
@@ -914,6 +917,7 @@ const AddProductForm = ({ onCloseHandle }) => {
                   const labelProps = {}
                   if (index == activeStep) {
                   }
+
                   return (
                     <Step key={index}>
                       <StepLabel {...labelProps} StepIconComponent={StepperCustomDot}>

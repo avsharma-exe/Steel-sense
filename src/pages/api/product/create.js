@@ -1,4 +1,3 @@
-import { cryptPassword } from '../../../helpers/encrypt'
 import Company from '../../../server/queries/Company/Company'
 import Product from '../../../server/queries/Product/Product'
 
@@ -13,6 +12,7 @@ export default async function handler(req, res) {
 
   try {
     let userfeilds = { CreatedBy: body.userDetails.User_ID, UpdateBy: body.userDetails.User_ID }
+    
     const productDetails = {
       PName: body.productDetails.productName,
       PGroup: body.productDetails.productGroup,

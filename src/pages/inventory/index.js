@@ -16,11 +16,17 @@ import api_configs from 'src/configs/api_configs'
 import useUserDetails from 'src/hooks/useUserDetails'
 import Tooltip from '@mui/material/Tooltip'
 import Chip from '@mui/material/Chip'
+import CircularProgress from '@mui/material/CircularProgress'
+import EditProductForm from 'src/components/inventory/EditProductForm'
 
 const Inventory = () => {
   const userDetails = useUserDetails()
   const [products, setProducts] = useState([])
   const [showAddProductForm, setShowAddProductForm] = useState(false)
+
+  const [editProduct , setEditProduct] = useState({})
+  const [showEditProductForm , setShowEditProductForm] = useState(false)
+
   const [selectedRowData, setSelectedRowData] = useState({})
   const [openNew, setOpenNew] = useState(false)
   const [newRowData, setNewRowData] = useState({})
@@ -35,13 +41,14 @@ const Inventory = () => {
       .then(resp => {
         if (resp.status === 200) {
           let allProducts = []
-          resp.data.allProducts.map(product => {
+          resp.data.allProducts.map((product , index) => {
             let productRow = {
+              srNo: <Typography data={product}>{index + 1}</Typography>,
               productName:
                 product.productDetails.length > 0 ? (
                   <Tooltip
                     title={
-                      "Print Name: " + product.productDetails[0].PPrintName
+                      'Print Name: ' + product.productDetails[0].PPrintName
                         ? product.productDetails[0].PPrintName
                         : product.productDetails[0].PName
                     }
@@ -54,16 +61,20 @@ const Inventory = () => {
                 ),
               productGroup:
                 product.productDetails.length > 0 ? (
-                  <Tooltip title={"Product Brand: " + product.productDetails[0].PBrand} arrow>
+                  <Tooltip title={'Product Brand: ' + product.productDetails[0].PBrand} arrow>
                     <Typography>{product.productDetails[0].PGroup}</Typography>
                   </Tooltip>
                 ) : (
                   ''
                 ),
               productItemCode: <Typography>{product.productDetails[0].PItemCode}</Typography>,
-              stock: product.stockDetails.length > 0 ? <><Chip label={product.stockDetails[0].CurrentStock} color='success' /> <span>/</span> <Chip label={product.stockDetails[0].LastStock} color='error' /></> : ""
+              stock:
+                product.stockDetails[0].CurrentStock > 50 ? (
+                  <Chip label={product.stockDetails[0].CurrentStock} color='success' />
+                ) : (
+                  <Chip label={product.stockDetails[0].CurrentStock} color='danger' />
+                )
             }
-            console.log(productRow)
             allProducts.push(productRow)
           })
 
@@ -79,6 +90,7 @@ const Inventory = () => {
   return (
     <>
       {showAddProductForm ? <AddProductForm onCloseHandle={setShowAddProductForm} /> : null}
+      {showEditProductForm ? <EditProductForm onCloseHandle={setShowEditProductForm} product={editProduct}/> : null}
       <Card sx={{ height: '100%' }}>
         <CardHeader
           title={
@@ -95,18 +107,33 @@ const Inventory = () => {
         {/* <Divider /> */}
 
         <CardContent>
-          <BasicTable
-            columns={[
-              { id: 'productName', label: 'Product Name' },
-              { id: 'productGroup', label: 'Product Group' },
-              { id: 'productItemCode', label: 'Product Item Code' },
-              { id: 'stock', label: 'Current Stock / Last Stock' },
+          {products.length > 0 ? (
+            <BasicTable
+              columns={[
+                { id: 'srNo', label: 'Sr No.' },
+                { id: 'productName', label: 'Product Name' },
+                { id: 'productGroup', label: 'Product Group' },
+                { id: 'productItemCode', label: 'Product Item Code' },
+                { id: 'stock', label: 'Stock Available' }
 
-              // { id: 'actions', label: 'Actions', minWidth: 170 }
-            ]}
-            rows={products}
-            onRowClickHandle={rowData => {}}
-          />
+                // { id: 'actions', label: 'Actions', minWidth: 170 }
+              ]}
+              rows={products}
+              onRowClickHandle={rowData => {
+                setEditProduct(rowData.srNo.props.data)
+                setShowEditProductForm(true)
+              }}
+            />
+          ) : (
+            <CircularProgress
+              sx={{
+                color: 'common.black',
+                width: '20px !important',
+                height: '20px !important',
+                mr: theme => theme.spacing(2)
+              }}
+            />
+          )}
         </CardContent>
       </Card>
     </>

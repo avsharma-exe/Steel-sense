@@ -13,20 +13,27 @@ export default async function handler(req, res) {
   try {
     let getAllProducts = await Product.Read.getAllProductsIDsOfACompany(Co_ID)
     let allProducts = []
+    if(getAllProducts.length === 0) res.send({
+      error: true,
+      msg: "Products Not Found"
+    })
+    
     for (let i = 0; i < getAllProducts.length; i++) {
       let product = getAllProducts[i]
       const productDetails = await Product.Read.getProductMasterData(product.P_ID)
       const priceDetails = await Product.Read.getProductPriceDetailsData(product.P_ID)
       const gstDetails = await Product.Read.getProductGSTData(product.P_ID)
       const stockDetails = await Product.Read.getProductStockData(product.P_ID)
+      
       let product_details = {
         productDetails,
         priceDetails,
         gstDetails,
         stockDetails
       }
+      console.log("index" , getAllProducts.length , i)
       allProducts.push(product_details)
-      if (i === getAllProducts.length - 1) {
+      if (i >= getAllProducts.length - 1) {
         res.send({
           error: false,
           allProducts

@@ -21,6 +21,7 @@ export default async function handler(req, res) {
     let user = result[0]
     if (user['Co_ID'] !== 0 && user['company_master_status'] !== 50) {
       res.status(400).send({ message: 'User is not active' })
+      
       return
     }
 
@@ -35,8 +36,10 @@ export default async function handler(req, res) {
         // const companyDetails = await getUserCompany(user['User_ID'])
 
         const companyDetailsMap = await Company.Read.getUserCompanyMap(user['User_ID'])
+
         const companyDetails =
           companyDetailsMap[0].Co_ID && (await Company.Read.getUserCompany(companyDetailsMap[0].Co_ID))
+
         const roleDetails = await Role.Read.getUserRole(companyDetailsMap[0].Role_ID)
 
         // const rolePrivilege = await Role.Read.getUserRolePrivilege(companyDetailsMap.Role_ID)

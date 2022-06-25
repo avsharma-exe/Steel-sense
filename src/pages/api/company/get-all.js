@@ -19,7 +19,7 @@ export default async function handler(req, res) {
       
 
       if (allCompanies) {
-        // TODO: add mail service to send the credentials
+        
         res.send({
           error: false,
           allCompanies

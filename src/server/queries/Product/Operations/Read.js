@@ -8,6 +8,7 @@ const Read = {
   getProductStockData,
   getProductGSTData,
   getProductOtherData,
+  getProductAllDetails
 }
 
 /**
@@ -103,6 +104,18 @@ function getProductOtherData(p_id) {
 function getProductDescriptionData(p_id) {
   return executeQuery({
     query: `SELECT * FROM Product_Description WHERE P_ID = ?`,
+    values: [p_id]
+  })
+}
+
+/**
+ * 
+ * @param {*} p_id 
+ * @returns database data from ProductMaster , ProductGSTDetails, ProductStockDetails, ProductOtherDetails
+ */
+function getProductAllDetails(p_id) {
+  return executeQuery({
+    query: "SELECT * FROM Product_Master join Product_Price_Details on Product_Price_Details.P_ID = Product_Master.P_ID join Product_GST_Details on Product_GST_Details.P_ID = Product_Master.P_ID join Product_Stock on Product_Stock.P_ID = Product_Master.P_ID where Product_Master.P_ID = ?",
     values: [p_id]
   })
 }

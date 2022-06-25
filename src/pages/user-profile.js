@@ -39,7 +39,9 @@ const UserProfile = () => {
 
   // ** States
   const [loading, setLoading] = useState(false)
+  
   // setter for selected items
+
   const [selectedFname, setSelectedFname] = useState(userDetails.FirstName)
   const [selectedLname, setSelectedLname] = useState(userDetails.LastName)
   const [selectedEmail, setSelectedEmail] = useState(userDetails.Email)
