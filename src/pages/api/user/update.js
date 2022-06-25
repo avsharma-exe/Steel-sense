@@ -20,7 +20,6 @@ export default async function handler(req, res) {
       body.Password = hash
       body['UpdatedDT'] = date.getFullYear() + "-" + parseInt(date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes()
       delete body.User_ID
-      console.log(body, "aaaaaaaaaaaaaaaaaaaa")
       // update user in UserMaster
       let result = await User.Update.updateUserDetails(body,User_ID)
 

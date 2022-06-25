@@ -20,10 +20,21 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import useUserDetails from '../../hooks/useUserDetails'
 import toast from 'react-hot-toast'
-import { Box } from '@mui/material'
+import CircularProgress from '@mui/material/CircularProgress'
+import { Box, Divider } from '@mui/material'
+import { getStatusText } from 'src/helpers/statusHelper'
+import Select from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
+import Autocomplete from '@mui/material/Autocomplete'
+import { findDOMNode } from 'react-dom'
 
 const Users = () => {
+  const [loader, setLoader] = useState(false)
+  const [allRoles, setAllRoles] = useState([])
   const [allUsers, setAllUsers] = useState([])
+  const [allDivisions, setAllDivision] = useState([])
+  const [l1Users, setL1Users] = useState([])
+  const [l2Users, setL2Users] = useState([])
   const [open, setOpen] = useState(false)
   const [selectedRowData, setSelectedRowData] = useState({})
   const [openNew, setOpenNew] = useState(false)
@@ -45,13 +56,13 @@ const Users = () => {
   }
 
   const handleEditRow = async () => {
+    console.log(selectedRowData)
     await secureApi
-      .patch(api_configs.role.updateRole, {
+      .patch(api_configs.user.updateCompanyUser, {
         Role_ID: selectedRowData.Role_ID,
-        RoleName: selectedRowData.RoleName,
-        RoleDescription: selectedRowData.RoleDescription,
-        Co_ID: userDetails.Co_ID,
-        UpdatedBy: userDetails.User_ID
+        Div_ID: selectedRowData.Div_ID,
+        status: selectedRowData.status,
+        Company_User_ID: selectedRowData.Company_User_ID
       })
       .then(resp => {
         if (resp.status === 200) {
@@ -62,47 +73,51 @@ const Users = () => {
   }
 
   const handleAddNew = async () => {
-    await secureApi
-      .post(api_configs.role.create, {
-        RoleName: newRowData.RoleName,
-        RoleDescription: newRowData.RoleDescription,
-        Co_ID: userDetails.Co_ID,
-        CreatedBy: userDetails.User_ID
-      })
-      .then(resp => {
-        if (resp.status === 200) {
-          toast.success('Form Submitted')
-          setOpenNew(false)
-        }
-      })
+    console.log('aaa')
   }
 
   const getAllUsers = async () => {
+    setLoader(true)
     await secureApi.get(api_configs.user.getAllCompanyUser, { params: { coid: userDetails.Co_ID } }).then(res => {
       if(res.status === 200){
         let users = []
         res.data.allUsers.map(user => {
           users.push({
-            name: user.FirstName + " " + user.LastName,
-            division: user.Div_ID,
+            firstName: user.FirstName,
+            lastName: user.LastName,
+            division: user.DivisionName,
             role: user.Role_ID,
             description: user.RoleDescription,
+            status: getStatusText(user.status),
             actions: <TableActions editRow={rowData => editRow(rowData)} row={user} />
           })
         })
         setAllUsers(users)
       }
-
-        console.log(allUsers)
     })
+    setLoader(false)
+  }
+
+  const getDivisions = async () => {
+    await secureApi.get(api_configs.division.getAll, { params: {coid: userDetails.Co_ID} }).then(res => {
+      if(res.status === 200){
+        setAllDivision(res.data.allDivisions)
+        console.log(res.data.allDivisions)
+      }
+    }).then(secureApi.get(api_configs.role.getAll, { params: { coid: userDetails.Co_ID } }).then(res => {
+      setAllRoles(res.data.allRoles)
+      console.log(res.data.allRoles)
+    }))
   }
 
   useEffect(() => {
-    getAllUsers()
+    getAllUsers(),
+    getDivisions()
   }, [open, openNew])
-  // useEffect(() => {
-  //   handleEditRow()
-  // }, [])
+  useEffect(() => {
+    setL1Users(allUsers.filter((l1user)=>{if(l1user.role === 2){return l1user}}))
+    setL2Users(allUsers.filter((l2user)=>{if(l2user.role === 3){return l2user}}))
+  }, [allUsers])
 
   return (
     <>
@@ -110,27 +125,95 @@ const Users = () => {
         <DialogTitle id='form-dialog-title'>Users/Employees</DialogTitle>
         <DialogContent>
           <TextField
-            id='name'
-            autoFocus
+            disabled={true}
+            id='firstName'
             fullWidth
             type='text'
-            label='Role Name'
-            value={selectedRowData.RoleName}
-            onChange={e => setSelectedRowData({ ...selectedRowData, RoleName: e.target.value })}
+            label='First Name'
+            value={selectedRowData.FirstName}
             sx={{ w: '100%', mt: '5px' }}
           />
         </DialogContent>
         <DialogContent>
           <TextField
-            id='description'
-            autoFocus
+            id='lastName'
+            disabled={true}
             fullWidth
             type='text'
-            label='Role Description'
-            value={selectedRowData.RoleDescription}
-            onChange={e => setSelectedRowData({ ...selectedRowData, RoleDescription: e.target.value })}
+            label='Last Name'
+            value={selectedRowData.LastName}
             sx={{ w: '100%', mt: '5px' }}
           />
+        </DialogContent>
+        <DialogContent>
+          <Autocomplete
+            sx={{ w: '100%', mt: '5px' }}
+            value={allDivisions.find( (division) => {
+              if(division.Div_ID === selectedRowData.Div_ID)
+                return division.DivisionName
+              })
+            }
+            onChange={(event, value) => {
+              if(value)
+              setSelectedRowData({ ...selectedRowData, Div_ID: value.Div_ID})
+              // console.log(selectedRowData.DivisionName)
+            }}
+            options={allDivisions}
+            getOptionLabel={option => option.DivisionName}
+            renderOption={(props, option) => <Box {...props}>{option.DivisionName }</Box>}
+            renderInput={params => (
+              <TextField
+                {...params}
+                name='divsion'
+                label='Choose a Division'
+                inputProps={{
+                  ...params.inputProps
+                }}
+                sx={{ w: '100%', mt: '5px' }}
+              />
+            )}
+          />
+        </DialogContent>
+        <DialogContent>
+          <Autocomplete
+            sx={{ w: '100%', mt: '5px' }}
+            value={allRoles.find( (role) => {
+              if(role.Role_ID === selectedRowData.Role_ID)
+                return role.RoleName
+              })
+            }
+            onChange={(event, value) => {
+              if(value)
+              setSelectedRowData({ ...selectedRowData, Role_ID: value.Role_ID})
+              // console.log(selectedRowData.Role_ID)
+            }}
+            options={allRoles}
+            getOptionLabel={option => option.RoleName}
+            renderOption={(props, option) => <Box {...props}>{option.RoleName }</Box>}
+            renderInput={params => (
+              <TextField
+                {...params}
+                name='role'
+                label='Choose a Role'
+                inputProps={{
+                  ...params.inputProps
+                }}
+                sx={{ w: '100%', mt: '5px' }}
+              />
+            )}
+          />
+        </DialogContent>
+        <DialogContent>
+          <Select
+            value={selectedRowData.status}
+            label='Status'
+            onChange={(e) => setSelectedRowData({...selectedRowData, status: e.target.value})}
+            style={{width: "100%", marginTop: "5px"}}
+          >
+            <MenuItem value='0'>Draft</MenuItem>
+            <MenuItem value='50'>Active</MenuItem>
+            <MenuItem value='99'>Inactive</MenuItem>
+          </Select>
         </DialogContent>
 
         <DialogActions className='dialog-actions-dense'>
@@ -140,14 +223,15 @@ const Users = () => {
 
       {/* Add new Role */}
       <Dialog open={openNew} onClose={() => setOpenNew(false)} aria-labelledby='form-dialog-title'>
-        <DialogTitle id='form-dialog-title'>Add Role</DialogTitle>
+        <DialogTitle id='form-dialog-title'>Add User</DialogTitle>
         <DialogContent>
           <TextField
-            id='name'
+            id='first_name'
             fullWidth
+            required
             type='text'
-            label='Role Name'
-            onChange={e => setNewRowData({ ...newRowData, RoleName: e.target.value })}
+            label='First Name'
+            onChange={e => setNewRowData({ ...newRowData, FirstName: e.target.value })}
             sx={{ w: '100%', mt: '5px' }}
           />
         </DialogContent>
@@ -171,8 +255,8 @@ const Users = () => {
         <CardHeader
           title={
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-              <Typography variant={'h6'}>
-                All Roles <Domain sx={{ ml: 2, color: theme => theme.palette.success.main }} />
+              <Typography variant={'h5'}>
+                All Users <Domain sx={{ ml: 2, color: theme => theme.palette.success.main }} />
               </Typography>
               <Box sx={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
                 <Button size='small' type='submit' variant='contained' onClick={() => addNew()}>
@@ -185,20 +269,78 @@ const Users = () => {
         {/* <Divider /> */}
 
         <CardContent>
+        <Typography variant={'h6'}>
+            L1 (Owners)
+          </Typography>
+          {loader ? (
+            <CircularProgress
+              sx={{
+                color: 'common.black',
+                width: '20px !important',
+                height: '20px !important',
+                mr: theme => theme.spacing(2)
+              }}
+            />
+          ) : (
           <BasicTable
             columns={[
-              { id: 'name', label: 'Name', minWidth: 170 },
+              { id: 'firstName', label: 'First Name', minWidth: 170 },
+              { id: 'lastName', label: 'Last Name', minWidth: 170 },
               { id: 'division', label: 'Division', minWidth: 170 },
-              { id: 'role', label: 'Role', minWidth: 170 },
               { id: 'description', label: 'Description', minWidth: 170 },
-              { id: 'actions', label: 'Actions', minWidth: 170 }
+              { id: 'status', label: 'Status', minWidth: 170 },
+              { id: 'actions', label: 'Action', minWidth: 170 }
             ]}
-            rows={allUsers}
+            rows={l1Users}
             onRowClickHandle={rowData => {}}
           />
+          )}
         </CardContent>
       </Card>
-    </>
+
+      <Divider></Divider>
+
+      <Card>
+        {
+          l2Users.length ? (
+          <CardContent>
+            <Typography variant={'h6'}>
+              L2 (Employee)
+            </Typography>
+            {loader ? (
+              <CircularProgress
+                sx={{
+                  color: 'common.black',
+                  width: '20px !important',
+                  height: '20px !important',
+                  mr: theme => theme.spacing(2)
+                }}
+              />
+            ) : (
+            <BasicTable
+              columns={[
+                { id: 'firstName', label: 'First Name', minWidth: 170 },
+                { id: 'lastName', label: 'Last Name', minWidth: 170 },
+                { id: 'division', label: 'Division', minWidth: 170 },
+                { id: 'description', label: 'Description', minWidth: 170 },
+                { id: 'status', label: 'Status', minWidth: 170 },
+                { id: 'actions', label: 'Action', minWidth: 170 }
+              ]}
+              rows={l2Users}
+              onRowClickHandle={rowData => {}}
+            />
+            )}
+          </CardContent>
+          ) : (
+          <CardContent>
+            <Typography>
+              No L2 Users Please create One
+            </Typography>
+          </CardContent>
+          )}
+
+      </Card>
+      </>
   )
 }
 
