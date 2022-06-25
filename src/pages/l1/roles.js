@@ -181,9 +181,9 @@ const Roles = () => {
                 All Roles <Domain sx={{ ml: 2, color: theme => theme.palette.success.main }} />
               </Typography>
               <Box sx={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
-                <Button size='small' type='submit' variant='contained' onClick={() => addNew()}>
+                {/* <Button size='small' type='submit' variant='contained' onClick={() => addNew()}>
                   Add Role
-                </Button>
+                </Button> */}
               </Box>
             </Box>
           }

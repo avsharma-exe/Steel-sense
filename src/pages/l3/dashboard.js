@@ -24,10 +24,10 @@ const Dashboard = () => {
                 { id: 't_info', label: 'Truck Info', minWidth: 170 }
               ]}
               rows={[
-                { name: 'Ak-47', qty: '10', t_info: 'MH-49-AD-1867' },
-                { name: 'Desert Eagle', qty: '8', t_info: 'MH-49-AD-1866' },
-                { name: 'SCAR-L', qty: '18', t_info: 'MH-49-AD-1865' },
-                { name: 'Negev', qty: '1', t_info: 'MH-49-AD-1864' }
+                { name: 'TNT-BAR', qty: '10', t_info: 'MH-49-AD-1867' },
+                { name: 'BEARING NO 6202 ZZ', qty: '8', t_info: 'MH-49-AD-1866' },
+                { name: 'Steel Nut', qty: '18', t_info: 'MH-49-AD-1865' },
+                { name: 'Copper', qty: '1', t_info: 'MH-49-AD-1864' }
               ]}
             />
           </CardContent>
@@ -52,7 +52,7 @@ const Dashboard = () => {
               ]}
               rows={[
                 {
-                  name: 'Ak-47',
+                  name: 'Copper',
                   qty: '1/4',
                   re_order_button: (
                     <Button variant='contained' endIcon={<Send />} style={{ color: 'white' }}>
@@ -61,7 +61,7 @@ const Dashboard = () => {
                   )
                 },
                 {
-                  name: 'RDX',
+                  name: 'Steel Plates',
                   qty: '1/3',
                   re_order_button: (
                     <Button variant='contained' endIcon={<Send />} style={{ color: 'white' }}>
@@ -95,13 +95,13 @@ const Dashboard = () => {
               ]}
               rows={[
                 {
-                  name: 'Ak-47',
+                  name: 'Iron Rods',
                   qty: '150',
                   liod: 'Wed Jun 04 2022',
                   eta: 'Wed Jun 08 2022',
                   status: 'Under Approval'
                 },
-                { name: 'RDX', qty: '15', liod: 'Wed Jun 03 2022', eta: 'Wed Jun 10 2022', status: 'Under Approval' }
+                { name: 'Iron Filings', qty: '15', liod: 'Wed Jun 03 2022', eta: 'Wed Jun 10 2022', status: 'Under Approval' }
               ]}
             />
           </CardContent>

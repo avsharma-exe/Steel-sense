@@ -35,6 +35,7 @@ const Users = () => {
   const [allDivisions, setAllDivision] = useState([])
   const [l1Users, setL1Users] = useState([])
   const [l2Users, setL2Users] = useState([])
+  const [l3Users, setL3Users] = useState([])
   const [open, setOpen] = useState(false)
   const [selectedRowData, setSelectedRowData] = useState({})
   const [openNew, setOpenNew] = useState(false)
@@ -117,6 +118,7 @@ const Users = () => {
   useEffect(() => {
     setL1Users(allUsers.filter((l1user)=>{if(l1user.role === 2){return l1user}}))
     setL2Users(allUsers.filter((l2user)=>{if(l2user.role === 3){return l2user}}))
+    setL3Users(allUsers.filter((l3user)=>{if(l3user.role === 4){return l3user}}))
   }, [allUsers])
 
   return (
@@ -335,6 +337,47 @@ const Users = () => {
           <CardContent>
             <Typography>
               No L2 Users Please create One
+            </Typography>
+          </CardContent>
+          )}
+
+      </Card>
+      <Divider></Divider>
+      <Card>
+        {
+          l3Users.length ? (
+          <CardContent>
+            <Typography variant={'h6'}>
+              L3 (Employee)
+            </Typography>
+            {loader ? (
+              <CircularProgress
+                sx={{
+                  color: 'common.black',
+                  width: '20px !important',
+                  height: '20px !important',
+                  mr: theme => theme.spacing(2)
+                }}
+              />
+            ) : (
+            <BasicTable
+              columns={[
+                { id: 'firstName', label: 'First Name', minWidth: 170 },
+                { id: 'lastName', label: 'Last Name', minWidth: 170 },
+                { id: 'division', label: 'Division', minWidth: 170 },
+                { id: 'description', label: 'Description', minWidth: 170 },
+                { id: 'status', label: 'Status', minWidth: 170 },
+                { id: 'actions', label: 'Action', minWidth: 170 }
+              ]}
+              rows={l3Users}
+              onRowClickHandle={rowData => {}}
+            />
+            )}
+          </CardContent>
+          ) : (
+          <CardContent>
+            <Typography>
+              No L3 Users Please create One
             </Typography>
           </CardContent>
           )}
