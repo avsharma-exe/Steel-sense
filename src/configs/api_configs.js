@@ -5,7 +5,8 @@ export default {
     user: {
         create: "/user/create",
         update: "/user/update",
-        getAllCompanyUser: "user/get-all-companyuser"
+        getAllCompanyUser: "user/get-all-companyuser",
+        updateCompanyUser: "user/update-companyuser"
     },
     company: {
         createNew: "/company/create",
@@ -27,5 +28,8 @@ export default {
     product: {
         create: "/product/create",
         getAll: "/product/getAll"
+    },
+    division: {
+      getAll: "/division/get-all",
     }
 }

@@ -18,6 +18,8 @@ import Typography from '@mui/material/Typography'
 // ** Third Party Imports
 import toast from 'react-hot-toast'
 import { useForm, Controller } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
+import * as yup from 'yup'
 
 // ** Server imports
 import useUserDetails from "../../hooks/useUserDetails"
@@ -132,25 +134,25 @@ const CompanyDetails = () => {
   // ** States
   const [loading, setLoading] = useState(false)
   // Id's for country state and city
-  const [co_ID,setCoID] = useState(null)
-  const [state_ID,setStateID] = useState(null)
-  const [city_ID,setCityID] = useState(null)
+  const [co_ID, setCoID] = useState(null)
+  const [state_ID, setStateID] = useState(null)
+  const [city_ID, setCityID] = useState(null)
   //  setter for state country and city data
-  const [allCountries,setAllCountries] = useState([])
-  const [allStates,setAllStates] = useState([])
-  const [allCities,setAllCities] = useState([])
+  const [allCountries, setAllCountries] = useState([])
+  const [allStates, setAllStates] = useState([])
+  const [allCities, setAllCities] = useState([])
   // setter for selected items
-  const [selectedCountry,setSelectedCountry] = useState(allCountries[0])
-  const [selectedState,setSelectedState] = useState(allStates[0])
-  const [selectedCity,setSelectedCity] = useState(allCities[0])
-  const [selectedAddress,setSelectedAddress] = useState(null)
-  const [selectedEmail,setSelectedEmail] = useState(null)
-  const [selectedPocName,setSelectedPocName] = useState(null)
-  const [selectedPocPhone,setSelectedPocPhone] = useState(null)
-  const [selectedGST,setSelectedGST] = useState(null)
-  const [selectedUIN,setSelectedUIN] = useState(null)
-  const [selectedCIN,setSelectedCIN] = useState(null)
-  const [selectedLogo,setSelectedLogo] = useState(null)
+  const [selectedCountry, setSelectedCountry] = useState(allCountries[0])
+  const [selectedState, setSelectedState] = useState(allStates[0])
+  const [selectedCity, setSelectedCity] = useState(allCities[0])
+  const [selectedAddress, setSelectedAddress] = useState(null)
+  const [selectedEmail, setSelectedEmail] = useState(null)
+  const [selectedPocName, setSelectedPocName] = useState(null)
+  const [selectedPocPhone, setSelectedPocPhone] = useState(null)
+  const [selectedGST, setSelectedGST] = useState(null)
+  const [selectedUIN, setSelectedUIN] = useState(null)
+  const [selectedCIN, setSelectedCIN] = useState(null)
+  const [selectedLogo, setSelectedLogo] = useState(null)
   const [selectedPincode,setSelectedPincode] = useState(null)
 
 
@@ -160,7 +162,21 @@ const CompanyDetails = () => {
     control,
     handleSubmit,
     formState: { errors }
-  } = useForm({ defaultValues })
+  } = useForm({ defaultValues,
+    resolver: yupResolver(
+      yup.object().shape({
+        company_address: yup.string().required(),
+        company_email: yup.string().required(),
+        company_address: yup.string().required(),
+        poc_name: yup.string().required(),
+        poc_mobile: yup.string().required(),
+        compnay_gst: yup.string().required(),
+        company_uin: yup.string().required(),
+        company_cin: yup.string().required(),
+        company_logo: yup.string().required(),
+      })
+    )
+  })
 
 
   const onSubmit = async () => {
@@ -235,7 +251,7 @@ const CompanyDetails = () => {
                         maxRows={4}
                         value={selectedAddress ? selectedAddress : null}
                         label='Company Address'
-                        onChange={ (e)=>{
+                        onChange={ e =>{
                           onChange(e)
                           setSelectedAddress(e.target.value)
                         }}
@@ -264,7 +280,7 @@ const CompanyDetails = () => {
                         type='email'
                         value={selectedEmail ? selectedEmail : null}
                         label='Company Email'
-                        onChange={(e)=>{
+                        onChange={ e =>{
                           onChange(e)
                           setSelectedEmail(e.target.value)
                         }}
@@ -287,7 +303,7 @@ const CompanyDetails = () => {
                   sx={{ width: '100%' }}
                   value={selectedCountry ? selectedCountry : null}
                   onChange={(event, value) => {
-                    setSelectedCountry(selectedEmail)
+                    setSelectedCountry(value)
                     getStates(value.id)
                     setSelectedState(null)
                   }}
@@ -367,7 +383,7 @@ const CompanyDetails = () => {
                         maxRows={4}
                         value={selectedPincode ? selectedPincode : null}
                         label='Pincode'
-                        onChange={ (e)=>{
+                        onChange={ e =>{
                           onChange(e)
                           setSelectedPincode(e.target.value)
                         }}
@@ -402,7 +418,7 @@ const CompanyDetails = () => {
                       <TextField
                         value={selectedPocName ? selectedPocName : null}
                         label='POC Name'
-                        onChange={(e) => {
+                        onChange={ e => {
                           onChange(e)
                           setSelectedPocName(e.target.value)
                         }}
@@ -430,7 +446,7 @@ const CompanyDetails = () => {
                       <TextField
                         value={selectedPocPhone ? selectedPocPhone : null}
                         label='POC Mobile Number'
-                        onChange={(e) => {
+                        onChange={ e => {
                           onChange(e)
                           setSelectedPocPhone(e.target.value)
                         }}
@@ -464,7 +480,7 @@ const CompanyDetails = () => {
                       <TextField
                         value={selectedGST ? selectedGST : null}
                         label='Company GST Number'
-                        onChange={(e) => {
+                        onChange={ e => {
                           onChange(e)
                           setSelectedGST(e.target.value)
                         }}
@@ -520,7 +536,7 @@ const CompanyDetails = () => {
                       <TextField
                         value={selectedCIN ? selectedCIN : null}
                         label='Company CIN Number'
-                        onChange={(e) => {
+                        onChange={ e => {
                           onChange(e)
                           setSelectedCIN(e.target.value)
                         }}
@@ -548,7 +564,7 @@ const CompanyDetails = () => {
                       <TextField
                         value={selectedLogo ? selectedLogo : null}
                         label='Company Logo file Name'
-                        onChange={(e) => {
+                        onChange={ e => {
                           onChange(e)
                           setSelectedLogo(e.target.value)
                         }}

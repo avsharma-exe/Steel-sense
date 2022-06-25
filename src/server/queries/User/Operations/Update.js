@@ -2,7 +2,8 @@ import executeQuery from '../../../../server/Connection'
 
 const Update = {
   changeLastLoginDate,
-  updateUserDetails
+  updateUserDetails,
+  updateCompanyUser
 }
 
 /**
@@ -21,6 +22,13 @@ function updateUserDetails(body,user_id) {
   return executeQuery({
     query: `UPDATE User_Master SET ? WHERE User_ID = ?`,
     values: [body,user_id]
+  })
+}
+
+function updateCompanyUser(body,Company_User_ID) {
+  return executeQuery({
+    query: `UPDATE Company_User SET ? WHERE Company_User_ID = ?`,
+    values: [body,Company_User_ID]
   })
 }
 
