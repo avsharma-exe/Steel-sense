@@ -64,8 +64,8 @@ const AclProvider = ({ children }) => {
             icon: DatabaseOutline
           },
           {
-            title: 'Roles',
-            path: '/l1/roles',
+            title: 'Divisions',
+            path: '/l1/divisions',
             icon: ShieldOutline
           },
           {

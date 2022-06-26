@@ -27,6 +27,7 @@ import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 import Autocomplete from '@mui/material/Autocomplete'
 import { findDOMNode } from 'react-dom'
+import AddNewUser from 'src/components/users/AddNewUser'
 
 const Users = () => {
   const [loader, setLoader] = useState(false)
@@ -40,6 +41,7 @@ const Users = () => {
   const [selectedRowData, setSelectedRowData] = useState({})
   const [openNew, setOpenNew] = useState(false)
   const [newRowData, setNewRowData] = useState({})
+  const [addUserOpen, setAddUserOpen] = useState(false)
 
   const editRow = rowData => {
     setOpen(true)
@@ -55,6 +57,8 @@ const Users = () => {
   const handleClose = () => {
     setOpen(false)
   }
+
+  const toggleAddUserDrawer = () => setAddUserOpen(!addUserOpen)
 
   const handleEditRow = async () => {
     console.log(selectedRowData)
@@ -80,7 +84,7 @@ const Users = () => {
   const getAllUsers = async () => {
     setLoader(true)
     await secureApi.get(api_configs.user.getAllCompanyUser, { params: { coid: userDetails.Co_ID } }).then(res => {
-      if(res.status === 200){
+      if (res.status === 200) {
         let users = []
         res.data.allUsers.map(user => {
           users.push({
@@ -100,25 +104,47 @@ const Users = () => {
   }
 
   const getDivisions = async () => {
-    await secureApi.get(api_configs.division.getAll, { params: {coid: userDetails.Co_ID} }).then(res => {
-      if(res.status === 200){
-        setAllDivision(res.data.allDivisions)
-        console.log(res.data.allDivisions)
-      }
-    }).then(secureApi.get(api_configs.role.getAll, { params: { coid: userDetails.Co_ID } }).then(res => {
-      setAllRoles(res.data.allRoles)
-      console.log(res.data.allRoles)
-    }))
+    await secureApi
+      .get(api_configs.division.getAll, { params: { coid: userDetails.Co_ID } })
+      .then(res => {
+        if (res.status === 200) {
+          setAllDivision(res.data.allDivisions)
+          console.log(res.data.allDivisions)
+        }
+      })
+      .then(
+        secureApi.get(api_configs.role.getAll, { params: { coid: userDetails.Co_ID } }).then(res => {
+          setAllRoles(res.data.allRoles)
+          console.log(res.data.allRoles)
+        })
+      )
   }
 
   useEffect(() => {
-    getAllUsers(),
-    getDivisions()
+    getAllUsers(), getDivisions()
   }, [open, openNew])
   useEffect(() => {
-    setL1Users(allUsers.filter((l1user)=>{if(l1user.role === 2){return l1user}}))
-    setL2Users(allUsers.filter((l2user)=>{if(l2user.role === 3){return l2user}}))
-    setL3Users(allUsers.filter((l3user)=>{if(l3user.role === 4){return l3user}}))
+    setL1Users(
+      allUsers.filter(l1user => {
+        if (l1user.role === 2) {
+          return l1user
+        }
+      })
+    )
+    setL2Users(
+      allUsers.filter(l2user => {
+        if (l2user.role === 3) {
+          return l2user
+        }
+      })
+    )
+    setL3Users(
+      allUsers.filter(l3user => {
+        if (l3user.role === 4) {
+          return l3user
+        }
+      })
+    )
   }, [allUsers])
 
   return (
@@ -150,19 +176,17 @@ const Users = () => {
         <DialogContent>
           <Autocomplete
             sx={{ w: '100%', mt: '5px' }}
-            value={allDivisions.find( (division) => {
-              if(division.Div_ID === selectedRowData.Div_ID)
-                return division.DivisionName
-              })
-            }
+            value={allDivisions.find(division => {
+              if (division.Div_ID === selectedRowData.Div_ID) return division.DivisionName
+            })}
             onChange={(event, value) => {
-              if(value)
-              setSelectedRowData({ ...selectedRowData, Div_ID: value.Div_ID})
+              if (value) setSelectedRowData({ ...selectedRowData, Div_ID: value.Div_ID })
+
               // console.log(selectedRowData.DivisionName)
             }}
             options={allDivisions}
             getOptionLabel={option => option.DivisionName}
-            renderOption={(props, option) => <Box {...props}>{option.DivisionName }</Box>}
+            renderOption={(props, option) => <Box {...props}>{option.DivisionName}</Box>}
             renderInput={params => (
               <TextField
                 {...params}
@@ -179,19 +203,17 @@ const Users = () => {
         <DialogContent>
           <Autocomplete
             sx={{ w: '100%', mt: '5px' }}
-            value={allRoles.find( (role) => {
-              if(role.Role_ID === selectedRowData.Role_ID)
-                return role.RoleName
-              })
-            }
+            value={allRoles.find(role => {
+              if (role.Role_ID === selectedRowData.Role_ID) return role.RoleName
+            })}
             onChange={(event, value) => {
-              if(value)
-              setSelectedRowData({ ...selectedRowData, Role_ID: value.Role_ID})
+              if (value) setSelectedRowData({ ...selectedRowData, Role_ID: value.Role_ID })
+
               // console.log(selectedRowData.Role_ID)
             }}
             options={allRoles}
             getOptionLabel={option => option.RoleName}
-            renderOption={(props, option) => <Box {...props}>{option.RoleName }</Box>}
+            renderOption={(props, option) => <Box {...props}>{option.RoleName}</Box>}
             renderInput={params => (
               <TextField
                 {...params}
@@ -209,8 +231,8 @@ const Users = () => {
           <Select
             value={selectedRowData.status}
             label='Status'
-            onChange={(e) => setSelectedRowData({...selectedRowData, status: e.target.value})}
-            style={{width: "100%", marginTop: "5px"}}
+            onChange={e => setSelectedRowData({ ...selectedRowData, status: e.target.value })}
+            style={{ width: '100%', marginTop: '5px' }}
           >
             <MenuItem value='0'>Draft</MenuItem>
             <MenuItem value='50'>Active</MenuItem>
@@ -223,35 +245,7 @@ const Users = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Add new Role */}
-      <Dialog open={openNew} onClose={() => setOpenNew(false)} aria-labelledby='form-dialog-title'>
-        <DialogTitle id='form-dialog-title'>Add User</DialogTitle>
-        <DialogContent>
-          <TextField
-            id='first_name'
-            fullWidth
-            required
-            type='text'
-            label='First Name'
-            onChange={e => setNewRowData({ ...newRowData, FirstName: e.target.value })}
-            sx={{ w: '100%', mt: '5px' }}
-          />
-        </DialogContent>
-        <DialogContent>
-          <TextField
-            id='description'
-            fullWidth
-            type='text'
-            label='Role Description'
-            onChange={e => setNewRowData({ ...newRowData, RoleDescription: e.target.value })}
-            sx={{ w: '100%', mt: '5px' }}
-          />
-        </DialogContent>
-
-        <DialogActions className='dialog-actions-dense'>
-          <Button onClick={() => handleAddNew()}>Add</Button>
-        </DialogActions>
-      </Dialog>
+      <AddNewUser open={addUserOpen} toggle={toggleAddUserDrawer} />
 
       <Card sx={{ height: '100%' }}>
         <CardHeader
@@ -261,8 +255,8 @@ const Users = () => {
                 All Users <Domain sx={{ ml: 2, color: theme => theme.palette.success.main }} />
               </Typography>
               <Box sx={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
-                <Button size='small' type='submit' variant='contained' onClick={() => addNew()}>
-                  Add Role
+                <Button size='small' type='submit' variant='contained' onClick={() => toggleAddUserDrawer()}>
+                  Add User
                 </Button>
               </Box>
             </Box>
@@ -271,9 +265,7 @@ const Users = () => {
         {/* <Divider /> */}
 
         <CardContent>
-        <Typography variant={'h6'}>
-            L1 (Owners)
-          </Typography>
+          <Typography variant={'h6'}>L1 (Owners)</Typography>
           {loader ? (
             <CircularProgress
               sx={{
@@ -284,18 +276,18 @@ const Users = () => {
               }}
             />
           ) : (
-          <BasicTable
-            columns={[
-              { id: 'firstName', label: 'First Name', minWidth: 170 },
-              { id: 'lastName', label: 'Last Name', minWidth: 170 },
-              { id: 'division', label: 'Division', minWidth: 170 },
-              { id: 'description', label: 'Description', minWidth: 170 },
-              { id: 'status', label: 'Status', minWidth: 170 },
-              { id: 'actions', label: 'Action', minWidth: 170 }
-            ]}
-            rows={l1Users}
-            onRowClickHandle={rowData => {}}
-          />
+            <BasicTable
+              columns={[
+                { id: 'firstName', label: 'First Name', minWidth: 170 },
+                { id: 'lastName', label: 'Last Name', minWidth: 170 },
+                { id: 'division', label: 'Division', minWidth: 170 },
+                { id: 'description', label: 'Description', minWidth: 170 },
+                { id: 'status', label: 'Status', minWidth: 170 },
+                { id: 'actions', label: 'Action', minWidth: 170 }
+              ]}
+              rows={l1Users}
+              onRowClickHandle={rowData => {}}
+            />
           )}
         </CardContent>
       </Card>
@@ -303,12 +295,9 @@ const Users = () => {
       <Divider></Divider>
 
       <Card>
-        {
-          l2Users.length ? (
+        {l2Users.length ? (
           <CardContent>
-            <Typography variant={'h6'}>
-              L2 (Employee)
-            </Typography>
+            <Typography variant={'h6'}>L2 (Employee)</Typography>
             {loader ? (
               <CircularProgress
                 sx={{
@@ -319,37 +308,31 @@ const Users = () => {
                 }}
               />
             ) : (
-            <BasicTable
-              columns={[
-                { id: 'firstName', label: 'First Name', minWidth: 170 },
-                { id: 'lastName', label: 'Last Name', minWidth: 170 },
-                { id: 'division', label: 'Division', minWidth: 170 },
-                { id: 'description', label: 'Description', minWidth: 170 },
-                { id: 'status', label: 'Status', minWidth: 170 },
-                { id: 'actions', label: 'Action', minWidth: 170 }
-              ]}
-              rows={l2Users}
-              onRowClickHandle={rowData => {}}
-            />
+              <BasicTable
+                columns={[
+                  { id: 'firstName', label: 'First Name', minWidth: 170 },
+                  { id: 'lastName', label: 'Last Name', minWidth: 170 },
+                  { id: 'division', label: 'Division', minWidth: 170 },
+                  { id: 'description', label: 'Description', minWidth: 170 },
+                  { id: 'status', label: 'Status', minWidth: 170 },
+                  { id: 'actions', label: 'Action', minWidth: 170 }
+                ]}
+                rows={l2Users}
+                onRowClickHandle={rowData => {}}
+              />
             )}
           </CardContent>
-          ) : (
+        ) : (
           <CardContent>
-            <Typography>
-              No L2 Users Please create One
-            </Typography>
+            <Typography>No L2 Users Please create One</Typography>
           </CardContent>
-          )}
-
+        )}
       </Card>
       <Divider></Divider>
       <Card>
-        {
-          l3Users.length ? (
+        {l3Users.length ? (
           <CardContent>
-            <Typography variant={'h6'}>
-              L3 (Employee)
-            </Typography>
+            <Typography variant={'h6'}>L3 (Employee)</Typography>
             {loader ? (
               <CircularProgress
                 sx={{
@@ -360,30 +343,27 @@ const Users = () => {
                 }}
               />
             ) : (
-            <BasicTable
-              columns={[
-                { id: 'firstName', label: 'First Name', minWidth: 170 },
-                { id: 'lastName', label: 'Last Name', minWidth: 170 },
-                { id: 'division', label: 'Division', minWidth: 170 },
-                { id: 'description', label: 'Description', minWidth: 170 },
-                { id: 'status', label: 'Status', minWidth: 170 },
-                { id: 'actions', label: 'Action', minWidth: 170 }
-              ]}
-              rows={l3Users}
-              onRowClickHandle={rowData => {}}
-            />
+              <BasicTable
+                columns={[
+                  { id: 'firstName', label: 'First Name', minWidth: 170 },
+                  { id: 'lastName', label: 'Last Name', minWidth: 170 },
+                  { id: 'division', label: 'Division', minWidth: 170 },
+                  { id: 'description', label: 'Description', minWidth: 170 },
+                  { id: 'status', label: 'Status', minWidth: 170 },
+                  { id: 'actions', label: 'Action', minWidth: 170 }
+                ]}
+                rows={l3Users}
+                onRowClickHandle={rowData => {}}
+              />
             )}
           </CardContent>
-          ) : (
+        ) : (
           <CardContent>
-            <Typography>
-              No L3 Users Please create One
-            </Typography>
+            <Typography>No L3 Users Please create One</Typography>
           </CardContent>
-          )}
-
+        )}
       </Card>
-      </>
+    </>
   )
 }
 

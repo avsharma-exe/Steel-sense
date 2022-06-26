@@ -25,7 +25,7 @@ function getUserDetails(email) {
  */
 function getAllCompanyUsers(co_id) {
   return executeQuery({
-    query: 'SELECT Company_User.*, User_Master.FirstName, User_Master.LastName, User_Roles.RoleDescription, Division_Master.DivisionName FROM (((Company_User INNER JOIN User_Master ON Company_User.User_ID = User_Master.User_ID) INNER JOIN User_Roles ON Company_User.Role_ID = User_Roles.Role_ID AND Company_User.Co_ID = User_Roles.Co_ID) INNER JOIN Division_Master ON Company_User.Co_ID = Division_Master.Co_ID AND Company_User.Div_ID = Division_Master.Div_ID ) Where Company_User.Co_ID = ?',
+    query: 'SELECT Company_User.*, User_Master.FirstName, User_Master.LastName, User_Roles.RoleDescription, Division_Master.DivisionName FROM (((Company_User INNER JOIN User_Master ON Company_User.User_ID = User_Master.User_ID) INNER JOIN User_Roles ON Company_User.Role_ID = User_Roles.Role_ID ) INNER JOIN Division_Master ON Company_User.Co_ID = Division_Master.Co_ID AND Company_User.Div_ID = Division_Master.Div_ID ) Where Company_User.Co_ID = ?',
     values: [co_id]
   })
 }

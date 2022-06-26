@@ -35,5 +35,7 @@ export default {
     },
     division: {
       getAll: "/division/get-all",
+      createNew: "/division/create",
+      update: "/division/update"
     }
 }

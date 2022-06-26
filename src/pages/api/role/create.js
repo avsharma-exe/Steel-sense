@@ -16,6 +16,7 @@ export default async function handler(req, res) {
       delete body.details
     }
     let date = new Date()
+    
     // 2021-07-02 23:29:08.000000
     body['CreatedDT'] =
       date.getFullYear() +

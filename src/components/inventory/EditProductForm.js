@@ -90,7 +90,7 @@ const defaultOtherDetails = {
 
 const otherDetailsSchema = yup.object().shape({})
 
-const EditProductForm = ({ product, onCloseHandle }) => {
+const EditProductForm = ({ product, onCloseHandle, getProducts }) => {
   const [productDetails, setProductDetails] = useState(product.productDetails ? product.productDetails[0] : null)
   const [value, setValue] = useState('product-info')
   const [loader, setLoader] = useState(false)
@@ -170,55 +170,59 @@ const EditProductForm = ({ product, onCloseHandle }) => {
       })
       .then(resp => {
         if (resp.status === 200) {
-          toast.success('Form Submitted')
+          toast.success('Product Details Updated')
+          getProducts()
         }
       })
     setLoader(false)
   }
 
-  const saveProductPricing = async e =>{
+  const saveProductPricing = async e => {
     e.preventDefault()
     setLoader(true)
-    console.log(priceDetails)
+
     await secureApi
       .patch(api_configs.product.updatePriceDetails, {
         priceDetails
       })
       .then(resp => {
         if (resp.status === 200) {
-          toast.success('Form Submitted')
+          toast.success('Price Details Updated')
+          getProducts()
         }
       })
     setLoader(false)
   }
 
-  const saveStockDetails = async e =>{
+  const saveStockDetails = async e => {
     e.preventDefault()
     setLoader(true)
-    console.log(stockDetails)
+
     await secureApi
       .patch(api_configs.product.updateStockDetails, {
         stockDetails
       })
       .then(resp => {
         if (resp.status === 200) {
-          toast.success('Form Submitted')
+          toast.success('Stock Details Updated')
+          getProducts()
         }
       })
     setLoader(false)
   }
 
-  const saveGSTDetails = async e =>{
+  const saveGSTDetails = async e => {
     e.preventDefault()
     setLoader(true)
-    console.log(gstDetails)
+
     await secureApi
       .patch(api_configs.product.updateGSTDetails, {
         gstDetails
       })
       .then(resp => {
         if (resp.status === 200) {
-          toast.success('Form Submitted')
+          toast.success('GST Details Updated')
+          getProducts()
         }
       })
     setLoader(false)
@@ -257,152 +261,152 @@ const EditProductForm = ({ product, onCloseHandle }) => {
                 }}
               />
             ) : (
-            <form onSubmit={e => saveProductDetails(e)}>
-              <Grid container spacing={5}>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <Controller
-                      name='PName'
-                      control={productDetailControl}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <TextField
-                          value={productDetails.PName}
-                          label='Product Name'
-                          onChange={e => {
-                            onChange(e)
-                            setProductDetails({ ...productDetails, PName: e.target.value })
-                          }}
-                          error={Boolean(productDetailsError.PName)}
-                          aria-describedby='stepper-linear-account-username'
-                        />
+              <form onSubmit={e => saveProductDetails(e)}>
+                <Grid container spacing={5}>
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth>
+                      <Controller
+                        name='PName'
+                        control={productDetailControl}
+                        rules={{ required: true }}
+                        render={({ field: { value, onChange } }) => (
+                          <TextField
+                            value={productDetails.PName}
+                            label='Product Name'
+                            onChange={e => {
+                              onChange(e)
+                              setProductDetails({ ...productDetails, PName: e.target.value })
+                            }}
+                            error={Boolean(productDetailsError.PName)}
+                            aria-describedby='stepper-linear-account-username'
+                          />
+                        )}
+                      />
+                      {productDetailsError.PName && (
+                        <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
+                          This field is required
+                        </FormHelperText>
                       )}
-                    />
-                    {productDetailsError.PName && (
-                      <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                        This field is required
-                      </FormHelperText>
-                    )}
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <Controller
-                      name='PGroup'
-                      control={productDetailControl}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <TextField
-                          value={productDetails.PGroup}
-                          label='Product Group'
-                          onChange={e => {
-                            onChange(e)
-                            setProductDetails({ ...productDetails, PGroup: e.target.value })
-                          }}
-                          error={Boolean(productDetailsError.PGroup)}
-                          aria-describedby='stepper-linear-account-username'
-                        />
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth>
+                      <Controller
+                        name='PGroup'
+                        control={productDetailControl}
+                        rules={{ required: true }}
+                        render={({ field: { value, onChange } }) => (
+                          <TextField
+                            value={productDetails.PGroup}
+                            label='Product Group'
+                            onChange={e => {
+                              onChange(e)
+                              setProductDetails({ ...productDetails, PGroup: e.target.value })
+                            }}
+                            error={Boolean(productDetailsError.PGroup)}
+                            aria-describedby='stepper-linear-account-username'
+                          />
+                        )}
+                      />
+                      {productDetailsError.PGroup && (
+                        <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
+                          This field is required
+                        </FormHelperText>
                       )}
-                    />
-                    {productDetailsError.PGroup && (
-                      <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                        This field is required
-                      </FormHelperText>
-                    )}
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <Controller
-                      name='PBrand'
-                      control={productDetailControl}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <TextField
-                          value={productDetails.PBrand}
-                          label='Product Brand'
-                          onChange={e => {
-                            onChange(e)
-                            setProductDetails({ ...productDetails, PBrand: e.target.value })
-                          }}
-                          placeholder='group'
-                          error={Boolean(productDetailsError.PBrand)}
-                          aria-describedby='stepper-linear-account-username'
-                        />
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth>
+                      <Controller
+                        name='PBrand'
+                        control={productDetailControl}
+                        rules={{ required: true }}
+                        render={({ field: { value, onChange } }) => (
+                          <TextField
+                            value={productDetails.PBrand}
+                            label='Product Brand'
+                            onChange={e => {
+                              onChange(e)
+                              setProductDetails({ ...productDetails, PBrand: e.target.value })
+                            }}
+                            placeholder='group'
+                            error={Boolean(productDetailsError.PBrand)}
+                            aria-describedby='stepper-linear-account-username'
+                          />
+                        )}
+                      />
+                      {productDetailsError.PBrand && (
+                        <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
+                          This field is required
+                        </FormHelperText>
                       )}
-                    />
-                    {productDetailsError.PBrand && (
-                      <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                        This field is required
-                      </FormHelperText>
-                    )}
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <Controller
-                      name='PItemCode'
-                      control={productDetailControl}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <TextField
-                          value={productDetails.PItemCode}
-                          label='Item Code'
-                          onChange={e => {
-                            onChange(e)
-                            setProductDetails({ ...productDetails, PItemCode: e.target.value })
-                          }}
-                          placeholder='group'
-                          error={Boolean(productDetailsError.PItemCode)}
-                          aria-describedby='stepper-linear-account-username'
-                        />
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth>
+                      <Controller
+                        name='PItemCode'
+                        control={productDetailControl}
+                        rules={{ required: true }}
+                        render={({ field: { value, onChange } }) => (
+                          <TextField
+                            value={productDetails.PItemCode}
+                            label='Item Code'
+                            onChange={e => {
+                              onChange(e)
+                              setProductDetails({ ...productDetails, PItemCode: e.target.value })
+                            }}
+                            placeholder='group'
+                            error={Boolean(productDetailsError.PItemCode)}
+                            aria-describedby='stepper-linear-account-username'
+                          />
+                        )}
+                      />
+                      {productDetailsError.PItemCode && (
+                        <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
+                          This field is required
+                        </FormHelperText>
                       )}
-                    />
-                    {productDetailsError.PItemCode && (
-                      <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                        This field is required
-                      </FormHelperText>
-                    )}
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <Controller
-                      name='PPrintName'
-                      control={productDetailControl}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <TextField
-                          value={productDetails.PPrintName}
-                          label='Print Name'
-                          onChange={e => {
-                            onChange(e)
-                            setProductDetails({ ...productDetails, PPrintName: e.target.value })
-                          }}
-                          placeholder='group'
-                          error={Boolean(productDetailsError.PPrintName)}
-                          aria-describedby='stepper-linear-account-username'
-                        />
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth>
+                      <Controller
+                        name='PPrintName'
+                        control={productDetailControl}
+                        rules={{ required: true }}
+                        render={({ field: { value, onChange } }) => (
+                          <TextField
+                            value={productDetails.PPrintName}
+                            label='Print Name'
+                            onChange={e => {
+                              onChange(e)
+                              setProductDetails({ ...productDetails, PPrintName: e.target.value })
+                            }}
+                            placeholder='group'
+                            error={Boolean(productDetailsError.PPrintName)}
+                            aria-describedby='stepper-linear-account-username'
+                          />
+                        )}
+                      />
+                      {productDetailsError.PPrintName && (
+                        <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
+                          This field is required
+                        </FormHelperText>
                       )}
-                    />
-                    {productDetailsError.PPrintName && (
-                      <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                        This field is required
-                      </FormHelperText>
-                    )}
-                  </FormControl>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Button size='large' variant='outlined' color='secondary' disabled>
+                      Back
+                    </Button>
+                    <Button size='large' type='submit' variant='contained'>
+                      Save
+                    </Button>
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Button size='large' variant='outlined' color='secondary' disabled>
-                    Back
-                  </Button>
-                  <Button size='large' type='submit' variant='contained'>
-                    Save
-                  </Button>
-                </Grid>
-              </Grid>
-            </form>
-          )}
+              </form>
+            )}
           </TabPanel>
           <TabPanel value='stock-details'>
             <form onSubmit={e => saveStockDetails(e)}>

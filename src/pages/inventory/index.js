@@ -23,7 +23,7 @@ const Inventory = () => {
   const userDetails = useUserDetails()
   const [products, setProducts] = useState([])
   const [showAddProductForm, setShowAddProductForm] = useState(false)
-
+  const [showLoader , setShowLoader] = useState(false)
   const [editProduct, setEditProduct] = useState({})
   const [showEditProductForm, setShowEditProductForm] = useState(false)
 
@@ -32,6 +32,7 @@ const Inventory = () => {
   const [newRowData, setNewRowData] = useState({})
 
   const getProducts = () => {
+    setShowLoader(true)
     secureApi
       .get(api_configs.product.getAll, {
         params: {
@@ -41,46 +42,50 @@ const Inventory = () => {
       .then(resp => {
         if (resp.status === 200) {
           let allProducts = []
-          resp.data.allProducts.map((product, index) => {
-            let productRow = {
-              srNo: <Typography data={product}>{index + 1}</Typography>,
-              productName:
-                product.productDetails.length > 0 ? (
-                  <Tooltip
-                    title={
-                      'Print Name: ' + product.productDetails[0].PPrintName
-                        ? product.productDetails[0].PPrintName
-                        : product.productDetails[0].PName
-                    }
-                    arrow
-                  >
-                    <Typography>{product.productDetails[0].PName}</Typography>
-                  </Tooltip>
-                ) : (
-                  ''
-                ),
-              productGroup:
-                product.productDetails.length > 0 ? (
-                  <Tooltip title={'Product Brand: ' + product.productDetails[0].PBrand} arrow>
-                    <Typography>{product.productDetails[0].PGroup}</Typography>
-                  </Tooltip>
-                ) : (
-                  ''
-                ),
-              productItemCode: <Typography>{product.productDetails[0].PItemCode}</Typography>,
-              stock:
-                product.stockDetails[0].CurrentStock > 50 ? (
-                  // <Chip label={product.stockDetails[0].CurrentStock} color='success' />
-                  <Chip label={product.stockDetails[0].CurrentStock} sx={{color: 'green'}} />
-                ) : (
-                  // <Chip label={product.stockDetails[0].CurrentStock} color='danger' />
-                  <Chip label={product.stockDetails[0].CurrentStock} sx={{color: 'red'}} />
-                )
-            }
-            allProducts.push(productRow)
-          })
+          if (resp.data.allProducts)
+            resp.data.allProducts.map((product, index) => {
+              let productRow = {
+                srNo: <Typography data={product}>{index + 1}</Typography>,
+                productName:
+                  product.productDetails.length > 0 ? (
+                    <Tooltip
+                      title={
+                        'Print Name: ' + product.productDetails[0].PPrintName
+                          ? product.productDetails[0].PPrintName
+                          : product.productDetails[0].PName
+                      }
+                      arrow
+                    >
+                      <Typography>{product.productDetails[0].PName}</Typography>
+                    </Tooltip>
+                  ) : (
+                    ''
+                  ),
+                productGroup:
+                  product.productDetails.length > 0 ? (
+                    <Tooltip title={'Product Brand: ' + product.productDetails[0].PBrand} arrow>
+                      <Typography>{product.productDetails[0].PGroup}</Typography>
+                    </Tooltip>
+                  ) : (
+                    ''
+                  ),
+                productItemCode: <Typography>{product.productDetails[0].PItemCode}</Typography>,
+                stock:
+                  product.stockDetails[0].CurrentStock > 50 ? (
+
+                    // <Chip label={product.stockDetails[0].CurrentStock} color='success' />
+                    <Chip label={product.stockDetails[0].CurrentStock} sx={{ color: 'green' }} />
+                  ) : (
+                    
+                    // <Chip label={product.stockDetails[0].CurrentStock} color='danger' />
+                    <Chip label={product.stockDetails[0].CurrentStock} sx={{ color: 'red' }} />
+                  )
+              }
+              allProducts.push(productRow)
+            })
 
           setProducts(allProducts)
+          setShowLoader(false)
         }
       })
   }
@@ -91,8 +96,8 @@ const Inventory = () => {
 
   return (
     <>
-      {showAddProductForm ? <AddProductForm onCloseHandle={setShowAddProductForm} /> : null}
-      {showEditProductForm ? <EditProductForm onCloseHandle={setShowEditProductForm} product={editProduct} /> : null}
+      {showAddProductForm ? <AddProductForm onCloseHandle={setShowAddProductForm} getProducts={() => getProducts()}/> : null}
+      {showEditProductForm ? <EditProductForm onCloseHandle={setShowEditProductForm} product={editProduct} getProducts={() => getProducts()}/> : null}
       <Card sx={{ height: '100%' }}>
         <CardHeader
           title={
@@ -126,7 +131,7 @@ const Inventory = () => {
                 setShowEditProductForm(true)
               }}
             />
-          ) : (
+          ) : showLoader ?  (
             <CircularProgress
               sx={{
                 color: 'common.black',
@@ -135,7 +140,7 @@ const Inventory = () => {
                 mr: theme => theme.spacing(2)
               }}
             />
-          )}
+          ) : <Typography>No Products Found</Typography>}
         </CardContent>
       </Card>
     </>

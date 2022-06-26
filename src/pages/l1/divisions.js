@@ -31,8 +31,8 @@ import toast from 'react-hot-toast'
 import { getStatusText } from 'src/helpers/statusHelper'
 import { Box } from '@mui/material'
 
-const Roles = () => {
-  const [allRoles, setAllRoles] = useState([])
+const Divisions = () => {
+  const [allDivisions, setAllDivision] = useState([])
   const [open, setOpen] = useState(false)
   const [selectedRowData, setSelectedRowData] = useState({})
   const [openNew, setOpenNew] = useState(false)
@@ -55,16 +55,15 @@ const Roles = () => {
 
   const handleEditRow = async () => {
     await secureApi
-      .patch(api_configs.role.updateRole, {
-        Role_ID: selectedRowData.Role_ID,
-        RoleName: selectedRowData.RoleName,
-        RoleDescription: selectedRowData.RoleDescription,
+      .patch(api_configs.division.update, {
+        Div_ID: selectedRowData.Div_ID,
+        DivisionName: selectedRowData.DivisionName,
         Co_ID: userDetails.Co_ID,
-        UpdatedBy: userDetails.User_ID
+        UpdateBy: userDetails.User_ID
       })
       .then(resp => {
         if (resp.status === 200) {
-          toast.success('Form Submitted')
+          toast.success('Updated SuccessFully')
           handleClose()
         }
       })
@@ -72,40 +71,40 @@ const Roles = () => {
 
   const handleAddNew = async () => {
     await secureApi
-      .post(api_configs.role.create, {
-        RoleName: newRowData.RoleName,
-        RoleDescription: newRowData.RoleDescription,
+      .post(api_configs.division.createNew, {
+        DivisionName: newRowData.DivisionName,
         Co_ID: userDetails.Co_ID,
         CreatedBy: userDetails.User_ID
       })
       .then(resp => {
         if (resp.status === 200) {
-          toast.success('Form Submitted')
+          toast.success('Added Successfully')
+          getAllDivisions()
           setOpenNew(false)
         }
       })
   }
 
-  const getAllRoles = async () => {
-    await secureApi.get(api_configs.role.getAll, { params: { coid: userDetails.Co_ID } }).then(res => {
-      if (res.data.allRoles.length > 0) {
-        console.log(res.data.allRoles)
-        let allRoles = []
-        res.data.allRoles.map(role => {
-          allRoles.push({
-            name: role.RoleName,
-            description: role.RoleDescription,
+  const getAllDivisions = async () => {
+    await secureApi.get(api_configs.division.getAll, { params: { coid: userDetails.Co_ID } }).then(res => {
+      if (res.data.allDivisions.length > 0) {
+        let allDivision = []
+        res.data.allDivisions.map(role => {
+          allDivision.push({
+            name: role.DivisionName,
+            status: role.status,
             actions: <TableActions editRow={rowData => editRow(rowData)} row={role} />
           })
         })
-        setAllRoles(allRoles)
+        setAllDivision(allDivision)
       }
     })
   }
 
   useEffect(() => {
-    getAllRoles()
+    getAllDivisions()
   }, [open, openNew])
+
   // useEffect(() => {
   //   handleEditRow()
   // }, [])
@@ -113,7 +112,7 @@ const Roles = () => {
   return (
     <>
       <Dialog open={open} onClose={() => setOpen(false)} aria-labelledby='form-dialog-title'>
-        <DialogTitle id='form-dialog-title'>Roles</DialogTitle>
+        <DialogTitle id='form-dialog-title'>Edit Division</DialogTitle>
         <DialogContent>
           <TextField
             id='name'
@@ -121,20 +120,8 @@ const Roles = () => {
             fullWidth
             type='text'
             label='Role Name'
-            value={selectedRowData.RoleName}
-            onChange={e => setSelectedRowData({ ...selectedRowData, RoleName: e.target.value })}
-            sx={{ w: '100%', mt: '5px' }}
-          />
-        </DialogContent>
-        <DialogContent>
-          <TextField
-            id='description'
-            autoFocus
-            fullWidth
-            type='text'
-            label='Role Description'
-            value={selectedRowData.RoleDescription}
-            onChange={e => setSelectedRowData({ ...selectedRowData, RoleDescription: e.target.value })}
+            value={selectedRowData.DivisionName}
+            onChange={e => setSelectedRowData({ ...selectedRowData, DivisionName: e.target.value })}
             sx={{ w: '100%', mt: '5px' }}
           />
         </DialogContent>
@@ -146,24 +133,14 @@ const Roles = () => {
 
       {/* Add new Role */}
       <Dialog open={openNew} onClose={() => setOpenNew(false)} aria-labelledby='form-dialog-title'>
-        <DialogTitle id='form-dialog-title'>Add Role</DialogTitle>
+        <DialogTitle id='form-dialog-title'>Edit Division</DialogTitle>
         <DialogContent>
           <TextField
             id='name'
             fullWidth
             type='text'
-            label='Role Name'
-            onChange={e => setNewRowData({ ...newRowData, RoleName: e.target.value })}
-            sx={{ w: '100%', mt: '5px' }}
-          />
-        </DialogContent>
-        <DialogContent>
-          <TextField
-            id='description'
-            fullWidth
-            type='text'
-            label='Role Description'
-            onChange={e => setNewRowData({ ...newRowData, RoleDescription: e.target.value })}
+            label='Division Name'
+            onChange={e => setNewRowData({ ...newRowData, DivisionName: e.target.value })}
             sx={{ w: '100%', mt: '5px' }}
           />
         </DialogContent>
@@ -178,12 +155,12 @@ const Roles = () => {
           title={
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
               <Typography variant={'h6'}>
-                All Roles <Domain sx={{ ml: 2, color: theme => theme.palette.success.main }} />
+                All Divisions <Domain sx={{ ml: 2, color: theme => theme.palette.success.main }} />
               </Typography>
               <Box sx={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
-                {/* <Button size='small' type='submit' variant='contained' onClick={() => addNew()}>
-                  Add Role
-                </Button> */}
+                <Button size='small' type='submit' variant='contained' onClick={() => addNew()}>
+                  Add Division
+                </Button>
               </Box>
             </Box>
           }
@@ -194,10 +171,10 @@ const Roles = () => {
           <BasicTable
             columns={[
               { id: 'name', label: 'Name', minWidth: 170 },
-              { id: 'description', label: 'Description', minWidth: 170 },
+
               { id: 'actions', label: 'Actions', minWidth: 170 }
             ]}
-            rows={allRoles}
+            rows={allDivisions}
             onRowClickHandle={rowData => {}}
           />
         </CardContent>
@@ -206,4 +183,4 @@ const Roles = () => {
   )
 }
 
-export default Roles
+export default Divisions

@@ -117,7 +117,7 @@ const defaultOtherDetails = {
 
 const otherDetailsSchema = yup.object().shape({})
 
-const AddProductForm = ({ onCloseHandle }) => {
+const AddProductForm = ({ onCloseHandle, getProducts }) => {
   const userDetails = useUserDetails()
   const [loading, setLoading] = useState(false)
   const [activeStep, setActiveStep] = useState(0)
@@ -212,6 +212,7 @@ const AddProductForm = ({ onCloseHandle }) => {
       .post(api_configs.product.create, product)
       .then(() => {
         setLoading(false)
+        getProducts()
         toast.success('Product Added Successfully')
         handleReset()
       })

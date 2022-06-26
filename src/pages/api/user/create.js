@@ -10,13 +10,15 @@ export default async function handler(req, res) {
 
   let body = req.body
   let mobile = body.MobileNo
+  console.log(body)
   try {
-    cryptPassword(body.FirstName + '@' + mobile.substr(mobile.length - 4), async (err, hash) => {
+    cryptPassword(body.FirstName + '@' + String(mobile).substr(mobile.length - 4), async (err, hash) => {
       if (err) throw err
       body.Password = hash
       const otherDetails = body.otherDetails
       delete body.otherDetails
-
+      otherDetails["status"] = 50
+      
       // add new user to UserMaster
       let result = await User.Create.createNewUser(body)
       otherDetails['User_ID'] = result.insertId
