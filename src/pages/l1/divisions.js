@@ -133,7 +133,7 @@ const Divisions = () => {
 
       {/* Add new Role */}
       <Dialog open={openNew} onClose={() => setOpenNew(false)} aria-labelledby='form-dialog-title'>
-        <DialogTitle id='form-dialog-title'>Edit Division</DialogTitle>
+        <DialogTitle id='form-dialog-title'>Add Division</DialogTitle>
         <DialogContent>
           <TextField
             id='name'
