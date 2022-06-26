@@ -113,7 +113,7 @@ const Users = () => {
         }
       })
       .then(
-        secureApi.get(api_configs.role.getAll, { params: { coid: userDetails.Co_ID } }).then(res => {
+        secureApi.get(api_configs.role.getAll).then(res => {
           setAllRoles(res.data.allRoles)
           console.log(res.data.allRoles)
         })

@@ -63,8 +63,7 @@ function getAllAppPages() {
  */
 function getAllRolesOfACompany(co_id) {
   return executeQuery({
-    query: 'SELECT * FROM User_Roles where Co_ID = ?',
-    values: [co_id]
+    query: "SELECT * FROM User_Roles WHERE RoleName <> 'SuperAdmin'"
   })
 }
 
