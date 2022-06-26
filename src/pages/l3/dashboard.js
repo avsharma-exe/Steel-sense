@@ -1,15 +1,32 @@
-import { Grid, Card, CardHeader, Typography, CardContent, Button } from "@mui/material"
-import { DatabaseAlertOutline, DownloadOutline, Send, TicketConfirmationOutline } from "mdi-material-ui"
-import BasicTable from "src/components/utils/BasicTable"
+import { Grid, Card, CardHeader, Typography, CardContent, Button } from '@mui/material'
+import { DatabaseAlertOutline, DownloadOutline, Send, TicketConfirmationOutline } from 'mdi-material-ui'
+import BasicTable from 'src/components/utils/BasicTable'
 import { secureApi } from 'src/helpers/apiGenerator'
 import api_configs from 'src/configs/api_configs'
 import useUserDetails from 'src/hooks/useUserDetails'
 import { useState, useEffect } from 'react'
 
 const Dashboard = () => {
-
   const userDetails = useUserDetails()
   const [products, setProducts] = useState([])
+  const [lowStockProducts, setLowStockProducts] = useState([])
+  const [error, setError] = useState(false)
+  const [lowStockArray, setLowStockArray] = useState([])
+
+  const getLowStockProducts = () => {
+    secureApi
+      .get(api_configs.product.getLowStockDetails, {
+        params: {
+          company: userDetails.Co_ID,
+          division: userDetails.Div_ID
+        }
+      })
+      .then(resp => {
+        if (resp.status === 200) {
+          setLowStockProducts(resp.data.allLowStockProducts)
+        }
+      })
+  }
 
   const getProducts = () => {
     secureApi
@@ -26,8 +43,33 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
-    getProducts()
+    // getProducts()
+    getLowStockProducts()
   }, [])
+
+  useEffect(() => {
+    if (lowStockProducts.length) {
+      lowStockProducts.forEach(product => {
+        const prod = lowStockArray.findIndex(item => item.id === product.P_ID)
+        if (prod === -1) {
+          setLowStockArray([
+            ...lowStockArray,
+            {
+              id: product.P_ID,
+              name: product.PName,
+              qty: `${product.CurrentStock}/${product.LowStockLimit}`,
+              re_order_button: (
+                <Button id={product.P_ID} variant='contained' endIcon={<Send />} style={{ color: 'white' }}>
+                  Create Indent
+                </Button>
+              )
+            }
+          ])
+        }
+        console.log(lowStockArray)
+      })
+    }
+  }, [lowStockProducts])
 
   return (
     <Grid container spacing={6}>
@@ -73,29 +115,10 @@ const Dashboard = () => {
             <BasicTable
               columns={[
                 { id: 'name', label: 'Name', minWidth: 170 },
-                { id: 'qty', label: 'Quantity / Max Quantity', minWidth: 170 },
+                { id: 'qty', label: 'Quantity / Min Quantity', minWidth: 170 },
                 { id: 're_order_button', label: 'Reorder', minWidth: 170 }
               ]}
-              rows={[
-                {
-                  name: 'Copper',
-                  qty: '1/4',
-                  re_order_button: (
-                    <Button variant='contained' endIcon={<Send />} style={{ color: 'white' }}>
-                      Create Indent
-                    </Button>
-                  )
-                },
-                {
-                  name: 'Steel Plates',
-                  qty: '1/3',
-                  re_order_button: (
-                    <Button variant='contained' endIcon={<Send />} style={{ color: 'white' }}>
-                      Create Indent
-                    </Button>
-                  )
-                }
-              ]}
+              rows={lowStockArray}
             />
           </CardContent>
         </Card>
@@ -127,7 +150,13 @@ const Dashboard = () => {
                   eta: 'Wed Jun 08 2022',
                   status: 'Under Approval'
                 },
-                { name: 'Iron Filings', qty: '15', liod: 'Wed Jun 03 2022', eta: 'Wed Jun 10 2022', status: 'Under Approval' }
+                {
+                  name: 'Iron Filings',
+                  qty: '15',
+                  liod: 'Wed Jun 03 2022',
+                  eta: 'Wed Jun 10 2022',
+                  status: 'Under Approval'
+                }
               ]}
             />
           </CardContent>
@@ -137,4 +166,4 @@ const Dashboard = () => {
   )
 }
 
-export default Dashboard;
+export default Dashboard

@@ -31,7 +31,8 @@ export default {
         updateProductMaster: "/product/update-productMaster",
         updatePriceDetails: "/product/update-priceDetails",
         updateStockDetails: "/product/update-stockDetails",
-        updateGSTDetails: "/product/update-gstDetails"
+        updateGSTDetails: "/product/update-gstDetails",
+        getLowStockDetails: "/product/getLowStockDetails",
     },
     division: {
       getAll: "/division/get-all",
