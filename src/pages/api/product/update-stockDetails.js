@@ -20,6 +20,8 @@ export default async function handler(req, res) {
         CurrentStock: temp.CurrentStock,
         LastStock: temp.CurrentStock,
         CreatedDT: temp.CreatedDT,
+        LowStockLimit: temp.LowStockLimit,
+        MaxStockLimit: temp.MaxStockLimit,
         CreatedBy: temp.CreatedBy,
         UpdateBy: temp.UpdateBy
       }

@@ -42,47 +42,44 @@ const Inventory = () => {
       .then(resp => {
         if (resp.status === 200) {
           let allProducts = []
-          if (resp.data.allProducts)
-            resp.data.allProducts.map((product, index) => {
-              let productRow = {
-                srNo: <Typography data={product}>{index + 1}</Typography>,
-                productName:
-                  product.productDetails.length > 0 ? (
-                    <Tooltip
-                      title={
-                        'Print Name: ' + product.productDetails[0].PPrintName
-                          ? product.productDetails[0].PPrintName
-                          : product.productDetails[0].PName
-                      }
-                      arrow
-                    >
-                      <Typography>{product.productDetails[0].PName}</Typography>
-                    </Tooltip>
-                  ) : (
-                    ''
-                  ),
-                productGroup:
-                  product.productDetails.length > 0 ? (
-                    <Tooltip title={'Product Brand: ' + product.productDetails[0].PBrand} arrow>
-                      <Typography>{product.productDetails[0].PGroup}</Typography>
-                    </Tooltip>
-                  ) : (
-                    ''
-                  ),
-                productItemCode: <Typography>{product.productDetails[0].PItemCode}</Typography>,
-                stock:
-                  product.stockDetails[0].CurrentStock > 50 ? (
-
-                    // <Chip label={product.stockDetails[0].CurrentStock} color='success' />
-                    <Chip label={product.stockDetails[0].CurrentStock} sx={{ color: 'green' }} />
-                  ) : (
-                    
-                    // <Chip label={product.stockDetails[0].CurrentStock} color='danger' />
-                    <Chip label={product.stockDetails[0].CurrentStock} sx={{ color: 'red' }} />
-                  )
-              }
-              allProducts.push(productRow)
-            })
+          resp.data.allProducts.map((product, index) => {
+            let productRow = {
+              srNo: <Typography data={product}>{index + 1}</Typography>,
+              productName:
+                product.productDetails.length > 0 ? (
+                  <Tooltip
+                    title={
+                      'Print Name: ' + product.productDetails[0].PPrintName
+                        ? product.productDetails[0].PPrintName
+                        : product.productDetails[0].PName
+                    }
+                    arrow
+                  >
+                    <Typography>{product.productDetails[0].PName}</Typography>
+                  </Tooltip>
+                ) : (
+                  ''
+                ),
+              productGroup:
+                product.productDetails.length > 0 ? (
+                  <Tooltip title={'Product Brand: ' + product.productDetails[0].PBrand} arrow>
+                    <Typography>{product.productDetails[0].PGroup}</Typography>
+                  </Tooltip>
+                ) : (
+                  ''
+                ),
+              productItemCode: <Typography>{product.productDetails[0].PItemCode}</Typography>,
+              stock:
+                product.stockDetails[0].CurrentStock > product.stockDetails[0].LowStockLimit ? (
+                  // <Chip label={product.stockDetails[0].CurrentStock} color='success' />
+                  <Chip label={product.stockDetails[0].CurrentStock} sx={{color: 'green'}} />
+                ) : (
+                  // <Chip label={product.stockDetails[0].CurrentStock} color='danger' />
+                  <Chip label={product.stockDetails[0].CurrentStock} sx={{color: 'red'}} />
+                )
+            }
+            allProducts.push(productRow)
+          })
 
           setProducts(allProducts)
           setShowLoader(false)

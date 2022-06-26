@@ -84,13 +84,16 @@ const defaultPriceSchema = yup.object().shape({
 const defaultStockDetails = {
   unit: '',
   openingStock: '',
-  openingStockValue: ''
+  openingStockValue: '',
+  LowStockLimit: '',
+  MaxStockLimit: ''
 }
 
 const stockDetailsSchema = yup.object().shape({
   unit: yup.string().required(),
-  openingStock: yup.string().required()
-
+  openingStock: yup.string().required(),
+  LowStockLimit: yup.string().required(),
+  MaxStockLimit: yup.string().required()
 })
 
 const defaultGstDetails = {
@@ -110,7 +113,6 @@ const gstSchema = yup.object().shape({
 
 const defaultOtherDetails = {
   saleDiscount: '',
-  lowLevelLimit: '',
   productType: '',
   serialno: ''
 }
@@ -594,6 +596,58 @@ const AddProductForm = ({ onCloseHandle, getProducts }) => {
                   )}
                 </FormControl>
               </Grid>
+              <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth>
+                    <Controller
+                      name='LowStockLimit'
+                      control={stockDetailsControl}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange } }) => (
+                        <TextField
+                          value={value}
+                          label='Low Stock Limit'
+                          onChange={e => {
+                            onChange(e)
+                            setStockDetails({ ...stockDetails, LowStockLimit: e.target.value })
+                          }}
+                          error={Boolean(stockDetailsError.LowStockLimit)}
+                          aria-describedby='stepper-linear-account-username'
+                        />
+                      )}
+                    />
+                    {stockDetailsError.LowStockLimit && (
+                      <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
+                        {stockDetailsError.LowStockLimit.message}
+                      </FormHelperText>
+                    )}
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth>
+                    <Controller
+                      name='MaxStockLimit'
+                      control={stockDetailsControl}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange } }) => (
+                        <TextField
+                          value={value}
+                          label='Max Stock Limit'
+                          onChange={e => {
+                            onChange(e)
+                            setStockDetails({ ...stockDetails, MaxStockLimit: e.target.value })
+                          }}
+                          error={Boolean(stockDetailsError.MaxStockLimit)}
+                          aria-describedby='stepper-linear-account-username'
+                        />
+                      )}
+                    />
+                    {stockDetailsError.MaxStockLimit && (
+                      <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
+                        {stockDetailsError.MaxStockLimit.message}
+                      </FormHelperText>
+                    )}
+                  </FormControl>
+                </Grid>
 
               <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Button size='large' variant='outlined' color='secondary' onClick={handleBack}>
@@ -782,29 +836,6 @@ const AddProductForm = ({ onCloseHandle, getProducts }) => {
                   {otherDetailsError.saleDiscount && (
                     <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
                       {otherDetailsError.saleDiscount.message}
-                    </FormHelperText>
-                  )}
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <Controller
-                    name='lowLevelLimit'
-                    control={otherDetailsControl}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange } }) => (
-                      <TextField
-                        value={value}
-                        label='Low Level Limit'
-                        onChange={onChange}
-                        error={Boolean(otherDetailsError.lowLevelLimit)}
-                        aria-describedby='stepper-linear-account-username'
-                      />
-                    )}
-                  />
-                  {otherDetailsError.lowLevelLimit && (
-                    <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                      {otherDetailsError.lowLevelLimit.message}
                     </FormHelperText>
                   )}
                 </FormControl>

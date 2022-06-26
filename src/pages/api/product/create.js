@@ -12,7 +12,7 @@ export default async function handler(req, res) {
 
   try {
     let userfeilds = { CreatedBy: body.userDetails.User_ID, UpdateBy: body.userDetails.User_ID }
-    
+
     const productDetails = {
       PName: body.productDetails.productName,
       PGroup: body.productDetails.productGroup,
@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     const priceDetails = {
       P_ID: addProductDetails.insertId,
       PurchasePrice: body.priceDetails.purchasePrice,
-      
+
       SalePrice: body.priceDetails.salePrice,
       MinSalePrice: body.priceDetails.minSalePice,
       Product_Price_Detailscol: body.priceDetails.mrp,
@@ -49,6 +49,8 @@ export default async function handler(req, res) {
         P_ID: addProductDetails.insertId,
         CurrentStock: body.stockDetails.openingStock,
         LastStock: body.stockDetails.openingStock,
+        LowStockLimit: body.stockDetails.LowStockLimit,
+        MaxStockLimit: body.stockDetails.MaxStockLimit,
         ...userfeilds
      }
 
@@ -57,10 +59,10 @@ export default async function handler(req, res) {
         UnitName: body.stockDetails.unit,
         ...userfeilds
      }
-     
+
 
     const addProductPriceDetails = await Product.Create.createProductPriceDetails(priceDetails)
-    
+
     const createProductGstDetails = await Product.Create.createProductGSTDetails(productGstDetails)
 
     const createProductStockDetails = await Product.Create.createProductStockDetails(productStockDetails)
@@ -75,7 +77,7 @@ export default async function handler(req, res) {
 
 
     if (addProductPriceDetails && createProductCompanyDivision && createProductGstDetails && createProductStockDetails && createProductUnit) {
-        
+
         res.send({
           error: false,
           msg: 'Product added successfully',

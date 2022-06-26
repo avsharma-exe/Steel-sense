@@ -1,8 +1,34 @@
 import { Grid, Card, CardHeader, Typography, CardContent, Button } from "@mui/material"
 import { DatabaseAlertOutline, DownloadOutline, Send, TicketConfirmationOutline } from "mdi-material-ui"
 import BasicTable from "src/components/utils/BasicTable"
+import { secureApi } from 'src/helpers/apiGenerator'
+import api_configs from 'src/configs/api_configs'
+import useUserDetails from 'src/hooks/useUserDetails'
+import { useState, useEffect } from 'react'
 
 const Dashboard = () => {
+
+  const userDetails = useUserDetails()
+  const [products, setProducts] = useState([])
+
+  const getProducts = () => {
+    secureApi
+      .get(api_configs.product.getAll, {
+        params: {
+          company: userDetails.Co_ID
+        }
+      })
+      .then(resp => {
+        if (resp.status === 200) {
+          console.log(resp.data.allProducts)
+        }
+      })
+  }
+
+  useEffect(() => {
+    getProducts()
+  }, [])
+
   return (
     <Grid container spacing={6}>
       <Grid item md={6}>
