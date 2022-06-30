@@ -33,10 +33,14 @@ export default {
         updateStockDetails: "/product/update-stockDetails",
         updateGSTDetails: "/product/update-gstDetails",
         getLowStockDetails: "/product/getLowStockDetails",
+        getProductByID: "/product/getProductByID",
     },
     division: {
       getAll: "/division/get-all",
       createNew: "/division/create",
       update: "/division/update"
+    },
+    indent: {
+        create: "/indent/create"
     }
 }

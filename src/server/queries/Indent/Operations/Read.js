@@ -3,7 +3,8 @@ import executeQuery from '../../../../server/Connection'
 const Read = {
   getAllIndentsOfACompany,
   getAllIndentsOfACompanyDivision,
-  getIndentParticulars
+  getIndentParticulars,
+  getIndentByID
 }
 
 /**
@@ -28,6 +29,18 @@ function getAllIndentsOfACompanyDivision(co_id, div_id) {
   return executeQuery({
     query: `SELECT * FROM Product_Stock_Indent WHERE Co_ID = ? AND Div_ID = ?`,
     values: [co_id, div_id]
+  })
+}
+
+/**
+ * 
+ * @param {*} co_id 
+ * @returns database data from Product_Stock_Indent table
+ */
+ function getIndentByID(id) {
+  return executeQuery({
+    query: `SELECT * FROM Product_Stock_Indent WHERE P_Stock_Indent_ID = ?`,
+    values: [id]
   })
 }
 

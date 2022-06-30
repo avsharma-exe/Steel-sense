@@ -69,7 +69,7 @@ const BasicTable = ({rows , columns, onRowClickHandle}) => {
           <TableBody>
             {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(row => {
               return (
-                <TableRow hover role='checkbox' tabIndex={-1} key={row.code} onClick={() => onRowClickHandle(row)}>
+                <TableRow hover role='checkbox' tabIndex={-1} key={row.code} onClick={() => onRowClickHandle && onRowClickHandle(row)}>
                   {columns.map(column => {
                     const value = row[column.id]
 

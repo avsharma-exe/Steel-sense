@@ -5,6 +5,7 @@ import { secureApi } from 'src/helpers/apiGenerator'
 import api_configs from 'src/configs/api_configs'
 import useUserDetails from 'src/hooks/useUserDetails'
 import { useState, useEffect } from 'react'
+import AddNewIndent from 'src/components/indent/AddNewIndent'
 
 const Dashboard = () => {
   const userDetails = useUserDetails()
@@ -12,6 +13,8 @@ const Dashboard = () => {
   const [lowStockProducts, setLowStockProducts] = useState([])
   const [error, setError] = useState(false)
   const [lowStockArray, setLowStockArray] = useState([])
+  const [addIndentOpen, setAddIndentOpen] = useState(false)
+  const [productId, setProductID] = useState(null)
 
   const getLowStockProducts = () => {
     secureApi
@@ -42,6 +45,16 @@ const Dashboard = () => {
       })
   }
 
+  const handleCreateIndent = (id = null) => {
+    console.log('id', id)
+    setProductID(id)
+    toggleAddIndentDrawer()
+  }
+
+  const toggleAddIndentDrawer = () => {
+    setAddIndentOpen(!addIndentOpen);
+  }
+
   useEffect(() => {
     // getProducts()
     getLowStockProducts()
@@ -59,7 +72,12 @@ const Dashboard = () => {
               name: product.PName,
               qty: `${product.CurrentStock}/${product.LowStockLimit}`,
               re_order_button: (
-                <Button id={product.P_ID} variant='contained' endIcon={<Send />} style={{ color: 'white' }}>
+                <Button
+                  variant='contained'
+                  endIcon={<Send />}
+                  style={{ color: 'white' }}
+                  onClick={() => handleCreateIndent(product.P_ID)}
+                >
                   Create Indent
                 </Button>
               )
@@ -162,6 +180,7 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </Grid>
+      <AddNewIndent open={addIndentOpen} toggle={toggleAddIndentDrawer} id={productId} />
     </Grid>
   )
 }
