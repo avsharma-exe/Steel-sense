@@ -11,6 +11,8 @@ export default async function handler(req, res) {
 
   try {
     let product = await Product.Read.getProductMasterData(P_ID)
+    let productUnit = await Product.Read.getProductUnitData(P_ID)
+    product[0]["UnitName"] = productUnit[0].UnitName
     if(product.length === 0) res.send({
       error: true,
       msg: "Products Not Found"

@@ -14,6 +14,9 @@ import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import FormHelperText from '@mui/material/FormHelperText'
 import useUserDetails from 'src/hooks/useUserDetails'
+import DatePicker from '@mui/lab/DatePicker'
+import AdapterDateFns from '@mui/lab/AdapterDateFns'
+import LocalizationProvider from '@mui/lab/LocalizationProvider'
 
 // ** Third Party Imports
 import * as yup from 'yup'
@@ -26,6 +29,7 @@ import api_configs from 'src/configs/api_configs'
 import Close from 'mdi-material-ui/Close'
 import { useEffect } from 'react'
 import toast from 'react-hot-toast'
+import { InputAdornment } from '@mui/material'
 
 const showErrors = (field, valueLen, min) => {
   if (valueLen === 0) {
@@ -55,12 +59,9 @@ const schema = yup.object().shape({
 })
 
 const defaultValues = {
-  email: '',
-  contact: '',
+  expectedDate: '',
   productName: '',
-  lastName: '',
-  division: '',
-  role: ''
+  qty: ''
 }
 
 const Header = styled(Box)(({ theme }) => ({
@@ -76,6 +77,7 @@ const AddNewIndent = props => {
   const [role, setRole] = useState('2')
   const [division, setDivision] = useState()
   const [product, setProduct] = useState()
+  const [expectedDate, setExpectedDate] = useState(new Date())
   const [allDivision, setAllDivision] = useState([])
   const userDetails = useUserDetails()
 
@@ -93,11 +95,11 @@ const AddNewIndent = props => {
 
   const getProductDetails = async () => {
     await secureApi.get(api_configs.product.getProductByID, { params: { product: id } }).then(res => {
-        if (id && res.data.product.length > 0) {
-            console.log(res.data.product[0]);
-          setProduct(res.data.product[0])
-        }
-      })
+      if (id && res.data.product.length > 0) {
+        console.log(res.data.product[0])
+        setProduct(res.data.product[0])
+      }
+    })
   }
 
   const getAllDivision = async () => {
@@ -112,29 +114,28 @@ const AddNewIndent = props => {
     })
   }
 
-  const addUser = async data => {
-    try {
-      let addUser = await secureApi.post(api_configs.user.create, {
-        MobileNo: data.contact,
-        FirstName: data.firstName,
-        LastName: data.lastName,
-        Email: data.email,
-        otherDetails: {
-            Role_ID: role,
-            Div_ID: division,
-            Co_ID: userDetails.Co_ID
-        }
-
-      })
-      if(addUser)
-        toast.success("Created Successfully")
-    } catch (e) {
-        toast.error("Something went wrong")
-    }
+  const addIndent = async data => {
+    console.log('data', data, expectedDate)
+    // try {
+    //   let addUser = await secureApi.post(api_configs.user.create, {
+    //     MobileNo: data.contact,
+    //     FirstName: data.firstName,
+    //     LastName: data.lastName,
+    //     Email: data.email,
+    //     otherDetails: {
+    //       Role_ID: role,
+    //       Div_ID: division,
+    //       Co_ID: userDetails.Co_ID
+    //     }
+    //   })
+    //   if (addUser) toast.success('Created Successfully')
+    // } catch (e) {
+    //   toast.error('Something went wrong')
+    // }
   }
 
   const onSubmit = async data => {
-    addUser(data)
+    addIndent(data)
 
     // TODO: Add User API CALL
     toggle()
@@ -149,11 +150,14 @@ const AddNewIndent = props => {
 
   useEffect(() => {
     getAllDivision()
-    getProductDetails()
   }, [])
+  
+  useEffect(() => {
+    console.log('expected Date', expectedDate);
+  }, [expectedDate])
 
   useEffect(() => {
-    getProductDetails()
+    if (id) getProductDetails()
   }, [id, open])
 
   return (
@@ -172,117 +176,83 @@ const AddNewIndent = props => {
       <Box sx={{ p: 5 }}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormControl fullWidth sx={{ mb: 6 }}>
-            {id && <Controller
+            <Controller
               name='productName'
               control={control}
               rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <TextField
-                  value={product && product.PName}
-                  disabled
-                  // label='Product Name'
-                  onChange={onChange}
-                  placeholder=''
-                  error={Boolean(errors.firstName)}
-                />
-              )}
-            />}
-            {errors.productName && <FormHelperText sx={{ color: 'error.main' }}>{errors.productName.message}</FormHelperText>}
-          </FormControl>
-          <FormControl fullWidth sx={{ mb: 6 }}>
-            <Controller
-              name='lastName'
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <TextField
-                  value={value}
-                  label='Last Name'
-                  onChange={onChange}
-                  placeholder='Doe'
-                  error={Boolean(errors.lastName)}
-                />
-              )}
-            />
-            {errors.lastName && <FormHelperText sx={{ color: 'error.main' }}>{errors.lastName.message}</FormHelperText>}
-          </FormControl>
-          <FormControl fullWidth sx={{ mb: 6 }}>
-            <Controller
-              name='email'
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <TextField
-                  type='email'
-                  value={value}
-                  label='Email'
-                  onChange={onChange}
-                  placeholder='johndoe@email.com'
-                  error={Boolean(errors.email)}
-                />
-              )}
-            />
-            {errors.email && <FormHelperText sx={{ color: 'error.main' }}>{errors.email.message}</FormHelperText>}
-          </FormControl>
-          <FormControl fullWidth sx={{ mb: 6 }}>
-            <Controller
-              name='contact'
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <TextField
-                  type='number'
-                  value={value}
-                  label='Contact'
-                  onChange={onChange}
-                  placeholder='(397) 294-5153'
-                  error={Boolean(errors.contact)}
-                />
-              )}
-            />
-            {errors.contact && <FormHelperText sx={{ color: 'error.main' }}>{errors.contact.message}</FormHelperText>}
-          </FormControl>
-          <FormControl fullWidth sx={{ mb: 6 }}>
-            <InputLabel id='role-select'>Select Role</InputLabel>
-            <Select
-              fullWidth
-              value={role}
-              id='select-role'
-              label='Select Role'
-              labelId='role-select'
-              onChange={e => setRole(e.target.value)}
-              inputProps={{ placeholder: 'Select Role' }}
-            >
-              <MenuItem value='2'>L1 User</MenuItem>
-              <MenuItem value='3'>L2 User</MenuItem>
-              <MenuItem value='4'>L3 User</MenuItem>
-            </Select>
-          </FormControl>
-          {errors.role && <FormHelperText sx={{ color: 'error.main' }}>{errors.role.message}</FormHelperText>}
-          <FormControl fullWidth sx={{ mb: 6 }}>
-            <InputLabel id='division-select'>Select Division</InputLabel>
-            <Select
-              fullWidth
-              value={division}
-              id='select-division'
-              label='Select Division'
-              labelId='division-select'
-              onChange={e => setDivision(e.target.value)}
-              inputProps={{ placeholder: 'Select Division' }}
-            >
-              {allDivision.map((div, index) => {
-                return (
-                  <MenuItem value={div.id} key={index}>
-                    {div.label}
-                  </MenuItem>
+              render={({ field: { value, onChange } }) =>
+                id ? (
+                  <TextField
+                    value={product && product.PName}
+                    disabled
+                    // label='Product Name'
+                    onChange={onChange}
+                    placeholder=''
+                    error={Boolean(errors.firstName)}
+                  />
+                ) : (
+                  <TextField
+                    value={value}
+                    disabled
+                    // label='Product Name'
+                    onChange={onChange}
+                    placeholder=''
+                    error={Boolean(errors.firstName)}
+                  />
                 )
-              })}
-            </Select>
+              }
+            />
+            {errors.productName && (
+              <FormHelperText sx={{ color: 'error.main' }}>{errors.productName.message}</FormHelperText>
+            )}
           </FormControl>
-          {errors.division && <FormHelperText sx={{ color: 'error.main' }}>{errors.division.message}</FormHelperText>}
+          <FormControl fullWidth sx={{ mb: 6 }}>
+            <Controller
+              name='qty'
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <TextField
+                  value={value}
+                  label='Quantity'
+                  onChange={onChange}
+                  placeholder='100'
+                  error={Boolean(errors.qty)}
+                  InputProps={{
+                    endAdornment: <InputAdornment position='end'>{product && product.UnitName}</InputAdornment>
+                  }}
+                />
+              )}
+            />
+            {errors.qty && <FormHelperText sx={{ color: 'error.main' }}>{errors.qty.message}</FormHelperText>}
+          </FormControl>
+          <FormControl fullWidth sx={{ mb: 6 }}>
+            <Controller
+              name='expectedDate'
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <DatePicker
+                    openTo='day'
+                    // disableFuture
+                    label='Expected Date'
+                    value={expectedDate}
+                    views={['year', 'month', 'day']}
+                    onChange={e => setExpectedDate(e)}
+                    renderInput={params => <TextField {...params} />}
+                  />
+                </LocalizationProvider>
+              )}
+            />
+            {errors.expectedDate && (
+              <FormHelperText sx={{ color: 'error.main' }}>{errors.expectedDate.message}</FormHelperText>
+            )}
+          </FormControl>
+
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Button size='large' type='submit' variant='contained' sx={{ mr: 3 }}>
-              Submit
+              Save
             </Button>
             <Button size='large' variant='outlined' color='secondary' onClick={handleClose}>
               Cancel
@@ -295,3 +265,29 @@ const AddNewIndent = props => {
 }
 
 export default AddNewIndent
+
+// <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around' }}>
+//                   <TextField
+//                     value={value}
+//                     label='Quantity'
+//                     onChange={onChange}
+//                     placeholder='100'
+//                     error={Boolean(errors.qty)}
+//                   />
+//                   <FormControl fullWidth sx={{ borderLeft: '0px' }}>
+//                     <InputLabel id='Unit'>Unit</InputLabel>
+//                     <Select
+//                       fullWidth
+//                       // value={role}
+//                       id='select-unit'
+//                       labelId='unit-select'
+//                       label='Unit'
+//                       onChange={e => setRole(e.target.value)}
+//                       inputProps={{ placeholder: 'Select Unit' }}
+//                     >
+//                       <MenuItem value='2'>Kg</MenuItem>
+//                       <MenuItem value='3'>Tonnes</MenuItem>
+//                       <MenuItem value='4'>Litres</MenuItem>
+//                     </Select>
+//                   </FormControl>
+//                 </Box>
