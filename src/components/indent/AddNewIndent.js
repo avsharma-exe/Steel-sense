@@ -124,7 +124,7 @@ const AddNewIndent = props => {
             Div_ID: division,
             Co_ID: userDetails.Co_ID
         }
-        
+
       })
       if(addUser)
         toast.success("Created Successfully")
@@ -178,9 +178,9 @@ const AddNewIndent = props => {
               rules={{ required: true }}
               render={({ field: { value, onChange } }) => (
                 <TextField
-                  value={product.PName}
+                  value={product && product.PName}
                   disabled
-                  label='Product Name'
+                  // label='Product Name'
                   onChange={onChange}
                   placeholder=''
                   error={Boolean(errors.firstName)}
