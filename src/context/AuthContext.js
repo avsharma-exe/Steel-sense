@@ -73,10 +73,26 @@ const AuthProvider = ({ children }) => {
         if (res.data && !res.data.error) {
           await window.localStorage.setItem('accessToken', res.data.token)
           await window.localStorage.setItem('userData', JSON.stringify(res.data.user))
+
           setUser({ ...res.data.user })
+          
+          switch(res.data.user.role){
+            case "L1":
+              router.replace("/l1/dashboard")
+              break;
+
+            case "L2":
+              router.replace("/l2/dashboard")
+              break;
+
+            case "L3":
+              router.replace("/l3/dashboard")
+              break;
+          }
+          
           const returnUrl = router.query.returnUrl
           const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
-          console.log(redirectURL);
+          
           
           router.replace(redirectURL)
         }

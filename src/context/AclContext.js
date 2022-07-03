@@ -48,7 +48,7 @@ const AclProvider = ({ children }) => {
             title: 'Create Company',
             path: '/admin/add-company',
             icon: Company
-          },
+          }
         ]
 
       case 'L1':
@@ -77,8 +77,40 @@ const AclProvider = ({ children }) => {
             title: 'Approve Voucher',
             path: '/l1/approve-voucher',
             icon: ShieldOutline
+          }
+        ]
+      case 'L2':
+        return [
+          {
+            title: 'Dashboard',
+            path: '/l2/dashboard',
+            icon: HomeOutline
           },
-
+          {
+            title: 'Inventory',
+            path: '/inventory',
+            icon: DatabaseOutline
+          },
+          {
+            title: 'Bill Entry',
+            path: '/l2/bill-entry',
+            icon: DatabaseArrowDownOutline
+          },
+          {
+            title: 'Invoice Due',
+            path: '/l2/invoice-due',
+            icon: DatabaseArrowUpOutline
+          },
+          {
+            title: 'Quotation',
+            path: '/l2/quotation',
+            icon: ClipboardListOutline
+          },
+          {
+            title: 'Purchase Order',
+            path: '/l2/purchase-order',
+            icon: ClipboardListOutline
+          }
         ]
       case 'L3':
         return [
@@ -106,8 +138,7 @@ const AclProvider = ({ children }) => {
             title: 'Indent',
             path: '/l3/indent',
             icon: ClipboardListOutline
-          },
-
+          }
         ]
     }
   }

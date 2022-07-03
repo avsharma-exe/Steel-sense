@@ -13,6 +13,8 @@ const defineRulesFor = (role, subject) => {
     can('manage', 'all')
   } else if (role === 'L1') {
     can('manage', 'all')
+  } else if (role === 'L2') {
+    can('manage', 'all')
   } else if (role === 'L3') {
     can('manage', 'all')
   } else {
