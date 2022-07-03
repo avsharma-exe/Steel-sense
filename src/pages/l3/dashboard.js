@@ -14,7 +14,7 @@ const Dashboard = () => {
   const [error, setError] = useState(false)
   const [lowStockArray, setLowStockArray] = useState([])
   const [addIndentOpen, setAddIndentOpen] = useState(false)
-  const [productId, setProductID] = useState(null)
+  const [productDetails, setProductDetails] = useState(null)
 
   const getLowStockProducts = () => {
     secureApi
@@ -45,9 +45,12 @@ const Dashboard = () => {
       })
   }
 
-  const handleCreateIndent = (id = null) => {
-    console.log('id', id)
-    setProductID(id)
+  const handleCreateIndent = ({P_ID , PName}) => {
+    
+    setProductDetails({
+      id: P_ID,
+      name: PName
+    })
     toggleAddIndentDrawer()
   }
 
@@ -76,7 +79,7 @@ const Dashboard = () => {
                   variant='contained'
                   endIcon={<Send />}
                   style={{ color: 'white' }}
-                  onClick={() => handleCreateIndent(product.P_ID)}
+                  onClick={() => handleCreateIndent(product)}
                 >
                   Create Indent
                 </Button>
@@ -84,7 +87,7 @@ const Dashboard = () => {
             }
           ])
         }
-        console.log(lowStockArray)
+        
       })
     }
   }, [lowStockProducts])
@@ -180,7 +183,7 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </Grid>
-      <AddNewIndent open={addIndentOpen} toggle={toggleAddIndentDrawer} id={productId} />
+      <AddNewIndent open={addIndentOpen} toggle={toggleAddIndentDrawer} productDetails={productDetails} />
     </Grid>
   )
 }

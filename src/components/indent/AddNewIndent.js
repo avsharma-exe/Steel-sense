@@ -42,20 +42,9 @@ const showErrors = (field, valueLen, min) => {
 }
 
 const schema = yup.object().shape({
-  email: yup.string().email().required(),
-  contact: yup
-    .number()
-    .typeError('Contact Number field is required')
-    .min(10, obj => showErrors('Contact Number', obj.value.length, obj.min))
-    .required(),
-  firstName: yup
-    .string()
-    .min(3, obj => showErrors('First Name', obj.value.length, obj.min))
-    .required(),
-  lastName: yup
-    .string()
-    .min(3, obj => showErrors('Last Name', obj.value.length, obj.min))
-    .required()
+  expectedDate: yup.string().required(),
+  // productName: yup.string().required(),
+  qty: yup.number().required()
 })
 
 const defaultValues = {
@@ -73,12 +62,15 @@ const Header = styled(Box)(({ theme }) => ({
 }))
 
 const AddNewIndent = props => {
-  const { open, toggle, id } = props
+  const { open, toggle, productDetails } = props
   const [role, setRole] = useState('2')
   const [division, setDivision] = useState()
   const [product, setProduct] = useState()
   const [expectedDate, setExpectedDate] = useState(new Date())
   const [allDivision, setAllDivision] = useState([])
+  const [productdetails , setProductDetails] = useState(productDetails ? productDetails :  {
+    name: ""
+  })
   const userDetails = useUserDetails()
 
   const {
@@ -88,14 +80,18 @@ const AddNewIndent = props => {
     handleSubmit,
     formState: { errors }
   } = useForm({
-    defaultValues,
+    defaultValues: {
+      expectedDate: '',
+      productName: productdetails.name,
+      qty: ''
+    },
     mode: 'onChange',
     resolver: yupResolver(schema)
   })
 
   const getProductDetails = async () => {
-    await secureApi.get(api_configs.product.getProductByID, { params: { product: id } }).then(res => {
-      if (id && res.data.product.length > 0) {
+    await secureApi.get(api_configs.product.getProductByID, { params: { product: productDetails.id } }).then(res => {
+      if (productDetails.id && res.data.product.length > 0) {
         console.log(res.data.product[0])
         setProduct(res.data.product[0])
       }
@@ -149,16 +145,17 @@ const AddNewIndent = props => {
   }
 
   useEffect(() => {
+    
     getAllDivision()
   }, [])
-  
+
   useEffect(() => {
-    console.log('expected Date', expectedDate);
+    console.log('expected Date', expectedDate)
   }, [expectedDate])
 
   useEffect(() => {
-    if (id) getProductDetails()
-  }, [id, open])
+    if (productDetails) getProductDetails()
+  }, [productDetails, open])
 
   return (
     <Drawer
@@ -181,14 +178,14 @@ const AddNewIndent = props => {
               control={control}
               rules={{ required: true }}
               render={({ field: { value, onChange } }) =>
-                id ? (
+                productDetails ? (
                   <TextField
                     value={product && product.PName}
                     disabled
                     // label='Product Name'
                     onChange={onChange}
                     placeholder=''
-                    error={Boolean(errors.firstName)}
+                    error={Boolean(errors.productName)}
                   />
                 ) : (
                   <TextField
@@ -197,7 +194,7 @@ const AddNewIndent = props => {
                     // label='Product Name'
                     onChange={onChange}
                     placeholder=''
-                    error={Boolean(errors.firstName)}
+                    error={Boolean(errors.productName)}
                   />
                 )
               }
