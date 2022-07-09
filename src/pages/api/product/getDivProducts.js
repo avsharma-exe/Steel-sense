@@ -7,23 +7,23 @@ export default async function handler(req, res) {
     return
   }
 
-  let P_ID = req.query.product
+  let Co_ID = req.query.coid
+  let Div_ID = req.query.div_id
+
+  console.log(Co_ID,Div_ID)
 
   try {
-    let product = await Product.Read.getProductMasterData(P_ID)
-    let productUnit = await Product.Read.getProductUnitData(P_ID)
-    product[0]["UnitName"] = productUnit[0].UnitName
-    let p_stock = await Product.Read.getProductStockData(P_ID)
-    if(product.length === 0) res.send({
+    let allProducts = await Product.Read.getAllDivsionProducts(Co_ID,Div_ID)
+    if(allProducts.length === 0) res.send({
       error: true,
       msg: "Products Not Found"
     })
 
-    if (product) {
+    if (allProducts) {
+
         res.send({
           error: false,
-          product,
-          p_stock
+          allProducts
         })
       }
   } catch (e) {

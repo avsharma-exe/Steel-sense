@@ -46,7 +46,7 @@ const Dashboard = () => {
   }
 
   const handleCreateIndent = ({P_ID , PName}) => {
-    
+
     setProductDetails({
       id: P_ID,
       name: PName
@@ -87,7 +87,7 @@ const Dashboard = () => {
             }
           ])
         }
-        
+
       })
     }
   }, [lowStockProducts])

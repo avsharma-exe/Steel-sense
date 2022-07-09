@@ -34,6 +34,7 @@ export default {
         updateGSTDetails: "/product/update-gstDetails",
         getLowStockDetails: "/product/getLowStockDetails",
         getProductByID: "/product/getProductByID",
+        getDivProducts: "/product/getDivProducts"
     },
     division: {
       getAll: "/division/get-all",
@@ -41,6 +42,9 @@ export default {
       update: "/division/update"
     },
     indent: {
-        create: "/indent/create"
+      create: "/indent/create"
+    },
+    stockInOut: {
+      createStockInward: "stockInOut/createStockInward"
     }
 }

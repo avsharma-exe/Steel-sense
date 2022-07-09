@@ -130,7 +130,7 @@ const AclProvider = ({ children }) => {
             icon: DatabaseArrowDownOutline
           },
           {
-            title: 'Stock Outward',
+            title: 'Stock Usage',
             path: '/l3/stockOutward',
             icon: DatabaseArrowUpOutline
           },

@@ -15,9 +15,8 @@ import FormControl from '@mui/material/FormControl'
 import FormHelperText from '@mui/material/FormHelperText'
 import useUserDetails from 'src/hooks/useUserDetails'
 import DatePicker from '@mui/lab/DatePicker'
-import AdapterDateFns from '@mui/lab/AdapterDateFns'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
-
+import AdapterDateFns from '@mui/lab/AdapterDateFns'
 // ** Third Party Imports
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -28,29 +27,25 @@ import api_configs from 'src/configs/api_configs'
 // ** Icons Imports
 import Close from 'mdi-material-ui/Close'
 import { useEffect } from 'react'
-import toast from 'react-hot-toast'
 import { InputAdornment } from '@mui/material'
-
-const showErrors = (field, valueLen, min) => {
-  if (valueLen === 0) {
-    return `${field} field is required`
-  } else if (valueLen > 0 && valueLen < min) {
-    return `${field} must be at least ${min} characters`
-  } else {
-    return ''
-  }
-}
+import { Console } from 'mdi-material-ui'
 
 const schema = yup.object().shape({
-  expectedDate: yup.string().required(),
-  // productName: yup.string().required(),
-  qty: yup.number().required()
+  quantity: yup
+    .number()
+    .typeError('Quantity to be ordered is required')
+    .required(),
+  description: yup
+    .string()
+    .required(),
+
 })
 
 const defaultValues = {
-  expectedDate: '',
-  productName: '',
-  qty: ''
+  quantity: '',
+  description: '',
+  expected_date: '',
+  current_stock: ''
 }
 
 const Header = styled(Box)(({ theme }) => ({
@@ -63,15 +58,11 @@ const Header = styled(Box)(({ theme }) => ({
 
 const AddNewIndent = props => {
   const { open, toggle, productDetails } = props
-  const [role, setRole] = useState('2')
-  const [division, setDivision] = useState()
   const [product, setProduct] = useState()
-  const [expectedDate, setExpectedDate] = useState(new Date())
-  const [allDivision, setAllDivision] = useState([])
-  const [productdetails , setProductDetails] = useState(productDetails ? productDetails :  {
-    name: ""
-  })
+  const [product_stock, setProductStock] = useState()
   const userDetails = useUserDetails()
+  const [ex_date, setExDate] = useState(new Date())
+
 
   const {
     reset,
@@ -80,78 +71,76 @@ const AddNewIndent = props => {
     handleSubmit,
     formState: { errors }
   } = useForm({
-    defaultValues: {
-      expectedDate: '',
-      productName: productdetails.name,
-      qty: ''
-    },
+    defaultValues,
     mode: 'onChange',
     resolver: yupResolver(schema)
   })
 
   const getProductDetails = async () => {
     await secureApi.get(api_configs.product.getProductByID, { params: { product: productDetails.id } }).then(res => {
-      if (productDetails.id && res.data.product.length > 0) {
-        console.log(res.data.product[0])
-        setProduct(res.data.product[0])
-      }
-    })
+        if (productDetails.id && res.data.product.length > 0) {
+            // console.log(res.data);
+          setProduct(res.data.product[0])
+          setProductStock(res.data.p_stock[0])
+        }
+      })
   }
 
-  const getAllDivision = async () => {
-    await secureApi.get(api_configs.division.getAll, { params: { coid: userDetails.Co_ID } }).then(res => {
-      if (res.data.allDivisions.length > 0) {
-        let allDivision = []
-        res.data.allDivisions.map(div => {
-          allDivision.push({ id: div.Div_ID, label: div.DivisionName })
-        })
-        setAllDivision(allDivision)
-      }
-    })
-  }
+  // const getAllDivision = async () => {
+  //   await secureApi.get(api_configs.division.getAll, { params: { coid: userDetails.Co_ID } }).then(res => {
+  //     if (res.data.allDivisions.length > 0) {
+  //       let allDivision = []
+  //       res.data.allDivisions.map(div => {
+  //         allDivision.push({ id: div.Div_ID, label: div.DivisionName })
+  //       })
+  //       setAllDivision(allDivision)
+  //     }
+  //   })
+  // }
 
   const addIndent = async data => {
-    console.log('data', data, expectedDate)
-    // try {
-    //   let addUser = await secureApi.post(api_configs.user.create, {
-    //     MobileNo: data.contact,
-    //     FirstName: data.firstName,
-    //     LastName: data.lastName,
-    //     Email: data.email,
-    //     otherDetails: {
-    //       Role_ID: role,
-    //       Div_ID: division,
-    //       Co_ID: userDetails.Co_ID
-    //     }
-    //   })
-    //   if (addUser) toast.success('Created Successfully')
-    // } catch (e) {
-    //   toast.error('Something went wrong')
-    // }
+    data['expected_date'] = ex_date
+    data['productName'] = product.PName
+    console.log()
+    const body = {
+      indent : {
+        Co_ID : userDetails.Co_ID,
+        Div_ID : userDetails.Div_ID,
+        user : userDetails.User_ID
+      },
+      indent_particulars : {
+        Description : data.description,
+        P_ID : productDetails.id,
+        Quantity : data.quantity,
+        CurrentStatus : 0,
+        ExpectedDate : data.expected_date.getFullYear() +
+        '-' + parseInt(data.expected_date.getMonth() + 1) +
+        '-' + data.expected_date.getDate() +
+        ' ' + data.expected_date.getHours() +
+        ':' + data.expected_date.getMinutes(),
+      }
+    }
+    await secureApi
+      .post(api_configs.indent.create, body)
+      .then(res => {
+        // console.log()
+        if (!res.data.error) {
+          console.log('Error aa gaya')
+        }
+        toggle()
+        reset()
+      })
   }
 
   const onSubmit = async data => {
     addIndent(data)
-
     // TODO: Add User API CALL
-    toggle()
-    reset()
   }
 
   const handleClose = () => {
-    setRole('2')
-    toggle()
     reset()
+    toggle()
   }
-
-  useEffect(() => {
-    
-    getAllDivision()
-  }, [])
-
-  useEffect(() => {
-    console.log('expected Date', expectedDate)
-  }, [expectedDate])
 
   useEffect(() => {
     if (productDetails) getProductDetails()
@@ -176,75 +165,93 @@ const AddNewIndent = props => {
             <Controller
               name='productName'
               control={control}
-              rules={{ required: true }}
-              render={({ field: { value, onChange } }) =>
-                productDetails ? (
-                  <TextField
-                    value={product && product.PName}
-                    disabled
-                    // label='Product Name'
-                    onChange={onChange}
-                    placeholder=''
-                    error={Boolean(errors.productName)}
-                  />
-                ) : (
-                  <TextField
-                    value={value}
-                    disabled
-                    // label='Product Name'
-                    onChange={onChange}
-                    placeholder=''
-                    error={Boolean(errors.productName)}
-                  />
-                )
-              }
+              render={({ field: { value, onChange } }) => (
+                <TextField
+                  value = {productDetails ? productDetails.name : ''}
+                  disabled
+                  // label='Product Name'
+                  onChange={onChange}
+                  placeholder=''
+                  error={Boolean(errors.firstName)}
+                />
+              )}
             />
-            {errors.productName && (
-              <FormHelperText sx={{ color: 'error.main' }}>{errors.productName.message}</FormHelperText>
-            )}
+            {errors.productName && <FormHelperText sx={{ color: 'error.main' }}>{errors.productName.message}</FormHelperText>}
           </FormControl>
           <FormControl fullWidth sx={{ mb: 6 }}>
             <Controller
-              name='qty'
+              name='quantity'
               control={control}
               rules={{ required: true }}
               render={({ field: { value, onChange } }) => (
                 <TextField
                   value={value}
+                  type='number'
                   label='Quantity'
                   onChange={onChange}
-                  placeholder='100'
-                  error={Boolean(errors.qty)}
+                  placeholder='10'
+                  error={Boolean(errors.quantity)}
                   InputProps={{
                     endAdornment: <InputAdornment position='end'>{product && product.UnitName}</InputAdornment>
                   }}
                 />
               )}
             />
-            {errors.qty && <FormHelperText sx={{ color: 'error.main' }}>{errors.qty.message}</FormHelperText>}
+            {errors.quantity && <FormHelperText sx={{ color: 'error.main' }}>{errors.quantity.message}</FormHelperText>}
           </FormControl>
           <FormControl fullWidth sx={{ mb: 6 }}>
             <Controller
-              name='expectedDate'
+              name='current_stock'
               control={control}
               rules={{ required: true }}
               render={({ field: { value, onChange } }) => (
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <TextField
+                  disabled
+                  value={product_stock ? product_stock.CurrentStock : null}
+                  type='number'
+                  onChange={onChange}
+                  error={Boolean(errors.current_stock)}
+                />
+              )}
+            />
+            {errors.current_stock && <FormHelperText sx={{ color: 'error.main' }}>{errors.current_stock.message}</FormHelperText>}
+          </FormControl>
+          <FormControl fullWidth sx={{ mb: 6 }}>
+            <Controller
+              name='expected_date'
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <LocalizationProvider dateAdapter={AdapterDateFns} fullWidth>
                   <DatePicker
-                    openTo='day'
-                    // disableFuture
+                    name= 'expected_date'
+                    fullWidth
                     label='Expected Date'
-                    value={expectedDate}
-                    views={['year', 'month', 'day']}
-                    onChange={e => setExpectedDate(e)}
+                    value={ex_date}
+                    onChange={newValue => setExDate(newValue)}
                     renderInput={params => <TextField {...params} />}
                   />
                 </LocalizationProvider>
               )}
             />
-            {errors.expectedDate && (
-              <FormHelperText sx={{ color: 'error.main' }}>{errors.expectedDate.message}</FormHelperText>
-            )}
+            {errors.expected_date && <FormHelperText sx={{ color: 'error.main' }}>{errors.expected_date.message}</FormHelperText>}
+          </FormControl>
+          <FormControl fullWidth sx={{ mb: 6 }}>
+            <Controller
+              name='description'
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <TextField
+                  value={value}
+                  label='Description'
+                  onChange={onChange}
+                  placeholder='This quantity is needed for order - XXXXX and priority is - 1'
+                  error={Boolean(errors.description)}
+                />
+              )}
+            />
+            {errors.description && <FormHelperText sx={{ color: 'error.main' }}>{errors.description.message}</FormHelperText>}
           </FormControl>
 
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -263,28 +270,3 @@ const AddNewIndent = props => {
 
 export default AddNewIndent
 
-// <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around' }}>
-//                   <TextField
-//                     value={value}
-//                     label='Quantity'
-//                     onChange={onChange}
-//                     placeholder='100'
-//                     error={Boolean(errors.qty)}
-//                   />
-//                   <FormControl fullWidth sx={{ borderLeft: '0px' }}>
-//                     <InputLabel id='Unit'>Unit</InputLabel>
-//                     <Select
-//                       fullWidth
-//                       // value={role}
-//                       id='select-unit'
-//                       labelId='unit-select'
-//                       label='Unit'
-//                       onChange={e => setRole(e.target.value)}
-//                       inputProps={{ placeholder: 'Select Unit' }}
-//                     >
-//                       <MenuItem value='2'>Kg</MenuItem>
-//                       <MenuItem value='3'>Tonnes</MenuItem>
-//                       <MenuItem value='4'>Litres</MenuItem>
-//                     </Select>
-//                   </FormControl>
-//                 </Box>

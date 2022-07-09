@@ -9,13 +9,14 @@ const Read = {
   getProductGSTData,
   getProductOtherData,
   getProductAllDetails,
-  getLowStockProducts
+  getLowStockProducts,
+  getAllDivsionProducts
 }
 
 /**
  * Fetches all the IDs of all products under a company and division
- * @param {*} co_id 
- * @param {*} div_id 
+ * @param {*} co_id
+ * @param {*} div_id
  * @returns database data from Product_Company_Division table
  */
 function getAllProductsIDsOfACompany(co_id) {
@@ -25,9 +26,16 @@ function getAllProductsIDsOfACompany(co_id) {
   })
 }
 
+function getAllDivsionProducts(co_id,div_id) {
+  return executeQuery({
+    query: `SELECT c.* FROM Product_Master c LEFT JOIN Product_Company_Division p ON c.P_ID=p.P_ID WHERE p.Co_ID = ? AND p.Div_ID = ?`,
+    values: [co_id,div_id]
+  })
+}
+
 /**
  * Fetches All the product details for a given product id
- * @param {*} p_id 
+ * @param {*} p_id
  * @returns database data from Product_Master table
  */
 function getProductMasterData(p_id) {
@@ -39,7 +47,7 @@ function getProductMasterData(p_id) {
 
 /**
  * Fetches All the product price details for a given product id
- * @param {*} p_id 
+ * @param {*} p_id
  * @returns database data from Product_Price_Details table
  */
 function getProductPriceDetailsData(p_id) {
@@ -51,7 +59,7 @@ function getProductPriceDetailsData(p_id) {
 
 /**
  * Fetches All the product units details for a given product id
- * @param {*} p_id 
+ * @param {*} p_id
  * @returns database data from Product_Unit table
  */
 function getProductUnitData(p_id) {
@@ -63,7 +71,7 @@ function getProductUnitData(p_id) {
 
 /**
  * Fetches All the product stock details for a given product id
- * @param {*} p_id 
+ * @param {*} p_id
  * @returns database data from Product_Stock table
  */
 function getProductStockData(p_id) {
@@ -75,7 +83,7 @@ function getProductStockData(p_id) {
 
 /**
  * Fetches All the product GST details for a given product id
- * @param {*} p_id 
+ * @param {*} p_id
  * @returns database data from Product_GST_Details table
  */
 function getProductGSTData(p_id) {
@@ -87,7 +95,7 @@ function getProductGSTData(p_id) {
 
 /**
  * Fetches All the product Other details for a given product id
- * @param {*} p_id 
+ * @param {*} p_id
  * @returns database data from Product_Other_Details table
  */
 function getProductOtherData(p_id) {
@@ -99,7 +107,7 @@ function getProductOtherData(p_id) {
 
 /**
  * Fetches All the product Description details for a given product id
- * @param {*} p_id 
+ * @param {*} p_id
  * @returns database data from Product_Description table
  */
 function getProductDescriptionData(p_id) {
@@ -110,8 +118,8 @@ function getProductDescriptionData(p_id) {
 }
 
 /**
- * 
- * @param {*} p_id 
+ *
+ * @param {*} p_id
  * @returns database data from ProductMaster , ProductGSTDetails, ProductStockDetails, ProductOtherDetails
  */
 function getProductAllDetails(p_id) {
@@ -122,8 +130,8 @@ function getProductAllDetails(p_id) {
 }
 
 /**
- * 
- * @param {*} co_id 
+ *
+ * @param {*} co_id
  * @returns database data from ProductMaster
  */
 function getLowStockProducts(co_id, div_id) {
