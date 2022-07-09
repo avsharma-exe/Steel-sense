@@ -42,7 +42,8 @@ export default {
       update: "/division/update"
     },
     indent: {
-      create: "/indent/create"
+      create: "/indent/create",
+      getAll: "/indent/get-all",
     },
     stockInOut: {
       createStockInward: "stockInOut/createStockInward"
