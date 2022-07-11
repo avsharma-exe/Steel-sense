@@ -86,17 +86,19 @@ const Users = () => {
     await secureApi.get(api_configs.user.getAllCompanyUser, { params: { coid: userDetails.Co_ID } }).then(res => {
       if (res.status === 200) {
         let users = []
-        res.data.allUsers.map(user => {
-          users.push({
-            firstName: user.FirstName,
-            lastName: user.LastName,
-            division: user.DivisionName,
-            role: user.Role_ID,
-            description: user.RoleDescription,
-            status: getStatusText(user.status),
-            actions: <TableActions editRow={rowData => editRow(rowData)} row={user} />
+        if (res.data.allUsers) {
+          res.data.allUsers.map(user => {
+            users.push({
+              firstName: user.FirstName,
+              lastName: user.LastName,
+              division: user.DivisionName,
+              role: user.Role_ID,
+              description: user.RoleDescription,
+              status: getStatusText(user.status),
+              actions: <TableActions editRow={rowData => editRow(rowData)} row={user} />
+            })
           })
-        })
+        }
         setAllUsers(users)
       }
     })
@@ -176,9 +178,13 @@ const Users = () => {
         <DialogContent>
           <Autocomplete
             sx={{ w: '100%', mt: '5px' }}
-            value={allDivisions.find(division => {
-              if (division.Div_ID === selectedRowData.Div_ID) return division.DivisionName
-            })}
+            value={
+              allDivisions
+                ? allDivisions.find(division => {
+                    if (division.Div_ID === selectedRowData.Div_ID) return division.DivisionName
+                  })
+                : null
+            }
             onChange={(event, value) => {
               if (value) setSelectedRowData({ ...selectedRowData, Div_ID: value.Div_ID })
 
@@ -203,9 +209,13 @@ const Users = () => {
         <DialogContent>
           <Autocomplete
             sx={{ w: '100%', mt: '5px' }}
-            value={allRoles.find(role => {
-              if (role.Role_ID === selectedRowData.Role_ID) return role.RoleName
-            })}
+            value={
+              allRoles
+                ? allRoles.find(role => {
+                    if (role.Role_ID === selectedRowData.Role_ID) return role.RoleName
+                  })
+                : null
+            }
             onChange={(event, value) => {
               if (value) setSelectedRowData({ ...selectedRowData, Role_ID: value.Role_ID })
 

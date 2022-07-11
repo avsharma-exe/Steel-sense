@@ -22,10 +22,9 @@ import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
 import * as yup from 'yup'
 
 // ** Server imports
-import useUserDetails from "../../hooks/useUserDetails"
+import useUserDetails from '../../hooks/useUserDetails'
 import { secureApi } from '../../helpers/apiGenerator'
 import api_configs from '../../configs/api_configs'
-
 
 const defaultValues = {
   company_email: '',
@@ -35,91 +34,90 @@ const defaultValues = {
   compnay_gst: '',
   company_uin: '',
   company_cin: '',
-  company_logo: '',
+  company_logo: ''
 }
 
 const CompanyDetails = () => {
-
   // ** Get Company By Company ID
   const userDetails = useUserDetails()
 
   const getCompanyByID = async () => {
     setLoading(true)
-    await secureApi.get(api_configs.company.getCompanyDetails,{ params: { Co_ID: userDetails.Co_ID } }).then(res => {
-      if(res.status === 200){
+    await secureApi.get(api_configs.company.getCompanyDetails, { params: { Co_ID: userDetails.Co_ID } }).then(res => {
+      if (res.status === 200) {
         console.log(res.data)
-        setSelectedAddress(res.data.companyDetails[0].Address1 + "\n" + res.data.companyDetails[0].Address2 )
-        setSelectedEmail(res.data.companyDetails[0].Email)
-        setSelectedPocName(res.data.companyDetails[0].ContactName)
-        setSelectedPocPhone(res.data.companyDetails[0].ContactPhone)
-        setSelectedGST(res.data.companyDetails[0].GSTNumber)
-        setSelectedUIN(res.data.companyDetails[0].GSTINUIN)
-        setSelectedCIN(res.data.companyDetails[0].CIN)
-        setSelectedLogo(res.data.companyDetails[0].LogoFileName)
-        setCoID(res.data.companyDetails[0].Country)
-        setStateID(res.data.companyDetails[0].State)
-        setCityID(res.data.companyDetails[0].City)
-        setSelectedPincode(res.data.companyDetails[0].Pincode)
+        setSelectedAddress(
+          res.data.companyDetails
+            ? res.data.companyDetails[0].Address1 + '\n' + res.data.companyDetails[0].Address2
+            : ''
+        )
+        setSelectedEmail(res.data.companyDetails ? res.data.companyDetails[0].Email : '')
+        setSelectedPocName(res.data.companyDetails ? res.data.companyDetails[0].ContactName : '')
+        setSelectedPocPhone(res.data.companyDetails ? res.data.companyDetails[0].ContactPhone : '')
+        setSelectedGST(res.data.companyDetails ? res.data.companyDetails[0].GSTNumber : '')
+        setSelectedUIN(res.data.companyDetails ? res.data.companyDetails[0].GSTINUIN : '')
+        setSelectedCIN(res.data.companyDetails ? res.data.companyDetails[0].CIN : '')
+        setSelectedLogo(res.data.companyDetails ? res.data.companyDetails[0].LogoFileName : '')
+        setCoID(res.data.companyDetails ? res.data.companyDetails[0].Country : '')
+        setStateID(res.data.companyDetails ? res.data.companyDetails[0].State : '')
+        setCityID(res.data.companyDetails ? res.data.companyDetails[0].City : '')
+        setSelectedPincode(res.data.companyDetails ? res.data.companyDetails[0].Pincode : '')
       }
     })
     setLoading(false)
   }
 
-  const getCountries = async (Co_ID) => {
+  const getCountries = async Co_ID => {
     await secureApi.get(api_configs.locality.getCountries).then(res => {
-      if(res.status === 200){
+      if (res.status === 200) {
         setAllCountries(res.data.countries)
-        let selectedcountry = res.data.countries.find((country) => {
-          if(Co_ID === country.id)
-            return country
-        })
-        if(!c_flag)
-        setSelectedCountry(selectedcountry)
-        setCFlag(true)
 
+        let selectedcountry = res.data.countries.find(country => {
+          if (Co_ID === country.id) return country
+        })
+        if (!c_flag) setSelectedCountry(selectedcountry)
+        setCFlag(true)
       }
     })
   }
 
-  const getStates = async (Co_ID) => {
+  const getStates = async Co_ID => {
     await secureApi.get(api_configs.locality.getStates).then(res => {
-      if(res.status === 200){
-        let AllStates = res.data.states.filter((state) => {
-          if(Co_ID === state.country_id)
-            return state
+      if (res.status === 200) {
+        let AllStates = res.data.states.filter(state => {
+          if (Co_ID === state.country_id) return state
         })
         setAllStates(AllStates)
 
-        if(!s_flag){
-          let selectedstate = res.data.states.find((state) => {
-            if(state_ID === state.id)
-              return state
+        if (!s_flag) {
+          let selectedstate = res.data.states.find(state => {
+            if (state_ID === state.id) return state
           })
           setSelectedState(selectedstate)
         }
         setSFlag(true)
+
         // if(selectedState === undefined || selectedState === null) setSelectedState(selectedstate)
         // else setSelectedState(selectedstate.id === selectedState.id ? null : selectedstate)
       }
     })
   }
 
-  const getCities = async (s_id) => {
+  const getCities = async s_id => {
     await secureApi.get(api_configs.locality.getCities).then(res => {
-      if(res.status === 200){
-        let AllCities = res.data.cities.filter((city) => {
-          if(s_id === city.state_id)
-            return city
+      if (res.status === 200) {
+        let AllCities = res.data.cities.filter(city => {
+          if (s_id === city.state_id) return city
         })
         setAllCities(AllCities)
-        if(!ci_flag){
-          let selectedcity = res.data.cities.find((city) => {
-            if(city_ID === city.id)
-              return city
+        if (!ci_flag) {
+          let selectedcity = res.data.cities.find(city => {
+            if (city_ID === city.id) return city
           })
           setSelectedCity(selectedcity)
         }
         setCiFlag(true)
+
         // if(selectedCity === undefined || selectedCity === null) setSelectedCity(selectedcity)
         // else setSelectedCity(selectedcity.id === selectedCity.id ? null : selectedcity)
       }
@@ -133,14 +131,17 @@ const CompanyDetails = () => {
 
   // ** States
   const [loading, setLoading] = useState(false)
+
   // Id's for country state and city
   const [co_ID, setCoID] = useState(null)
   const [state_ID, setStateID] = useState(null)
   const [city_ID, setCityID] = useState(null)
+
   //  setter for state country and city data
   const [allCountries, setAllCountries] = useState([])
   const [allStates, setAllStates] = useState([])
   const [allCities, setAllCities] = useState([])
+
   // setter for selected items
   const [selectedCountry, setSelectedCountry] = useState(allCountries[0])
   const [selectedState, setSelectedState] = useState(allStates[0])
@@ -153,16 +154,15 @@ const CompanyDetails = () => {
   const [selectedUIN, setSelectedUIN] = useState(null)
   const [selectedCIN, setSelectedCIN] = useState(null)
   const [selectedLogo, setSelectedLogo] = useState(null)
-  const [selectedPincode,setSelectedPincode] = useState(null)
-
-
+  const [selectedPincode, setSelectedPincode] = useState(null)
 
   // ** Hook
   const {
     control,
     handleSubmit,
     formState: { errors }
-  } = useForm({ defaultValues,
+  } = useForm({
+    defaultValues,
     resolver: yupResolver(
       yup.object().shape({
         company_address: yup.string().required(),
@@ -173,50 +173,49 @@ const CompanyDetails = () => {
         compnay_gst: yup.string().required(),
         company_uin: yup.string().required(),
         company_cin: yup.string().required(),
-        company_logo: yup.string().required(),
+        company_logo: yup.string().required()
       })
     )
   })
 
-
   const onSubmit = async () => {
-    await secureApi.patch(api_configs.company.updateCompanyDetails, {
-      Address1 : selectedAddress,
-      CIN: selectedCIN,
-      City: selectedCity.id,
-      ContactName: selectedPocName,
-      ContactPhone: selectedPocPhone,
-      Country: selectedCountry.id,
-      Email: selectedEmail,
-      GSTINUIN: selectedUIN,
-      GSTNumber: selectedGST,
-      LogoFileName: selectedLogo,
-      Pincode: selectedPincode,
-      State: selectedState.id,
-      user: userDetails.User_ID,
-      company_ID: userDetails.Co_ID,
-    })
-    .then(resp => {
-      if (resp.status === 200) {
-        toast.success('Form Submitted')
-      }
-    })
+    await secureApi
+      .patch(api_configs.company.updateCompanyDetails, {
+        Address1: selectedAddress,
+        CIN: selectedCIN,
+        City: selectedCity.id,
+        ContactName: selectedPocName,
+        ContactPhone: selectedPocPhone,
+        Country: selectedCountry.id,
+        Email: selectedEmail,
+        GSTINUIN: selectedUIN,
+        GSTNumber: selectedGST,
+        LogoFileName: selectedLogo,
+        Pincode: selectedPincode,
+        State: selectedState.id,
+        user: userDetails.User_ID,
+        company_ID: userDetails.Co_ID
+      })
+      .then(resp => {
+        if (resp.status === 200) {
+          toast.success('Form Submitted')
+        }
+      })
   }
 
   useEffect(() => {
-    if(!co_ID)
-    getCompanyByID()
+    if (!co_ID) getCompanyByID()
 
-    if(co_ID){
+    if (co_ID) {
       getCountries(co_ID)
     }
-    if(state_ID){
+    if (state_ID) {
       getStates(co_ID)
     }
-    if(city_ID){
+    if (city_ID) {
       getCities(state_ID)
     }
-  },[co_ID,state_ID,city_ID])
+  }, [co_ID, state_ID, city_ID])
 
   return (
     <Card>
@@ -251,7 +250,7 @@ const CompanyDetails = () => {
                         maxRows={4}
                         value={selectedAddress ? selectedAddress : null}
                         label='Company Address'
-                        onChange={ e =>{
+                        onChange={e => {
                           onChange(e)
                           setSelectedAddress(e.target.value)
                         }}
@@ -280,7 +279,7 @@ const CompanyDetails = () => {
                         type='email'
                         value={selectedEmail ? selectedEmail : null}
                         label='Company Email'
-                        onChange={ e =>{
+                        onChange={e => {
                           onChange(e)
                           setSelectedEmail(e.target.value)
                         }}
@@ -383,7 +382,7 @@ const CompanyDetails = () => {
                         maxRows={4}
                         value={selectedPincode ? selectedPincode : null}
                         label='Pincode'
-                        onChange={ e =>{
+                        onChange={e => {
                           onChange(e)
                           setSelectedPincode(e.target.value)
                         }}
@@ -401,7 +400,6 @@ const CompanyDetails = () => {
                 </FormControl>
               </Grid>
 
-
               <Grid item xs={12}>
                 <Typography variant='body2' sx={{ fontWeight: 600 }}>
                   2. POC Details
@@ -418,7 +416,7 @@ const CompanyDetails = () => {
                       <TextField
                         value={selectedPocName ? selectedPocName : null}
                         label='POC Name'
-                        onChange={ e => {
+                        onChange={e => {
                           onChange(e)
                           setSelectedPocName(e.target.value)
                         }}
@@ -446,7 +444,7 @@ const CompanyDetails = () => {
                       <TextField
                         value={selectedPocPhone ? selectedPocPhone : null}
                         label='POC Mobile Number'
-                        onChange={ e => {
+                        onChange={e => {
                           onChange(e)
                           setSelectedPocPhone(e.target.value)
                         }}
@@ -480,7 +478,7 @@ const CompanyDetails = () => {
                       <TextField
                         value={selectedGST ? selectedGST : null}
                         label='Company GST Number'
-                        onChange={ e => {
+                        onChange={e => {
                           onChange(e)
                           setSelectedGST(e.target.value)
                         }}
@@ -508,10 +506,10 @@ const CompanyDetails = () => {
                       <TextField
                         value={selectedUIN ? selectedUIN : null}
                         label='Company GST UIN'
-                        onChange={(e => {
+                        onChange={e => {
                           onChange(e)
                           setSelectedUIN(e.target.value)
-                        })}
+                        }}
                         error={Boolean(errors.company_uin)}
                         placeholder='xxxxxxxxxx'
                         aria-describedby='validation-company_uin'
@@ -536,7 +534,7 @@ const CompanyDetails = () => {
                       <TextField
                         value={selectedCIN ? selectedCIN : null}
                         label='Company CIN Number'
-                        onChange={ e => {
+                        onChange={e => {
                           onChange(e)
                           setSelectedCIN(e.target.value)
                         }}
@@ -564,7 +562,7 @@ const CompanyDetails = () => {
                       <TextField
                         value={selectedLogo ? selectedLogo : null}
                         label='Company Logo file Name'
-                        onChange={ e => {
+                        onChange={e => {
                           onChange(e)
                           setSelectedLogo(e.target.value)
                         }}

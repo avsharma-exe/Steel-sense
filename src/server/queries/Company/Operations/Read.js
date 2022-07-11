@@ -5,7 +5,8 @@ const Read = {
   getUserCompany: getCompanyMasterData,
   getCompanyMasterData,
   getCompanyDetailsData,
-  getAllCompanies
+  getAllCompanies,
+  getAllSuppliers
 }
 
 /**
@@ -22,10 +23,21 @@ function getUserCompanyMap(user_id) {
 
 /**
  * 
+ * @param company ID
+ * @returns database data
+ */
+function getAllSuppliers(Co_ID) {
+  return executeQuery({
+    query: "SELECT * from Company_Master join User_Master on Company_Master.CreatedBy = User_Master.User_ID join Company_User on Company_User.User_ID =  User_Master.User_ID join Company_Details on Company_Details.Co_ID = Company_Master.Co_ID where Company_Details.CompanyType = ? and Company_User.Co_ID = ?",
+    values: ["Supplier" , Co_ID]
+  })
+}
+
+/**
  * @param 
  * @returns database data
  */
-function getAllCompanies() {
+ function getAllCompanies() {
   return executeQuery({
     query: "SELECT * from Company_Master join User_Master on Company_Master.CreatedBy = User_Master.User_ID",
     values: []
