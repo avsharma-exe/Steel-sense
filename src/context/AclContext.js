@@ -10,8 +10,9 @@ import DatabaseArrowUpOutline from 'mdi-material-ui/DatabaseArrowUpOutline'
 import ClipboardListOutline from 'mdi-material-ui/ClipboardListOutline'
 import HomeOutline from 'mdi-material-ui/HomeOutline'
 import AccountOutline from 'mdi-material-ui/AccountOutline'
-
+import Domain from 'mdi-material-ui/Domain'
 import ShieldOutline from 'mdi-material-ui/ShieldOutline'
+
 // ** Next Import
 import { useRouter } from 'next/router'
 
@@ -138,6 +139,11 @@ const AclProvider = ({ children }) => {
             title: 'Indent',
             path: '/l3/indent',
             icon: ClipboardListOutline
+          },
+          {
+            title: 'Suppliers',
+            path: '/l3/all-suppliers',
+            icon: Domain
           }
         ]
     }

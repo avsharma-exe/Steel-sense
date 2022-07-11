@@ -92,12 +92,14 @@ const AddNewUser = props => {
 
   const getAllDivision = async () => {
     await secureApi.get(api_configs.division.getAll, { params: { coid: userDetails.Co_ID } }).then(res => {
-      if (res.data.allDivisions.length > 0) {
-        let allDivision = []
-        res.data.allDivisions.map(div => {
-          allDivision.push({ id: div.Div_ID, label: div.DivisionName })
-        })
-        setAllDivision(allDivision)
+      if (res.data.allDivisions) {
+        if (res.data.allDivisions.length > 0) {
+          let allDivision = []
+          res.data.allDivisions.map(div => {
+            allDivision.push({ id: div.Div_ID, label: div.DivisionName })
+          })
+          setAllDivision(allDivision)
+        }
       }
     })
   }
@@ -110,16 +112,14 @@ const AddNewUser = props => {
         LastName: data.lastName,
         Email: data.email,
         otherDetails: {
-            Role_ID: role,
-            Div_ID: division,
-            Co_ID: userDetails.Co_ID
+          Role_ID: role,
+          Div_ID: division,
+          Co_ID: userDetails.Co_ID
         }
-        
       })
-      if(addUser)
-        toast.success("Created Successfully")
+      if (addUser) toast.success('Created Successfully')
     } catch (e) {
-        toast.error("Something went wrong")
+      toast.error('Something went wrong')
     }
   }
 
@@ -171,7 +171,9 @@ const AddNewUser = props => {
                 />
               )}
             />
-            {errors.firstName && <FormHelperText sx={{ color: 'error.main' }}>{errors.firstName.message}</FormHelperText>}
+            {errors.firstName && (
+              <FormHelperText sx={{ color: 'error.main' }}>{errors.firstName.message}</FormHelperText>
+            )}
           </FormControl>
           <FormControl fullWidth sx={{ mb: 6 }}>
             <Controller

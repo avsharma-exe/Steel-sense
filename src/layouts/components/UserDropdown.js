@@ -28,6 +28,7 @@ import HelpCircleOutline from 'mdi-material-ui/HelpCircleOutline'
 // ** Context
 import { useAuth } from 'src/hooks/useAuth'
 import useUserDetails from 'src/hooks/useUserDetails'
+
 // ** Styled Components
 const BadgeContentSpan = styled('span')(({ theme }) => ({
   width: 8,
@@ -161,6 +162,18 @@ const UserDropdown = props => {
             <Box sx={styles}>
               <Company sx={{ marginRight: 2 }} />
               Company Details
+            </Box>
+          </MenuItem>
+        ) : null}
+
+        {userDetails.role === 'L3' ? (
+          <MenuItem sx={{ p: 0 }} onClick={() => {
+            router.push("/l3/create-supplier/")
+            handleDropdownClose()
+          }}>
+            <Box sx={styles}>
+              <Company sx={{ marginRight: 2 }} />
+              Create Supplier
             </Box>
           </MenuItem>
         ) : null}

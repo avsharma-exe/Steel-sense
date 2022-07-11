@@ -41,6 +41,9 @@ export default {
       createNew: "/division/create",
       update: "/division/update"
     },
+    supplier: {
+      getAll: "/supplier/getAll"
+    },
     indent: {
       create: "/indent/create",
       getAll: "/indent/get-all",
