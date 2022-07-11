@@ -45,7 +45,8 @@ export default {
       getAll: "/supplier/getAll"
     },
     indent: {
-      create: "/indent/create"
+      create: "/indent/create",
+      getAll: "/indent/get-all",
     },
     stockInOut: {
       createStockInward: "stockInOut/createStockInward"

@@ -6,6 +6,7 @@ import api_configs from 'src/configs/api_configs'
 import useUserDetails from 'src/hooks/useUserDetails'
 import { useState, useEffect } from 'react'
 import AddNewIndent from 'src/components/indent/AddNewIndent'
+import { getIndentStatusText } from 'src/helpers/statusHelper'
 
 const Dashboard = () => {
   const userDetails = useUserDetails()
@@ -13,6 +14,8 @@ const Dashboard = () => {
   const [lowStockProducts, setLowStockProducts] = useState([])
   const [error, setError] = useState(false)
   const [lowStockArray, setLowStockArray] = useState([])
+  const [indents, setIndents] = useState([])
+  const [indentsArray, setIndentsArray] = useState([])
   const [addIndentOpen, setAddIndentOpen] = useState(false)
   const [productDetails, setProductDetails] = useState(null)
 
@@ -31,6 +34,21 @@ const Dashboard = () => {
       })
   }
 
+  const getIndents = () => {
+    secureApi
+      .get(api_configs.indent.getAll, {
+        params: {
+          company: userDetails.Co_ID,
+          division: userDetails.Div_ID
+        }
+      })
+      .then(resp => {
+        if (resp.status === 200) {
+          setIndents(resp.data.allIndents)
+        }
+      })
+  }
+
   const getProducts = () => {
     secureApi
       .get(api_configs.product.getAll, {
@@ -45,8 +63,7 @@ const Dashboard = () => {
       })
   }
 
-  const handleCreateIndent = ({P_ID , PName}) => {
-
+  const handleCreateIndent = ({ P_ID, PName }) => {
     setProductDetails({
       id: P_ID,
       name: PName
@@ -55,13 +72,36 @@ const Dashboard = () => {
   }
 
   const toggleAddIndentDrawer = () => {
-    setAddIndentOpen(!addIndentOpen);
+    setAddIndentOpen(!addIndentOpen)
   }
 
   useEffect(() => {
     // getProducts()
     getLowStockProducts()
+    getIndents()
   }, [])
+
+  useEffect(() => {
+    console.log('indents', indents)
+    if (indents.length) {
+      indents.forEach(indent => {
+        const indt = indentsArray.findIndex(item => item.id === indent.P_Stock_Indent_ID)
+        if (indt === -1 && indent.indentParticulars) {
+          setIndentsArray([
+            ...indentsArray,
+            {
+              id: indent.P_Stock_Indent_ID,
+              name: indent.indentParticulars[0].PName,
+              qty: indent.indentParticulars[0].Quantity,
+              liod: 'Wed Jun 04 2022',
+              eta: indent.indentParticulars[0].ExpectedDate,
+              status: getIndentStatusText(indent.indentParticulars[0].CurrentStatus)
+            }
+          ])
+        }
+      })
+    }
+  }, [indents, indentsArray])
 
   useEffect(() => {
     if (lowStockProducts.length) {
@@ -87,10 +127,9 @@ const Dashboard = () => {
             }
           ])
         }
-
       })
     }
-  }, [lowStockProducts])
+  }, [lowStockProducts, lowStockArray])
 
   return (
     <Grid container spacing={6}>
@@ -158,27 +197,12 @@ const Dashboard = () => {
             <BasicTable
               columns={[
                 { id: 'name', label: 'Name' },
-                { id: 'qty', label: 'Quantity' },
+                { id: 'qty', label: 'Quantity Ordered' },
                 { id: 'liod', label: 'Last Incoming Order Date' },
                 { id: 'eta', label: 'ETA' },
                 { id: 'status', label: 'Status' }
               ]}
-              rows={[
-                {
-                  name: 'Iron Rods',
-                  qty: '150',
-                  liod: 'Wed Jun 04 2022',
-                  eta: 'Wed Jun 08 2022',
-                  status: 'Under Approval'
-                },
-                {
-                  name: 'Iron Filings',
-                  qty: '15',
-                  liod: 'Wed Jun 03 2022',
-                  eta: 'Wed Jun 10 2022',
-                  status: 'Under Approval'
-                }
-              ]}
+              rows={indentsArray}
             />
           </CardContent>
         </Card>
