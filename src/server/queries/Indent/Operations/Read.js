@@ -51,7 +51,7 @@ function getAllIndentsOfACompanyDivision(co_id, div_id) {
  */
 function getIndentParticulars(indent_id) {
   return executeQuery({
-    query: `SELECT * FROM Product_Stock_Indent_Particulars WHERE P_Stock_Indent_ID = ?`,
+    query: `SELECT * FROM Product_Stock_Indent_Particulars join Product_Master on Product_Master.P_ID = Product_Stock_Indent_Particulars.P_ID WHERE P_Stock_Indent_ID = ?`,
     values: [indent_id]
   })
 }
