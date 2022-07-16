@@ -78,7 +78,7 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
-    // getProducts()
+    getProducts()
     getLowStockProducts()
     getIndents()
   }, [])
