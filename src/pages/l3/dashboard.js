@@ -30,6 +30,7 @@ const Dashboard = () => {
       .then(resp => {
         if (resp.status === 200) {
           setLowStockProducts(resp.data.allLowStockProducts)
+          // console.log('low stock', resp.data.allLowStockProducts)
         }
       })
   }
@@ -44,6 +45,7 @@ const Dashboard = () => {
       })
       .then(resp => {
         if (resp.status === 200) {
+          console.log('indents', resp.data.allIndents)
           setIndents(resp.data.allIndents)
         }
       })
@@ -58,7 +60,7 @@ const Dashboard = () => {
       })
       .then(resp => {
         if (resp.status === 200) {
-          console.log(resp.data.allProducts)
+          // console.log(resp.data.allProducts)
         }
       })
   }
@@ -80,56 +82,6 @@ const Dashboard = () => {
     getLowStockProducts()
     getIndents()
   }, [])
-
-  useEffect(() => {
-    console.log('indents', indents)
-    if (indents.length) {
-      indents.forEach(indent => {
-        const indt = indentsArray.findIndex(item => item.id === indent.P_Stock_Indent_ID)
-        if (indt === -1 && indent.indentParticulars) {
-          setIndentsArray([
-            ...indentsArray,
-            {
-              id: indent.P_Stock_Indent_ID,
-              name: indent.indentParticulars[0].PName,
-              qty: indent.indentParticulars[0].Quantity,
-              liod: 'Wed Jun 04 2022',
-              eta: indent.indentParticulars[0].ExpectedDate,
-              status: getIndentStatusText(indent.indentParticulars[0].CurrentStatus)
-            }
-          ])
-        }
-      })
-    }
-  }, [indents, indentsArray])
-
-  useEffect(() => {
-    if (lowStockProducts.length) {
-      lowStockProducts.forEach(product => {
-        const prod = lowStockArray.findIndex(item => item.id === product.P_ID)
-        if (prod === -1) {
-          setLowStockArray([
-            ...lowStockArray,
-            {
-              id: product.P_ID,
-              name: product.PName,
-              qty: `${product.CurrentStock}/${product.LowStockLimit}`,
-              re_order_button: (
-                <Button
-                  variant='contained'
-                  endIcon={<Send />}
-                  style={{ color: 'white' }}
-                  onClick={() => handleCreateIndent(product)}
-                >
-                  Create Indent
-                </Button>
-              )
-            }
-          ])
-        }
-      })
-    }
-  }, [lowStockProducts, lowStockArray])
 
   return (
     <Grid container spacing={6}>
@@ -175,10 +127,28 @@ const Dashboard = () => {
             <BasicTable
               columns={[
                 { id: 'name', label: 'Name', minWidth: 170 },
-                { id: 'qty', label: 'Quantity / Min Quantity', minWidth: 170 },
+                { id: 'qty', label: 'Stock Available / Min Quantity', minWidth: 170 },
                 { id: 're_order_button', label: 'Reorder', minWidth: 170 }
               ]}
-              rows={lowStockArray}
+              rows={
+                !!lowStockProducts && lowStockProducts.length
+                  ? lowStockProducts.map(product => ({
+                      id: product.P_ID,
+                      name: product.PName,
+                      qty: `${product.CurrentStock}/${product.LowStockLimit}`,
+                      re_order_button: (
+                        <Button
+                          variant='contained'
+                          endIcon={<Send />}
+                          style={{ color: 'white', fontSize: 10 }}
+                          onClick={() => handleCreateIndent(product)}
+                        >
+                          Create Indent
+                        </Button>
+                      )
+                    }))
+                  : []
+              }
             />
           </CardContent>
         </Card>
@@ -202,7 +172,18 @@ const Dashboard = () => {
                 { id: 'eta', label: 'ETA' },
                 { id: 'status', label: 'Status' }
               ]}
-              rows={indentsArray}
+              rows={
+                !!indents &&
+                indents.length ?
+                indents.map(indent => ({
+                  id: indent.P_Stock_Indent_ID,
+                  name: indent.PName,
+                  qty: indent.Quantity,
+                  liod: 'Wed Jun 04 2022',
+                  eta: indent.ExpectedDate,
+                  status: getIndentStatusText(indent.CurrentStatus)
+                })) : []
+              }
             />
           </CardContent>
         </Card>

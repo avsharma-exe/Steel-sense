@@ -21,7 +21,7 @@ export default async function handler(req, res) {
       body['UpdatedDT'] = date.getFullYear() + "-" + parseInt(date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes()
       delete body.User_ID
       // update user in UserMaster
-      console.log(body)
+      // console.log(body)
       let result = await User.Update.updateUserDetails(body,User_ID)
 
 

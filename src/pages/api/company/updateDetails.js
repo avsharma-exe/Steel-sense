@@ -16,7 +16,7 @@ export default async function handler(req, res) {
       // 2021-07-02 23:29:08.000000
       CompanyDetails['UpdatedDT'] = date.getFullYear() + "-" + parseInt(date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes()
       const company_ID = body.company_ID
-      console.log(company_ID)
+      // console.log(company_ID)
       delete body.user
       delete body.company_ID
 

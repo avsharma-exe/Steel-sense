@@ -101,7 +101,7 @@ const AddNewIndent = props => {
   const addIndent = async data => {
     data['expected_date'] = ex_date
     data['productName'] = product.PName
-    console.log()
+    // console.log()
     const body = {
       indent : {
         Co_ID : userDetails.Co_ID,
@@ -125,7 +125,7 @@ const AddNewIndent = props => {
       .then(res => {
         // console.log()
         if (!res.data.error) {
-          console.log('Error aa gaya')
+          // console.log('Error aa gaya')
         }
         toggle()
         reset()

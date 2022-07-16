@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   }
   let body = req.body
   try {
-    console.log(req.body.inward,req.body.voucher,"Here")
+    // console.log(req.body.inward,req.body.voucher,"Here")
     const voucher = body.voucher
     const inward = body.inward
     voucher['CreatedBy'] = body.user

@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   let body = req.body
   try {
       const productDetails = body.productDetails
-      console.log(productDetails)
+      // console.log(productDetails)
       const product_ID = productDetails.P_ID
       delete productDetails.P_ID
       // Update User details in COmpnay_User

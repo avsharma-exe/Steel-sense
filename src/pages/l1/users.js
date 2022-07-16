@@ -61,7 +61,7 @@ const Users = () => {
   const toggleAddUserDrawer = () => setAddUserOpen(!addUserOpen)
 
   const handleEditRow = async () => {
-    console.log(selectedRowData)
+    // console.log(selectedRowData)
     await secureApi
       .patch(api_configs.user.updateCompanyUser, {
         Role_ID: selectedRowData.Role_ID,
@@ -78,7 +78,7 @@ const Users = () => {
   }
 
   const handleAddNew = async () => {
-    console.log('aaa')
+    // console.log('aaa')
   }
 
   const getAllUsers = async () => {
@@ -111,13 +111,13 @@ const Users = () => {
       .then(res => {
         if (res.status === 200) {
           setAllDivision(res.data.allDivisions)
-          console.log(res.data.allDivisions)
+          // console.log(res.data.allDivisions)
         }
       })
       .then(
         secureApi.get(api_configs.role.getAll).then(res => {
           setAllRoles(res.data.allRoles)
-          console.log(res.data.allRoles)
+          // console.log(res.data.allRoles)
         })
       )
   }

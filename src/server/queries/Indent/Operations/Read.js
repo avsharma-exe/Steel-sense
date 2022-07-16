@@ -19,6 +19,19 @@ function getAllIndentsOfACompany(co_id) {
   })
 }
 
+// /**
+//  * 
+//  * @param {*} co_id 
+//  * @param {*} div_id 
+//  * @returns database data from Product_Stock_Indent table
+//  */
+// function getAllIndentsOfACompanyDivision(co_id, div_id) {
+//   return executeQuery({
+//     query: `SELECT * FROM Product_Stock_Indent WHERE Co_ID = ? AND Div_ID = ?`,
+//     values: [co_id, div_id]
+//   })
+// }
+
 /**
  * 
  * @param {*} co_id 
@@ -27,7 +40,7 @@ function getAllIndentsOfACompany(co_id) {
  */
 function getAllIndentsOfACompanyDivision(co_id, div_id) {
   return executeQuery({
-    query: `SELECT * FROM Product_Stock_Indent WHERE Co_ID = ? AND Div_ID = ?`,
+    query: `SELECT psi.P_Stock_Indent_ID, psi.Co_ID, psi.Div_ID, psi.IndentNo, psip.P_Stock_Indent_Particulars_ID, psip.P_ID, psip.Quantity, psip.Description, psip.Remarks, psip.CurrentStatus, psip.ExpectedDate,pm.PName FROM Product_Stock_Indent psi LEFT JOIN Product_Stock_Indent_Particulars psip on psi.P_Stock_Indent_ID = psip.P_Stock_Indent_ID LEFT JOIN Product_Master pm on pm.P_ID = psip.P_ID where Co_ID=? and Div_ID=?`,
     values: [co_id, div_id]
   })
 }

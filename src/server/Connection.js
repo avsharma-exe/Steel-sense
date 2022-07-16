@@ -14,7 +14,7 @@ export default async function executeQuery({ query, values }) {
             if (error) {
                 reject(error);
             } 
-            console.log(rows);
+            // console.log(rows);
             resolve(rows);
         })
     });

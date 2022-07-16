@@ -45,7 +45,7 @@ const CompanyDetails = () => {
     setLoading(true)
     await secureApi.get(api_configs.company.getCompanyDetails, { params: { Co_ID: userDetails.Co_ID } }).then(res => {
       if (res.status === 200) {
-        console.log(res.data)
+        // console.log(res.data)
         setSelectedAddress(
           res.data.companyDetails
             ? res.data.companyDetails[0].Address1 + '\n' + res.data.companyDetails[0].Address2

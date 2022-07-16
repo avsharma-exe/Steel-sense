@@ -74,7 +74,7 @@ const StockInward = () => {
     await secureApi.get(api_configs.division.getAll, { params: { coid: userDetails.Co_ID } }).then(res => {
       if (res.status === 200) {
         setAllDivision(res.data.allDivisions)
-        console.log(res.data.allDivisions)
+        // console.log(res.data.allDivisions)
       }
     })
   }
@@ -88,7 +88,7 @@ const StockInward = () => {
   }
 
   const getDivProducts = async div_id => {
-    console.log(div_id)
+    // console.log(div_id)
     await secureApi
       .get(api_configs.product.getDivProducts, { params: { coid: userDetails.Co_ID, div_id: div_id } })
       .then(res => {
@@ -107,7 +107,7 @@ const StockInward = () => {
   const userDetails = useUserDetails()
 
   const handleSubmit = async e => {
-    console.log(selectedProduct)
+    // console.log(selectedProduct)
     e.preventDefault()
 
     let body = {
@@ -153,7 +153,7 @@ const StockInward = () => {
         setAllProducts(res.data.allProducts)
       }
     })
-    console.log(
+    // console.log(
       selectedDiv,
       InvoiceTo,
       Consignee,
@@ -168,7 +168,7 @@ const StockInward = () => {
       InvoiceTax,
       InvoiceTotal
     )
-    console.log(
+    // console.log(
       selectedProduct,
       Quantity,
       Rate,

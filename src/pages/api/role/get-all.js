@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log(req.query);
+    // console.log(req.query);
     let allRoles = await Role.Read.getAllRolesOfACompany()
     // allRoles.forEach(async (company, index) => {
     //   allCompanies[index]['OtherDetails'] = await Company.Read.getCompanyDetailsData(company.Co_ID)

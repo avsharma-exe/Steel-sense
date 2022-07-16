@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   try {
 
       let states = await Locality.Read.getStates()
-      console.log(states)
+      // console.log(states)
 
 
       if (states) {

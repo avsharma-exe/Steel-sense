@@ -25,7 +25,7 @@ export default async function handler(req, res) {
         CreatedBy: temp.CreatedBy,
         UpdateBy: temp.UpdateBy
       }
-      console.log(productStockDetails,'AAAAAAAAAAAAAA')
+      // console.log(productStockDetails,'AAAAAAAAAAAAAA')
       const product_ID = temp.P_ID
       delete productStockDetails.P_ID
       let date = new Date()
