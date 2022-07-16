@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
   let body = req.body
   let mobile = body.MobileNo
-  console.log(body)
+  // console.log(body)
   try {
     cryptPassword(body.FirstName + '@' + String(mobile).substr(mobile.length - 4), async (err, hash) => {
       if (err) throw err

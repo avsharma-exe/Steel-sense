@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   const body = req.query
   try {
       let Co_ID = body.Co_ID
-      console.log(Co_ID)
+      // console.log(Co_ID)
       let companyDetails = await Company.Read.getCompanyDetailsData(Co_ID)
 
 

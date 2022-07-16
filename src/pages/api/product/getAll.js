@@ -31,7 +31,7 @@ export default async function handler(req, res) {
         gstDetails,
         stockDetails
       }
-      console.log("index" , getAllProducts.length , i)
+      // console.log("index" , getAllProducts.length , i)
       allProducts.push(product_details)
       if (i >= getAllProducts.length - 1) {
         res.send({

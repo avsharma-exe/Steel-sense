@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   }
 
   let body = req.body
-  console.log(body)
+  // console.log(body)
   try {
       const indent = body.indent
       indent['CreatedBy'] = body.indent.user
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
 
       if (result && indent_particular_data) {
         // TODO: add mail service to send the credentials
-        console.log('sending')
+        // console.log('sending')
         res.send({
           error: false,
           msg: 'Indent Creation is success',

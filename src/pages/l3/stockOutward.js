@@ -69,13 +69,13 @@ const StockUsage = () => {
       .then(res => {
         if (res.status === 200) {
           setAllDivision(res.data.allDivisions)
-          console.log(res.data.allDivisions)
+          // console.log(res.data.allDivisions)
         }
       })
   }
 
   const getDivProducts = async (div_id) => {
-    console.log(div_id)
+    // console.log(div_id)
     await secureApi
       .get(api_configs.product.getDivProducts, { params: { coid: userDetails.Co_ID, div_id: div_id } })
       .then(res => {
@@ -93,7 +93,7 @@ const StockUsage = () => {
   const userDetails = useUserDetails()
 
   const handleSubmit = async e => {
-    console.log(selectedProduct)
+    // console.log(selectedProduct)
     e.preventDefault()
     let body = {
       voucher : {
@@ -140,9 +140,9 @@ const StockUsage = () => {
           setAllProducts(res.data.allProducts)
         }
       })
-    console.log(selectedDiv,InvoiceTo, Consignee, Supplier, InvoiceDate, TermsOfPayment, DispatchedThrough, Destination, TermsOfDelivery,
+    // console.log(selectedDiv,InvoiceTo, Consignee, Supplier, InvoiceDate, TermsOfPayment, DispatchedThrough, Destination, TermsOfDelivery,
       TruckInfo, InvoiceSubTotal, InvoiceTax, InvoiceTotal )
-    console.log(selectedProduct, Quantity, Rate, DiscountPercent, TaxRate, Amount, isItemReceived, isInwardChecked, Remarks, isPaymentCompleted)
+    // console.log(selectedProduct, Quantity, Rate, DiscountPercent, TaxRate, Amount, isItemReceived, isInwardChecked, Remarks, isPaymentCompleted)
   }
 
   return (

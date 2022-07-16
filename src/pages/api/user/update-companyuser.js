@@ -13,7 +13,7 @@ export default async function handler(req, res) {
       const Company_User_ID = body.Company_User_ID
       delete companyUserDetails.Company_User_ID
 
-      console.log(companyUserDetails)
+      // console.log(companyUserDetails)
       // Update User details in COmpnay_User
       let result = await User.Update.updateCompanyUser(companyUserDetails,Company_User_ID)
 

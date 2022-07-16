@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   let Co_ID = req.query.coid
   let Div_ID = req.query.div_id
 
-  console.log(Co_ID,Div_ID)
+  // console.log(Co_ID,Div_ID)
 
   try {
     let allProducts = await Product.Read.getAllDivsionProducts(Co_ID,Div_ID)

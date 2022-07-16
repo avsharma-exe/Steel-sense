@@ -39,7 +39,7 @@ const Dashboard = () => {
       })
   }
   useEffect(() => {
-    console.log('indents', indents)
+    // console.log('indents', indents)
     if (indents.length) {
       indents.forEach(indent => {
         const indt = indentsArray.findIndex(item => item.id === indent.P_Stock_Indent_ID)

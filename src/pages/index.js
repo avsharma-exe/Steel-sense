@@ -14,7 +14,7 @@ import Spinner from 'src/@core/components/spinner'
 import { useAuth } from 'src/hooks/useAuth'
 
 export const getHomeRoute = (role, homeURL) => {
-  console.log(homeURL);
+  // console.log(homeURL);
   if (role === 'client') return '/acl'
   else return '/home'
 }
@@ -24,7 +24,7 @@ const Home = () => {
   const auth = useAuth()
   const router = useRouter()
   const acl = useAcl()
-  console.log(acl.userMenu())
+  // console.log(acl.userMenu())
   const menu = acl ? acl.userMenu().find(item => item.title === 'Dashboard') : null
   const homeURL = menu.path
 

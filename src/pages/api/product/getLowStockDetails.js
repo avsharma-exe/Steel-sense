@@ -19,14 +19,14 @@ export default async function handler(req, res) {
         error: true,
         msg: 'No Low Stock Products'
       })
-
+      // console.log('length', getLowStockProducts.length);
     for (let i = 0; i < getLowStockProducts.length; i++) {
       let product = getLowStockProducts[i]
       const productDetails = await Product.Read.getProductMasterData(product.P_ID)
 
       product['PName'] = productDetails[0]['PName']
 
-      console.log('index', product, i)
+      // console.log('index', product, i)
       allLowStockProducts.push(product)
       if (i >= getLowStockProducts.length - 1) {
         res.send({

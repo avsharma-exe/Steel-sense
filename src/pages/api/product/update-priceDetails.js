@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   let body = req.body
   try {
       const productPriceDetails = body.priceDetails
-      console.log(productPriceDetails,'AAAAAAAAAAAAAA')
+      // console.log(productPriceDetails,'AAAAAAAAAAAAAA')
       const product_ID = productPriceDetails.P_ID
       delete productPriceDetails.P_ID
       let date = new Date()
