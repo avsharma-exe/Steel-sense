@@ -83,57 +83,6 @@ const Dashboard = () => {
     getIndents()
   }, [])
 
-  useEffect(() => {
-    console.log('indents', indents)
-    if (indents.length) {
-      indents.forEach(indent => {
-        const indt = indentsArray.findIndex(item => item.id === indent.P_Stock_Indent_ID)
-        if (indt === -1 && indent.indentParticulars) {
-          setIndentsArray([
-            ...indentsArray,
-            {
-              id: indent.P_Stock_Indent_ID,
-              name: indent.indentParticulars[0].PName,
-              qty: indent.indentParticulars[0].Quantity,
-              liod: 'Wed Jun 04 2022',
-              eta: indent.indentParticulars[0].ExpectedDate,
-              status: getIndentStatusText(indent.indentParticulars[0].CurrentStatus)
-            }
-          ])
-        }
-      })
-    }
-  }, [indents, indentsArray])
-
-  useEffect(() => {
-    // console.log('lowStockProducts', lowStockProducts)
-    if (lowStockProducts && lowStockProducts.length) {
-      lowStockProducts.forEach(product => {
-        const prod = lowStockArray.findIndex(item => item.id === product.P_ID)
-        if (prod === -1) {
-          setLowStockArray([
-            ...lowStockArray,
-            {
-              id: product.P_ID,
-              name: product.PName,
-              qty: `${product.CurrentStock}/${product.LowStockLimit}`,
-              re_order_button: (
-                <Button
-                  variant='contained'
-                  endIcon={<Send />}
-                  style={{ color: 'white' }}
-                  onClick={() => handleCreateIndent(product)}
-                >
-                  Create Indent
-                </Button>
-              )
-            }
-          ])
-        }
-      })
-    }
-  }, [lowStockProducts, lowStockArray])
-
   return (
     <Grid container spacing={6}>
       <Grid item md={6}>
