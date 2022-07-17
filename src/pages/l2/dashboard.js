@@ -29,39 +29,30 @@ const Dashboard = () => {
       .get(api_configs.indent.getAll, {
         params: {
           company: userDetails.Co_ID,
-          division: userDetails.Div_ID
         }
       })
       .then(resp => {
+        console.log(resp)
+        let indents = []
+        setIndents(resp.data.allIndents)
         if (resp.status === 200) {
-          setIndents(resp.data.allIndents)
+          resp.data.allIndents.map(indent => {
+            indents.push({
+              CreatedDT: indent.CreatedDT.split('T')[0],
+              StockName: indent.PName,
+              Qty: indent.Quantity,
+              ExpectedDate: indent.ExpectedDate.split('T')[0],
+              CurrentStock: indent.CurrentStock,
+              Division: indent.DivisionName
+            })
+          })
+          setIndentsArray(indents)
         }
       })
   }
-  useEffect(() => {
-    // console.log('indents', indents)
-    if (indents.length) {
-      indents.forEach(indent => {
-        const indt = indentsArray.findIndex(item => item.id === indent.P_Stock_Indent_ID)
-        if (indt === -1 && indent.indentParticulars) {
-          setIndentsArray([
-            ...indentsArray,
-            {
-              id: indent.P_Stock_Indent_ID,
-              name: indent.indentParticulars[0].PName,
-              qty: indent.indentParticulars[0].Quantity,
-              liod: 'Wed Jun 04 2022',
-              eta: indent.indentParticulars[0].ExpectedDate,
-              status: getIndentStatusText(indent.indentParticulars[0].CurrentStatus)
-            }
-          ])
-        }
-      })
-    }
-  }, [indents, indentsArray])
+
 
   useEffect(() => {
-   
     getIndents()
   }, [])
 
@@ -80,15 +71,13 @@ const Dashboard = () => {
             <CardContent>
               <BasicTable
                 columns={[
-                  { id: 'date_of_indent', label: 'Date of Indent', minWidth: 170 },
-                  { id: 'name', label: 'Stock Name', minWidth: 170 },
-                  { id: 'qty', label: 'Quantity Request', minWidth: 170 },
-                  { id: 'last_qty_ordered', label: 'Last Qty Ordered', minWidth: 170 },
-                  { id: 'last_order_date', label: 'Last Order Date', minWidth: 170 },
-                  { id: 'last_order_price', label: 'Last Order Price', minWidth: 170 },
-                  { id: 'current_stock', label: 'Current Stock', minWidth: 170 },
-                  { id: 'division', label: 'Division', minWidth: 170 },
-                  { id: 'order', label: 'Order', minWidth: 170 }
+                  { id: 'CreatedDT', label: 'Date of Indent', minWidth: 170 },
+                  { id: 'StockName', label: 'Stock Name', minWidth: 170 },
+                  { id: 'Qty', label: 'Quantity Request', minWidth: 170 },
+                  { id: 'ExpectedDate', label: 'Expected Date', minWidth: 170 },
+                  { id: 'CurrentStock', label: 'Current Stock', minWidth: 170 },
+                  { id: 'Division', label: 'Division', minWidth: 170 },
+                  { id: 'LastPrice', label: 'Last Unit Price', minWidth: 170 }
                 ]}
                 rows={indentsArray}
               />
