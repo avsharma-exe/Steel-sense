@@ -5,7 +5,7 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
-import { Fragment } from 'react'
+import { Fragment, useEffect } from 'react'
 import Box from 'mdi-material-ui/Box'
 import Step from '@mui/material/Step'
 import Stepper from '@mui/material/Stepper'
@@ -30,6 +30,8 @@ import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
 import { secureApi } from 'src/helpers/apiGenerator'
 import api_configs from 'src/configs/api_configs'
 import CircularProgress from '@mui/material/CircularProgress'
+import StepContent from '@mui/material/StepContent'
+import clsx from 'clsx'
 
 const steps = [
   {
@@ -78,7 +80,7 @@ const defaultPriceDetails = {
 const defaultPriceSchema = yup.object().shape({
   purchasePrice: yup.number().required(),
   salePrice: yup.number().required(),
-  minSalePrice: yup.number(),
+  minSalePrice: yup.number()
 })
 
 const defaultStockDetails = {
@@ -123,11 +125,14 @@ const AddProductForm = ({ onCloseHandle, getProducts }) => {
   const userDetails = useUserDetails()
   const [loading, setLoading] = useState(false)
   const [activeStep, setActiveStep] = useState(0)
+  const [activeVerticalStep, setActiveVerticalStep] = useState(0)
   const [productDetails, setProductDetails] = useState(defaultProductDetails)
   const [priceDetails, setPriceDetails] = useState(defaultPriceDetails)
   const [stockDetails, setStockDetails] = useState(defaultStockDetails)
   const [gstDetails, setGstDetails] = useState(defaultGstDetails)
   const [otherDetails, setOtherDetails] = useState(defaultOtherDetails)
+  const [divisions, setDivisions] = useState([])
+  const [allStocks, setAllStocks] = useState({})
 
   // Handle Stepper
   const handleBack = () => {
@@ -198,16 +203,29 @@ const AddProductForm = ({ onCloseHandle, getProducts }) => {
     otherDetailsReset(defaultOtherDetails)
   }
 
+  const getUserDivisions = async () => {
+    let userDivision = await secureApi(api_configs.user.getDivisions, {
+      params: {
+        user_id: userDetails.User_ID,
+        role: userDetails.Role_ID,
+        co_id: userDetails.Co_ID
+      }
+    })
+    if (userDivision.status === 200) {
+      setDivisions(userDivision.data.userDivisions)
+    }
+  }
+
   const addProduct = async () => {
     setLoading(true)
 
     const product = {
       productDetails,
       priceDetails,
-      stockDetails,
+      allStocks,
       gstDetails,
       otherDetails,
-      userDetails
+      userDetails: { User_ID: userDetails.User_ID, Co_ID: userDetails.Co_ID }
     }
 
     await secureApi
@@ -226,7 +244,9 @@ const AddProductForm = ({ onCloseHandle, getProducts }) => {
   }
 
   const onSubmit = async data => {
-    setActiveStep(activeStep + 1)
+    if (activeStep === 2) {
+      if (activeVerticalStep === divisions.length - 1) setActiveStep(activeStep + 1)
+    } else setActiveStep(activeStep + 1)
     switch (activeStep) {
       case 0:
         setProductDetails(data)
@@ -235,7 +255,13 @@ const AddProductForm = ({ onCloseHandle, getProducts }) => {
         setPriceDetails(data)
         break
       case 2:
-        setStockDetails(data)
+        let divID = divisions[activeVerticalStep].Div_ID
+        let allstocks = allStocks
+        allstocks[divID] = data
+        setAllStocks(allstocks)
+        setActiveVerticalStep(activeVerticalStep + 1)
+
+        // setStockDetails(data)
         break
       case 3:
         setGstDetails(data)
@@ -517,148 +543,200 @@ const AddProductForm = ({ onCloseHandle, getProducts }) => {
         )
       case 2:
         return (
-          <form key={2} onSubmit={handleStockDetailsSubmit(onSubmit)}>
-            <Grid container spacing={5}>
-              <Grid item xs={12} spacing={8}>
-                <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.primary' }}>
-                  {steps[1].title}
-                </Typography>
-                <Typography variant='caption' component='p'>
-                  {steps[1].subtitle}
-                </Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <Controller
-                    name='unit'
-                    control={stockDetailsControl}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange } }) => (
-                      <TextField
-                        value={value}
-                        label='Unit'
-                        onChange={onChange}
-                        error={Boolean(stockDetailsError.unit)}
-                        aria-describedby='stepper-linear-account-username'
-                      />
-                    )}
-                  />
-                  {stockDetailsError.unit && (
-                    <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                      {stockDetailsError.unit.message}
-                    </FormHelperText>
-                  )}
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <Controller
-                    name='openingStock'
-                    control={stockDetailsControl}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange } }) => (
-                      <TextField
-                        value={value}
-                        label='Opening Stock'
-                        onChange={onChange}
-                        error={Boolean(stockDetailsError.openingStock)}
-                        aria-describedby='stepper-linear-account-username'
-                      />
-                    )}
-                  />
-                  {stockDetailsError.openingStock && (
-                    <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                      {stockDetailsError.openingStock.message}
-                    </FormHelperText>
-                  )}
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <Controller
-                    name='openingStockValue'
-                    control={stockDetailsControl}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange } }) => (
-                      <TextField
-                        value={value}
-                        label='Opening Stock Value'
-                        onChange={onChange}
-                        error={Boolean(stockDetailsError.openingStockValue)}
-                        aria-describedby='stepper-linear-account-username'
-                      />
-                    )}
-                  />
-                  {stockDetailsError.openingStockValue && (
-                    <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                      {stockDetailsError.openingStockValue.message}
-                    </FormHelperText>
-                  )}
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <Controller
-                      name='LowStockLimit'
-                      control={stockDetailsControl}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <TextField
-                          value={value}
-                          label='Low Stock Limit'
-                          onChange={e => {
-                            onChange(e)
-                            setStockDetails({ ...stockDetails, LowStockLimit: e.target.value })
-                          }}
-                          error={Boolean(stockDetailsError.LowStockLimit)}
-                          aria-describedby='stepper-linear-account-username'
-                        />
-                      )}
-                    />
-                    {stockDetailsError.LowStockLimit && (
-                      <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                        {stockDetailsError.LowStockLimit.message}
-                      </FormHelperText>
-                    )}
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <Controller
-                      name='MaxStockLimit'
-                      control={stockDetailsControl}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <TextField
-                          value={value}
-                          label='Max Stock Limit'
-                          onChange={e => {
-                            onChange(e)
-                            setStockDetails({ ...stockDetails, MaxStockLimit: e.target.value })
-                          }}
-                          error={Boolean(stockDetailsError.MaxStockLimit)}
-                          aria-describedby='stepper-linear-account-username'
-                        />
-                      )}
-                    />
-                    {stockDetailsError.MaxStockLimit && (
-                      <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                        {stockDetailsError.MaxStockLimit.message}
-                      </FormHelperText>
-                    )}
-                  </FormControl>
-                </Grid>
+          <>
+            <StepperWrapper>
+              <Stepper activeStep={activeVerticalStep} orientation='vertical'>
+                {divisions.map((div, index) => {
+                  return (
+                    <Step key={index} className={clsx({ active: activeVerticalStep === index })}>
+                      <StepLabel StepIconComponent={StepperCustomDot}>
+                        <div className='step-label'>
+                          <div>
+                            <Typography className='step-title'>{div.DivisionName} Division</Typography>
+                            <Typography className='step-subtitle'>
+                              Enter Stock Details for {div.DivisionName} Division
+                            </Typography>
+                          </div>
+                        </div>
+                      </StepLabel>
+                      <StepContent>
+                        <form key={index + 10} onSubmit={handleStockDetailsSubmit(onSubmit)}>
+                          <Grid container spacing={5}>
+                            <Grid item xs={12} spacing={8}>
+                              <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.primary' }}>
+                                {steps[1].title}
+                              </Typography>
+                              <Typography variant='caption' component='p'>
+                                {steps[1].subtitle}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                              <FormControl fullWidth>
+                                <Controller
+                                  name='unit'
+                                  control={stockDetailsControl}
+                                  rules={{ required: true }}
+                                  render={({ field: { value, onChange } }) => (
+                                    <TextField
+                                      value={value}
+                                      label='Unit'
+                                      onChange={onChange}
+                                      error={Boolean(stockDetailsError.unit)}
+                                      aria-describedby='stepper-linear-account-username'
+                                    />
+                                  )}
+                                />
+                                {stockDetailsError.unit && (
+                                  <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
+                                    {stockDetailsError.unit.message}
+                                  </FormHelperText>
+                                )}
+                              </FormControl>
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                              <FormControl fullWidth>
+                                <Controller
+                                  name='openingStock'
+                                  control={stockDetailsControl}
+                                  rules={{ required: true }}
+                                  render={({ field: { value, onChange } }) => (
+                                    <TextField
+                                      value={value}
+                                      label='Opening Stock'
+                                      onChange={onChange}
+                                      error={Boolean(stockDetailsError.openingStock)}
+                                      aria-describedby='stepper-linear-account-username'
+                                    />
+                                  )}
+                                />
+                                {stockDetailsError.openingStock && (
+                                  <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
+                                    {stockDetailsError.openingStock.message}
+                                  </FormHelperText>
+                                )}
+                              </FormControl>
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                              <FormControl fullWidth>
+                                <Controller
+                                  name='openingStockValue'
+                                  control={stockDetailsControl}
+                                  rules={{ required: true }}
+                                  render={({ field: { value, onChange } }) => (
+                                    <TextField
+                                      value={value}
+                                      label='Opening Stock Value'
+                                      onChange={onChange}
+                                      error={Boolean(stockDetailsError.openingStockValue)}
+                                      aria-describedby='stepper-linear-account-username'
+                                    />
+                                  )}
+                                />
+                                {stockDetailsError.openingStockValue && (
+                                  <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
+                                    {stockDetailsError.openingStockValue.message}
+                                  </FormHelperText>
+                                )}
+                              </FormControl>
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                              <FormControl fullWidth>
+                                <Controller
+                                  name='LowStockLimit'
+                                  control={stockDetailsControl}
+                                  rules={{ required: true }}
+                                  render={({ field: { value, onChange } }) => (
+                                    <TextField
+                                      value={value}
+                                      label='Low Stock Limit'
+                                      onChange={e => {
+                                        onChange(e)
+                                        setStockDetails({ ...stockDetails, LowStockLimit: e.target.value })
+                                      }}
+                                      error={Boolean(stockDetailsError.LowStockLimit)}
+                                      aria-describedby='stepper-linear-account-username'
+                                    />
+                                  )}
+                                />
+                                {stockDetailsError.LowStockLimit && (
+                                  <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
+                                    {stockDetailsError.LowStockLimit.message}
+                                  </FormHelperText>
+                                )}
+                              </FormControl>
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                              <FormControl fullWidth>
+                                <Controller
+                                  name='MaxStockLimit'
+                                  control={stockDetailsControl}
+                                  rules={{ required: true }}
+                                  render={({ field: { value, onChange } }) => (
+                                    <TextField
+                                      value={value}
+                                      label='Max Stock Limit'
+                                      onChange={e => {
+                                        onChange(e)
+                                        setStockDetails({ ...stockDetails, MaxStockLimit: e.target.value })
+                                      }}
+                                      error={Boolean(stockDetailsError.MaxStockLimit)}
+                                      aria-describedby='stepper-linear-account-username'
+                                    />
+                                  )}
+                                />
+                                {stockDetailsError.MaxStockLimit && (
+                                  <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
+                                    {stockDetailsError.MaxStockLimit.message}
+                                  </FormHelperText>
+                                )}
+                              </FormControl>
+                            </Grid>
 
+                            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                              <Button
+                                size='large'
+                                variant='outlined'
+                                color='secondary'
+                                onClick={() => {
+                                  activeVerticalStep === 0
+                                    ? handleBack()
+                                    : setActiveVerticalStep(prevActiveStep => prevActiveStep - 1)
+                                }}
+                              >
+                                Back
+                              </Button>
+                              <Button size='large' type='submit' variant='contained'>
+                                Next
+                              </Button>
+                            </Grid>
+                          </Grid>
+                        </form>
+                      </StepContent>
+                    </Step>
+                  )
+                })}
+              </Stepper>
+            </StepperWrapper>
+            {activeVerticalStep === divisions.length ? (
               <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Button size='large' variant='outlined' color='secondary' onClick={handleBack}>
+                <Button
+                  size='large'
+                  variant='outlined'
+                  color='secondary'
+                  onClick={() => {
+                    activeVerticalStep === 0
+                      ? handleBack()
+                      : setActiveVerticalStep(prevActiveStep => prevActiveStep - 1)
+                  }}
+                >
                   Back
                 </Button>
                 <Button size='large' type='submit' variant='contained'>
                   Next
                 </Button>
               </Grid>
-            </Grid>
-          </form>
+            ) : null}
+          </>
         )
       case 3:
         return (
@@ -920,6 +998,10 @@ const AddProductForm = ({ onCloseHandle, getProducts }) => {
       return getStepContent(activeStep)
     }
   }
+
+  useEffect(() => {
+    getUserDivisions()
+  }, [])
 
   return (
     <>

@@ -23,6 +23,8 @@ function createNewUser(body) {
  * @returns db object
  */
 function createCompanyUserMap(body) {
+  console.log("insert------body " , body)
+
   return executeQuery({
     query: 'INSERT INTO Company_User SET ?',
     values: body

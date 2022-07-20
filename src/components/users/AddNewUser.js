@@ -14,6 +14,7 @@ import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import FormHelperText from '@mui/material/FormHelperText'
 import useUserDetails from 'src/hooks/useUserDetails'
+import Chip from '@mui/material/Chip'
 
 // ** Third Party Imports
 import * as yup from 'yup'
@@ -26,6 +27,18 @@ import api_configs from 'src/configs/api_configs'
 import Close from 'mdi-material-ui/Close'
 import { useEffect } from 'react'
 import toast from 'react-hot-toast'
+
+const ITEM_HEIGHT = 48
+const ITEM_PADDING_TOP = 8
+
+const MenuProps = {
+  PaperProps: {
+    style: {
+      width: 250,
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP
+    }
+  }
+}
 
 const showErrors = (field, valueLen, min) => {
   if (valueLen === 0) {
@@ -74,7 +87,7 @@ const Header = styled(Box)(({ theme }) => ({
 const AddNewUser = props => {
   const { open, toggle } = props
   const [role, setRole] = useState('2')
-  const [division, setDivision] = useState()
+  const [division, setDivision] = useState([])
   const [allDivision, setAllDivision] = useState([])
   const userDetails = useUserDetails()
 
@@ -113,7 +126,7 @@ const AddNewUser = props => {
         Email: data.email,
         otherDetails: {
           Role_ID: role,
-          Div_ID: division,
+          divisions: division,
           Co_ID: userDetails.Co_ID
         }
       })
@@ -245,28 +258,40 @@ const AddNewUser = props => {
             </Select>
           </FormControl>
           {errors.role && <FormHelperText sx={{ color: 'error.main' }}>{errors.role.message}</FormHelperText>}
-          <FormControl fullWidth sx={{ mb: 6 }}>
-            <InputLabel id='division-select'>Select Division</InputLabel>
+
+          <FormControl fullWidth>
+            <InputLabel id='user-divisions-label'>Select Division</InputLabel>
             <Select
-              fullWidth
+              multiple
+              label='Chip'
               value={division}
-              id='select-division'
-              label='Select Division'
-              labelId='division-select'
-              onChange={e => setDivision(e.target.value)}
-              inputProps={{ placeholder: 'Select Division' }}
+              MenuProps={MenuProps}
+              id='user-divisions'
+              onChange={e => {
+                setDivision(e.target.value)
+              }}
+              labelId='user-division-label'
+              renderValue={selected => (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+                  {selected.map(value => {
+                    let foundDivision = allDivision.find(div => div.id == value)
+
+                    return <Chip key={value} label={foundDivision.label} sx={{ m: 0.75 }} />
+                  })}
+                </Box>
+              )}
             >
-              {allDivision.map((div, index) => {
-                return (
-                  <MenuItem value={div.id} key={index}>
-                    {div.label}
-                  </MenuItem>
-                )
-              })}
+              {allDivision.map((div, index) => (
+                <MenuItem key={index} value={div.id}>
+                  {div.label}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
+
+         
           {errors.division && <FormHelperText sx={{ color: 'error.main' }}>{errors.division.message}</FormHelperText>}
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', marginTop: "1rem" }}>
             <Button size='large' type='submit' variant='contained' sx={{ mr: 3 }}>
               Submit
             </Button>

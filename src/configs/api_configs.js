@@ -6,7 +6,8 @@ export default {
         create: "/user/create",
         update: "/user/update",
         getAllCompanyUser: "user/get-all-companyuser",
-        updateCompanyUser: "user/update-companyuser"
+        updateCompanyUser: "user/update-companyuser",
+        getDivisions: "user/get-user-divisions"
     },
     company: {
         createNew: "/company/create",

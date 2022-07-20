@@ -4,6 +4,7 @@ const Read = {
   getUserDetails,
   getAllCompanyUsers,
   getUserByID,
+  getUserDivisions
 }
 
 /**
@@ -15,6 +16,18 @@ function getUserDetails(email) {
   return executeQuery({
     query: 'SELECT User_Master.User_ID, User_Master.Email, User_Master.Password, User_Master.FirstName, User_Master.LastName, User_Master.MobileNo, User_Master.LastLoginDate, Company_User.Co_ID, Company_User.Div_ID, Company_User.Role_ID, Company_User.status, cm.status as company_master_status FROM User_Master LEFT JOIN Company_User ON Company_User.User_ID = User_Master.User_ID LEFT JOIN Company_Master cm on cm.Co_ID = Company_User.Co_ID where Email = ? AND Company_User.status = ?',
     values: [email, 50, 50]
+  })
+}
+
+/**
+ * Get User Divisions
+ * @params {*} user_id
+ * @returns database entries of all user divisions
+ */
+function getUserDivisions(user_id) {
+  return executeQuery({
+    query: "SELECT Company_User.Div_ID,Company_User_ID,Division_Master.DivisionName from Company_User join Division_Master on Division_Master.Div_ID = Company_User.Div_ID where Company_User.User_ID  = ?",
+    values: [user_id]
   })
 }
 

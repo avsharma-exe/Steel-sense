@@ -22,7 +22,6 @@ export default async function handler(req, res) {
       ...userfeilds
     }
 
-
     const addProductDetails = await Product.Create.createNewProduct(productDetails)
 
     const priceDetails = {
@@ -36,53 +35,61 @@ export default async function handler(req, res) {
     }
 
     const productGstDetails = {
+      P_ID: addProductDetails.insertId,
+      HSN_SAC_Code: body.gstDetails.hsnCode,
+      CGST: body.gstDetails.cgst,
+      SGST: body.gstDetails.sgst,
+      Cess: body.gstDetails.cess,
+      IGST: body.gstDetails.igst,
+      ...userfeilds
+    }
+
+    
+    await Object.keys(body.allStocks).forEach(async division => {
+      let stock = body.allStocks[division]
+      
+      const productUnit = {
         P_ID: addProductDetails.insertId,
-        HSN_SAC_Code: body.gstDetails.hsnCode,
-        CGST: body.gstDetails.cgst,
-        SGST: body.gstDetails.sgst,
-        Cess: body.gstDetails.cess,
-        IGST: body.gstDetails.igst,
+        UnitName: stock.unit,
         ...userfeilds
-     }
-
-     const productStockDetails = {
-        P_ID: addProductDetails.insertId,
-        CurrentStock: body.stockDetails.openingStock,
-        LastStock: body.stockDetails.openingStock,
-        LowStockLimit: body.stockDetails.LowStockLimit,
-        MaxStockLimit: body.stockDetails.MaxStockLimit,
-        ...userfeilds
-     }
-
-     const productUnit = {
-        P_ID: addProductDetails.insertId,
-        UnitName: body.stockDetails.unit,
-        ...userfeilds
-     }
-
-
-    const addProductPriceDetails = await Product.Create.createProductPriceDetails(priceDetails)
-
-    const createProductGstDetails = await Product.Create.createProductGSTDetails(productGstDetails)
-
-    const createProductStockDetails = await Product.Create.createProductStockDetails(productStockDetails)
-
-    const createProductUnit = await Product.Create.createProductUnitDetails(productUnit);
-
-    const createProductCompanyDivision = await Product.Create.createProductCompanyDivision({
-        Co_ID: body.userDetails.Co_ID,
-        P_ID: addProductDetails.insertId,
-        ...userfeilds
+      }
+      await Product.Create.createProductUnitDetails(productUnit)
     })
 
+    await Object.keys(body.allStocks).forEach(async division => {
+      let stock = body.allStocks[division]
 
-    if (addProductPriceDetails && createProductCompanyDivision && createProductGstDetails && createProductStockDetails && createProductUnit) {
-
-        res.send({
-          error: false,
-          msg: 'Product added successfully',
-        })
+      const productStockDetails = {
+        P_ID: addProductDetails.insertId,
+        CurrentStock: stock.openingStock,
+        LastStock: stock.openingStock,
+        LowStockLimit: stock.LowStockLimit,
+        MaxStockLimit: stock.MaxStockLimit,
+        Div_ID: division,
+        ...userfeilds
       }
+      await Product.Create.createProductStockDetails(productStockDetails)
+    })
+
+    await Object.keys(body.allStocks).map(async division => {
+      await Product.Create.createProductCompanyDivision({
+        Co_ID: body.userDetails.Co_ID,
+        P_ID: addProductDetails.insertId,
+        Div_ID: division,
+        ...userfeilds
+      })
+    })
+    
+    const addProductPriceDetails = await Product.Create.createProductPriceDetails(priceDetails)
+    
+    const createProductGstDetails = await Product.Create.createProductGSTDetails(productGstDetails)
+
+    if (addProductPriceDetails && createProductGstDetails) {
+      res.send({
+        error: false,
+        msg: 'Product added successfully'
+      })
+    }
   } catch (e) {
     throw e
   }

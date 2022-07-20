@@ -10,6 +10,7 @@ export default async function handler(req, res) {
 
   let body = req.body
   let mobile = body.MobileNo
+
   // console.log(body)
   try {
     cryptPassword(body.FirstName + '@' + String(mobile).substr(mobile.length - 4), async (err, hash) => {
@@ -22,7 +23,18 @@ export default async function handler(req, res) {
       // add new user to UserMaster
       let result = await User.Create.createNewUser(body)
       otherDetails['User_ID'] = result.insertId
-      let other_details = await User.Create.createCompanyUserMap(otherDetails)
+      let allDivisions = otherDetails["divisions"]
+      delete otherDetails["divisions"]
+      allDivisions.forEach( async div_id => {
+        console.log(div_id)
+        let tempOtherDetails = otherDetails
+        tempOtherDetails["Div_ID"] = div_id  
+        console.log("inserting ---------- " , tempOtherDetails)
+        let other_details = await User.Create.createCompanyUserMap(tempOtherDetails)
+        console.log(other_details)
+      });
+      
+     
 
       if (result) {
         // TODO: add mail service to send the credentials
@@ -30,7 +42,6 @@ export default async function handler(req, res) {
           error: false,
           msg: 'User added successfully',
           result,
-          other_details
         })
       }
     })
