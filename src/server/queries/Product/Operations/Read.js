@@ -14,6 +14,15 @@ const Read = {
 }
 
 /**
+ * get all product details query
+ * @param {*} 
+ * @returns database data for all products
+ */
+function getAllProducts(co_id) {
+
+}
+
+/**
  * Fetches all the IDs of all products under a company and division
  * @param {*} co_id
  * @param {*} div_id

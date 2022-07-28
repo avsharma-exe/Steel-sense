@@ -71,8 +71,11 @@ const AuthProvider = ({ children }) => {
       .post(api_configs.auth.login, params)
       .then(async res => {
         if (res.data && !res.data.error) {
-          await window.localStorage.setItem('accessToken', res.data.token)
-          await window.localStorage.setItem('userData', JSON.stringify(res.data.user))
+          console.log(res)
+          await window.localStorage.setItem('accessToken', res.data.token);
+          // storing user divisions as array
+          await window.localStorage.setItem('userDivisions', res.data.companyDivisionDetails.map(div => div.Div_ID));
+          await window.localStorage.setItem('userData', JSON.stringify(res.data.user));
 
           setUser({ ...res.data.user })
           

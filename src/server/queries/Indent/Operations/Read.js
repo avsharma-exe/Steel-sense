@@ -14,13 +14,13 @@ const Read = {
  */
 function getAllIndentsOfACompany(co_id) {
   return executeQuery({
-    query: `Select psip.P_ID, psip.Quantity, psip.Description, psip.CurrentStatus, psip.ExpectedDate, psip.CreatedDT, psi.Div_ID, psi.CreatedBy, pst.CurrentStock, pm.PName, dm.DivisionName
+    query: `Select psip.P_Stock_Indent_Particulars_ID as indent_particulars_id, psip.P_Stock_Indent_ID as indent_id, psip.P_ID, psip.Quantity, psip.Description, psip.CurrentStatus, psip.ExpectedDate, psip.CreatedDT, psi.Div_ID, psi.CreatedBy, pst.CurrentStock, pm.PName, dm.DivisionName
     from Product_Stock_Indent_Particulars psip
     LEFT JOIN Product_Stock_Indent psi on psip.P_Stock_Indent_ID = psi.P_Stock_Indent_ID
     LEFT JOIN Product_Stock pst on psip.P_ID = pst.P_ID
     LEFT JOIN Product_Master pm on psip.P_ID = pm.P_ID
     LEFT JOIN Division_Master dm on psi.Div_ID = dm.Div_ID
-    AND psi.Co_ID = ?`,
+    AND psi.Co_ID = ? Where psip.currentStatus = 0`,
     values: [co_id]
   })
 }

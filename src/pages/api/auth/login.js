@@ -52,6 +52,7 @@ export default async function handler(req, res) {
           msg: 'User login successfully',
           token: jwtToken,
           companyDetails,
+          companyDivisionDetails: companyDetailsMap,
           user
         })
       } else

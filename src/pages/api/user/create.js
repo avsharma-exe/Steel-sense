@@ -13,28 +13,29 @@ export default async function handler(req, res) {
 
   // console.log(body)
   try {
-    cryptPassword(body.FirstName + '@' + String(mobile).substr(mobile.length - 4), async (err, hash) => {
+    let pass = body.FirstName + '@' + String(mobile).slice(-4)
+    cryptPassword(pass, async (err, hash) => {
       if (err) throw err
       body.Password = hash
       const otherDetails = body.otherDetails
       delete body.otherDetails
       otherDetails["status"] = 50
-      
+      console.log(hash,' ------ ',pass)
+
       // add new user to UserMaster
       let result = await User.Create.createNewUser(body)
       otherDetails['User_ID'] = result.insertId
       let allDivisions = otherDetails["divisions"]
       delete otherDetails["divisions"]
-      allDivisions.forEach( async div_id => {
-        console.log(div_id)
+      console.log(allDivisions)
+
+      for( let division of allDivisions ) {
+        console.log(division)
         let tempOtherDetails = otherDetails
-        tempOtherDetails["Div_ID"] = div_id  
+        tempOtherDetails["Div_ID"] = division
         console.log("inserting ---------- " , tempOtherDetails)
         let other_details = await User.Create.createCompanyUserMap(tempOtherDetails)
-        console.log(other_details)
-      });
-      
-     
+      }
 
       if (result) {
         // TODO: add mail service to send the credentials

@@ -86,7 +86,6 @@ const defaultPriceSchema = yup.object().shape({
 const defaultStockDetails = {
   unit: '',
   openingStock: '',
-  openingStockValue: '',
   LowStockLimit: '',
   MaxStockLimit: ''
 }
@@ -616,29 +615,7 @@ const AddProductForm = ({ onCloseHandle, getProducts }) => {
                                 )}
                               </FormControl>
                             </Grid>
-                            <Grid item xs={12} sm={6}>
-                              <FormControl fullWidth>
-                                <Controller
-                                  name='openingStockValue'
-                                  control={stockDetailsControl}
-                                  rules={{ required: true }}
-                                  render={({ field: { value, onChange } }) => (
-                                    <TextField
-                                      value={value}
-                                      label='Opening Stock Value'
-                                      onChange={onChange}
-                                      error={Boolean(stockDetailsError.openingStockValue)}
-                                      aria-describedby='stepper-linear-account-username'
-                                    />
-                                  )}
-                                />
-                                {stockDetailsError.openingStockValue && (
-                                  <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                                    {stockDetailsError.openingStockValue.message}
-                                  </FormHelperText>
-                                )}
-                              </FormControl>
-                            </Grid>
+                            
                             <Grid item xs={12} sm={6}>
                               <FormControl fullWidth>
                                 <Controller
