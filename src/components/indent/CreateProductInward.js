@@ -34,12 +34,16 @@ import { InputAdornment } from '@mui/material'
 import { Console } from 'mdi-material-ui'
 
 const schema = yup.object().shape({
-  quantity: yup.number().typeError('Quantity to be ordered is required').required(),
+ 
   
 })
 
 const defaultValues = {
   quantity: '',
+  discount: '',
+  tax: '',
+  taxRate: '',
+  unitPrice: '',
   supplier: '',
   invoice_date: '',
   
@@ -55,12 +59,21 @@ const Header = styled(Box)(({ theme }) => ({
 
 const CreateProductInward = props => {
   const { open, toggle, productDetails } = props
-  const [product, setProduct] = useState()
+  const [product, setProduct] = useState(productDetails)
   const [allSuppliers, setAllSuppliers] = useState([])
   const [Supplier, setSupplier] = useState(allSuppliers[0])
   const [product_stock, setProductStock] = useState()
   const userDetails = useUserDetails()
   const [ex_date, setExDate] = useState(new Date())
+  
+  const [inwardDetails , setInwardDetails] = useState({
+    total: "",
+    subtotal: "",
+    taxrate: "",
+    rate: "",
+    discount: "",
+    unitPrice: ""
+  })
 
   const getSuppliers = async () => {
     await secureApi.get(api_configs.supplier.getAll, { params: { coid: userDetails.Co_ID } }).then(res => {
@@ -84,8 +97,6 @@ const CreateProductInward = props => {
 
   const onSubmit = async data => {
     console.log(data)
-    // addIndent(data)
-    // TODO: Add User API CALL
   }
 
   const handleClose = () => {
@@ -118,18 +129,32 @@ const CreateProductInward = props => {
               control={control}
               render={({ field: { value, onChange } }) => (
                 <TextField
+                label='Product Name'
                   value={productDetails ? productDetails.PName : ''}
                   disabled
-                  // label='Product Name'
                   onChange={onChange}
                   placeholder=''
-                  error={Boolean(errors.firstName)}
                 />
               )}
             />
-            {errors.productName && (
-              <FormHelperText sx={{ color: 'error.main' }}>{errors.productName.message}</FormHelperText>
-            )}
+           
+          </FormControl>
+          <FormControl fullWidth sx={{ mb: 6 }}>
+            <Controller
+              name='divisionName'
+              control={control}
+              render={({ field: { value, onChange } }) => (
+                <TextField
+                label='Division'
+                  value={productDetails ? productDetails.DivisionName : ''}
+                  disabled
+                  onChange={onChange}
+                  placeholder=''
+                
+                />
+              )}
+            />
+            
           </FormControl>
           <FormControl fullWidth sx={{ mb: 6 }}>
             <Controller
@@ -138,10 +163,13 @@ const CreateProductInward = props => {
               rules={{ required: true }}
               render={({ field: { value, onChange } }) => (
                 <TextField
-                  value={value}
+                  value={product ? product.Quantity : ''}
                   type='number'
                   label='Quantity'
-                  onChange={onChange}
+                  onChange={(e) => {
+                    onChange(e)
+                    setProduct({...product , Quantity: e.target.value})
+                  }}
                   placeholder='10'
                   error={Boolean(errors.quantity)}
                   InputProps={{
@@ -152,6 +180,126 @@ const CreateProductInward = props => {
             />
             {errors.quantity && <FormHelperText sx={{ color: 'error.main' }}>{errors.quantity.message}</FormHelperText>}
           </FormControl>
+          <FormControl fullWidth sx={{ mb: 6 }}>
+            <Controller
+              name='unit_price'
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <TextField
+                  value={value}
+                  type='number'
+                  label='Unit Price'
+                  onChange={(e) => {
+                    onChange(e)
+                    setInwardDetails({...inwardDetails , subtotal: parseInt(product.Quantity) * e.target.value})
+                  }}
+                  placeholder='10'
+                  InputProps={{
+                    endAdornment: <InputAdornment position='end'>₹</InputAdornment>
+                  }}
+                />
+              )}
+            />
+            {errors.quantity && <FormHelperText sx={{ color: 'error.main' }}>{errors.quantity.message}</FormHelperText>}
+          </FormControl>
+          <FormControl fullWidth sx={{ mb: 6 }}>
+            <Controller
+              name='discount'
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <TextField
+                  value={value}
+                  type='number'
+                  label='Discount'
+                  onChange={onChange}
+                  placeholder='10'
+                  error={Boolean(errors.discount)}
+                  InputProps={{
+                    endAdornment: <InputAdornment position='end'>%</InputAdornment>
+                  }}
+                />
+              )}
+            />
+            {errors.discount && <FormHelperText sx={{ color: 'error.main' }}>{errors.discount.message}</FormHelperText>}
+          </FormControl>
+          <FormControl fullWidth sx={{ mb: 6 }}>
+            <Controller
+              name='tax'
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <TextField
+                  value={value}
+                  type='number'
+                  label='Tax'
+                  onChange={onChange}
+                  placeholder='10'
+                  error={Boolean(errors.tax)}
+                  InputProps={{
+                    endAdornment: <InputAdornment position='end'>%</InputAdornment>
+                  }}
+                />
+              )}
+            />
+            {errors.tax && <FormHelperText sx={{ color: 'error.main' }}>{errors.tax.message}</FormHelperText>}
+          </FormControl>
+          <FormControl fullWidth sx={{ mb: 6 }}>
+            <Controller
+              name='taxrate'
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <TextField
+                  value={value}
+                  type='number'
+                  label='Tax Rate'
+                  onChange={onChange}
+                  placeholder='10'
+                 
+                />
+              )}
+            />
+          </FormControl>
+          <FormControl fullWidth sx={{ mb: 6 }}>
+            <Controller
+              name='subtotal'
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <TextField
+                  value={inwardDetails.subTotal}
+                  type='number'
+                  label='Sub Total'
+                  // onChange={(e) => {
+                  //   onChange(e)
+                  //   setInwardDetails({...inwardDetails , subtotal: e.target.value})
+                  // }}
+                  placeholder='10'
+                 
+                />
+              )}
+            />
+          </FormControl>
+          <FormControl fullWidth sx={{ mb: 6 }}>
+            <Controller
+              name='total'
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <TextField
+                  value={value}
+                  type='number'
+                  label='Total'
+                  onChange={onChange}
+                  placeholder='10'
+                 
+                />
+              )}
+            />
+          </FormControl>
+          
           <Grid item xs={12} sm={6}  sx={{ mb: 6 }}>
             <Autocomplete
               value={Supplier ? Supplier : null}
