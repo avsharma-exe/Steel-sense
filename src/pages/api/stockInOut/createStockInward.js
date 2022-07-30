@@ -17,7 +17,8 @@ export default async function handler(req, res) {
       ':' + date.getMinutes()
     body['CreatedDt'] = CreatedDt
     delete body.user
-
+    let status = body.status;
+    delete body.status
     console.log(body)
     let updateStock = null
     // add new inward stock

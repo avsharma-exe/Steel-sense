@@ -5,7 +5,8 @@ import {
   Send,
   TicketConfirmationOutline,
   ClipboardListOutline,
-  CheckCircleOutline
+  CheckCircleOutline,
+  Creation
 } from 'mdi-material-ui'
 import BasicTable from 'src/components/utils/BasicTable'
 import { secureApi } from 'src/helpers/apiGenerator'
@@ -62,22 +63,42 @@ const Dashboard = () => {
               ExpectedDate: indent.ExpectedDate.split('T')[0],
               CurrentStock: indent.CurrentStock,
               Division: indent.DivisionName,
-              actions: (
-                <Button
-                  variant='contained'
-                  endIcon={<CheckCircleOutline />}
-                  color={'success'}
-                  style={{ color: 'white' }}
-                  onClick={() => {
-                    setConfirmDialog({
-                      show: true,
-                      data: indent
-                    })
-                  }}
-                >
-                  Approve
-                </Button>
-              )
+              actions:
+                indent.CurrentStatus === 0 ? (
+                  <Button
+                    variant='contained'
+                    endIcon={<CheckCircleOutline />}
+                    color={'success'}
+                    style={{ color: 'white' }}
+                    onClick={() => {
+                      setConfirmDialog({
+                        show: true,
+                        data: indent
+                      })
+                    }}
+                  >
+                    Approve
+                  </Button>
+                ) : (
+                  <Button
+                    variant='contained'
+                    endIcon={<Creation />}
+                    color={'primary'}
+                    style={{ color: 'white' }}
+                    onClick={() => {
+                      setShowProductStockInwardVoucher({
+                        show: true,
+                        data: indent
+                      })
+                      setConfirmDialog({
+                        show: false,
+                        data: indent
+                      })
+                    }}
+                  >
+                    Purchase Order
+                  </Button>
+                )
             })
           })
           setIndentsArray(indents)
@@ -85,19 +106,13 @@ const Dashboard = () => {
       })
   }
 
-  const approveIndent = async (createStockInward, update) => {
-    if (createStockInward) {
-      setShowProductStockInwardVoucher({
-        show: true,
-        data: confirmDialog.data
-      })
-    }
-
+  const sendApproval = async (createStockInward, update) => {
     const approveIndent = await secureApi.put(api_configs.indent.approve, {
       user: userDetails.User_ID,
       indent_particular: confirmDialog.data.indent_particulars_id,
       indent: confirmDialog.data.indent_id,
-      update
+      update,
+      createStockInward
     })
 
     if (approveIndent.status === 200) {
@@ -110,16 +125,41 @@ const Dashboard = () => {
     }
   }
 
+  const approveIndent = async (createStockInward, update) => {
+    if (createStockInward) {
+      setShowProductStockInwardVoucher({
+        show: true,
+        data: confirmDialog.data
+      })
+      setConfirmDialog({
+        show: false,
+        data: confirmDialog.data
+      })
+    } else {
+      sendApproval(createStockInward, update)
+    }
+  }
+
   useEffect(() => {
     getIndents()
   }, [])
 
   return (
     <>
-      <CreateProductInward open={showProductStockInwardVoucher.show} productDetails={showProductStockInwardVoucher.data} toggle={() => setShowProductStockInwardVoucher({
-        show: !showProductStockInwardVoucher.show,
-        data: {}
-      })}/> 
+      <CreateProductInward
+        afterCreation={() => {
+          sendApproval(true, true)
+        }}
+        open={showProductStockInwardVoucher.show}
+        productDetails={showProductStockInwardVoucher.data}
+        toggle={() => {
+          sendApproval(true , true);
+          setShowProductStockInwardVoucher({
+            show: !showProductStockInwardVoucher.show,
+            data: {}
+          })
+        }}
+      />
       <Dialog
         open={confirmDialog.show}
         disableEscapeKeyDown
@@ -127,7 +167,6 @@ const Dashboard = () => {
         aria-describedby='alert-dialog-description'
         onClose={(event, reason) => {
           if (reason !== 'backdropClick') {
-            
           }
           setConfirmDialog({
             show: false,
@@ -181,13 +220,12 @@ const Dashboard = () => {
                 columns={[
                   { id: 'CreatedDT', label: 'Date of Indent', minWidth: 170 },
                   { id: 'StockName', label: 'Stock Name', minWidth: 170 },
-                  { id: 'actions', label: 'Approve', minWidth: 170 },
+                  { id: 'actions', label: 'Actions', minWidth: 170 },
                   { id: 'Qty', label: 'Quantity Request', minWidth: 170 },
                   { id: 'ExpectedDate', label: 'Expected Date', minWidth: 170 },
                   { id: 'CurrentStock', label: 'Current Stock', minWidth: 170 },
                   { id: 'Division', label: 'Division', minWidth: 170 },
-                  { id: 'LastPrice', label: 'Last Unit Price', minWidth: 170 },
-                  
+                  { id: 'LastPrice', label: 'Last Unit Price', maxWidth: 200 }
                 ]}
                 rows={indentsArray}
               />

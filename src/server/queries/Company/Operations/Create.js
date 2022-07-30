@@ -24,7 +24,7 @@ function createNewCompany(body) {
  */
 function createCompanyDetails(body) {
   return executeQuery({
-    query: 'INSERT INTO Company_Details SET ?',
+    query: 'INSERT INTO Company_Detailss SET ?',
     values: body
   })
 }

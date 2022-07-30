@@ -33,10 +33,7 @@ import { useEffect } from 'react'
 import { InputAdornment } from '@mui/material'
 import { Console } from 'mdi-material-ui'
 
-const schema = yup.object().shape({
- 
-  
-})
+const schema = yup.object().shape({})
 
 const defaultValues = {
   quantity: '',
@@ -45,8 +42,7 @@ const defaultValues = {
   taxRate: '',
   unitPrice: '',
   supplier: '',
-  invoice_date: '',
-  
+  invoice_date: ''
 }
 
 const Header = styled(Box)(({ theme }) => ({
@@ -65,14 +61,15 @@ const CreateProductInward = props => {
   const [product_stock, setProductStock] = useState()
   const userDetails = useUserDetails()
   const [ex_date, setExDate] = useState(new Date())
-  
-  const [inwardDetails , setInwardDetails] = useState({
-    total: "",
-    subtotal: "",
-    taxrate: "",
-    rate: "",
-    discount: "",
-    unitPrice: ""
+
+  const [inwardDetails, setInwardDetails] = useState({
+    total: '',
+    subtotal: '',
+    taxrate: '',
+    rate: '',
+    discount: '',
+    unitPrice: '',
+    tax: ''
   })
 
   const getSuppliers = async () => {
@@ -97,6 +94,33 @@ const CreateProductInward = props => {
 
   const onSubmit = async data => {
     console.log(data)
+
+    const createPurchaseOrder = await secureApi.post(api_configs.indent.createPurchaseOrder, {
+      Co_ID: userDetails.Co_ID,
+      Div_ID: productDetails.Div_ID,
+      P_ID: productDetails.P_ID,
+      Supplier_ID: Supplier.Co_ID,
+      Quantity: inwardDetails.quantity,
+      InvoiceDate:
+        data.invoice_date.getDate() + '-' + (data.invoice_date.getMonth() + 1) + '-' + data.invoice_date.getFullYear(),
+      inward: {
+        UnitPrice: inwardDetails.unitPrice,
+        DiscountPercent: inwardDetails.discount,
+        TaxPercent: inwardDetails.tax,
+        TotalAmount:
+          (parseInt(inwardDetails.tax) / 100) * (parseInt(product.Quantity) * inwardDetails.unitPrice) +
+          parseInt(product.Quantity) * inwardDetails.unitPrice -
+          (((parseInt(inwardDetails.tax) / 100) * (parseInt(product.Quantity) * inwardDetails.unitPrice) +
+            parseInt(product.Quantity) * inwardDetails.unitPrice) *
+            inwardDetails.discount) /
+            100
+      }
+    })
+
+    if(createPurchaseOrder.status === 200) {
+      toggle()
+      
+    }
   }
 
   const handleClose = () => {
@@ -118,189 +142,21 @@ const CreateProductInward = props => {
       sx={{ '& .MuiDrawer-paper': { width: { xs: 300, sm: 400 } } }}
     >
       <Header>
-        <Typography variant='h6'>Create Product Inward</Typography>
+        <Typography variant='h6'>Create Purchase Order</Typography>
         <Close fontSize='small' onClick={handleClose} sx={{ cursor: 'pointer' }} />
       </Header>
       <Box sx={{ p: 5 }}>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <FormControl fullWidth sx={{ mb: 6 }}>
-            <Controller
-              name='productName'
-              control={control}
-              render={({ field: { value, onChange } }) => (
-                <TextField
-                label='Product Name'
-                  value={productDetails ? productDetails.PName : ''}
-                  disabled
-                  onChange={onChange}
-                  placeholder=''
-                />
-              )}
-            />
-           
-          </FormControl>
-          <FormControl fullWidth sx={{ mb: 6 }}>
-            <Controller
-              name='divisionName'
-              control={control}
-              render={({ field: { value, onChange } }) => (
-                <TextField
-                label='Division'
-                  value={productDetails ? productDetails.DivisionName : ''}
-                  disabled
-                  onChange={onChange}
-                  placeholder=''
-                
-                />
-              )}
-            />
-            
-          </FormControl>
-          <FormControl fullWidth sx={{ mb: 6 }}>
-            <Controller
-              name='quantity'
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <TextField
-                  value={product ? product.Quantity : ''}
-                  type='number'
-                  label='Quantity'
-                  onChange={(e) => {
-                    onChange(e)
-                    setProduct({...product , Quantity: e.target.value})
-                  }}
-                  placeholder='10'
-                  error={Boolean(errors.quantity)}
-                  InputProps={{
-                    endAdornment: <InputAdornment position='end'>{product && product.UnitName}</InputAdornment>
-                  }}
-                />
-              )}
-            />
-            {errors.quantity && <FormHelperText sx={{ color: 'error.main' }}>{errors.quantity.message}</FormHelperText>}
-          </FormControl>
-          <FormControl fullWidth sx={{ mb: 6 }}>
-            <Controller
-              name='unit_price'
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <TextField
-                  value={value}
-                  type='number'
-                  label='Unit Price'
-                  onChange={(e) => {
-                    onChange(e)
-                    setInwardDetails({...inwardDetails , subtotal: parseInt(product.Quantity) * e.target.value})
-                  }}
-                  placeholder='10'
-                  InputProps={{
-                    endAdornment: <InputAdornment position='end'>₹</InputAdornment>
-                  }}
-                />
-              )}
-            />
-            {errors.quantity && <FormHelperText sx={{ color: 'error.main' }}>{errors.quantity.message}</FormHelperText>}
-          </FormControl>
-          <FormControl fullWidth sx={{ mb: 6 }}>
-            <Controller
-              name='discount'
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <TextField
-                  value={value}
-                  type='number'
-                  label='Discount'
-                  onChange={onChange}
-                  placeholder='10'
-                  error={Boolean(errors.discount)}
-                  InputProps={{
-                    endAdornment: <InputAdornment position='end'>%</InputAdornment>
-                  }}
-                />
-              )}
-            />
-            {errors.discount && <FormHelperText sx={{ color: 'error.main' }}>{errors.discount.message}</FormHelperText>}
-          </FormControl>
-          <FormControl fullWidth sx={{ mb: 6 }}>
-            <Controller
-              name='tax'
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <TextField
-                  value={value}
-                  type='number'
-                  label='Tax'
-                  onChange={onChange}
-                  placeholder='10'
-                  error={Boolean(errors.tax)}
-                  InputProps={{
-                    endAdornment: <InputAdornment position='end'>%</InputAdornment>
-                  }}
-                />
-              )}
-            />
-            {errors.tax && <FormHelperText sx={{ color: 'error.main' }}>{errors.tax.message}</FormHelperText>}
-          </FormControl>
-          <FormControl fullWidth sx={{ mb: 6 }}>
-            <Controller
-              name='taxrate'
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <TextField
-                  value={value}
-                  type='number'
-                  label='Tax Rate'
-                  onChange={onChange}
-                  placeholder='10'
-                 
-                />
-              )}
-            />
-          </FormControl>
-          <FormControl fullWidth sx={{ mb: 6 }}>
-            <Controller
-              name='subtotal'
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <TextField
-                  value={inwardDetails.subTotal}
-                  type='number'
-                  label='Sub Total'
-                  // onChange={(e) => {
-                  //   onChange(e)
-                  //   setInwardDetails({...inwardDetails , subtotal: e.target.value})
-                  // }}
-                  placeholder='10'
-                 
-                />
-              )}
-            />
-          </FormControl>
-          <FormControl fullWidth sx={{ mb: 6 }}>
-            <Controller
-              name='total'
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <TextField
-                  value={value}
-                  type='number'
-                  label='Total'
-                  onChange={onChange}
-                  placeholder='10'
-                 
-                />
-              )}
-            />
-          </FormControl>
-          
-          <Grid item xs={12} sm={6}  sx={{ mb: 6 }}>
+          <Typography sx={{ mb: 6 }}>
+            <b>Product - </b>
+            <span style={{ fontSize: '20px' }}>{productDetails ? productDetails.PName : ''}</span>
+          </Typography>
+          <Typography sx={{ mb: 6 }}>
+            <b>Division - </b>
+            <span style={{ fontSize: '20px' }}>{productDetails ? productDetails.DivisionName : ''}</span>
+          </Typography>
+
+          <Grid item xs={12} sm={6} sx={{ mb: 6 }}>
             <Autocomplete
               value={Supplier ? Supplier : null}
               onChange={(event, value) => {
@@ -343,6 +199,131 @@ const CreateProductInward = props => {
               <FormHelperText sx={{ color: 'error.main' }}>{errors.expected_date.message}</FormHelperText>
             )}
           </FormControl>
+
+          <FormControl fullWidth sx={{ mb: 6 }}>
+            <Controller
+              name='quantity'
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <TextField
+                  value={product ? product.Quantity : ''}
+                  type='number'
+                  label='Quantity'
+                  onChange={e => {
+                    onChange(e)
+                    setProduct({ ...product, Quantity: e.target.value })
+                    setInwardDetails({ ...inwardDetails, quantity: e.target.value })
+                  }}
+                  placeholder='10'
+                  error={Boolean(errors.quantity)}
+                  InputProps={{
+                    endAdornment: <InputAdornment position='end'>{product && product.UnitName}</InputAdornment>
+                  }}
+                />
+              )}
+            />
+            {errors.quantity && <FormHelperText sx={{ color: 'error.main' }}>{errors.quantity.message}</FormHelperText>}
+          </FormControl>
+          <FormControl fullWidth sx={{ mb: 6 }}>
+            <Controller
+              name='unit_price'
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <TextField
+                  value={value}
+                  type='number'
+                  label='Unit Price'
+                  onChange={e => {
+                    onChange(e)
+                    console.log(parseInt(product.Quantity) * e.target.value)
+                    setInwardDetails({ ...inwardDetails, unitPrice: e.target.value })
+                  }}
+                  placeholder='10'
+                  InputProps={{
+                    endAdornment: <InputAdornment position='end'>₹</InputAdornment>
+                  }}
+                />
+              )}
+            />
+          </FormControl>
+          <FormControl fullWidth sx={{ mb: 6 }}>
+            <Controller
+              name='tax'
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <TextField
+                  value={value}
+                  type='number'
+                  label='Tax'
+                  onChange={e => {
+                    onChange(e)
+                    setInwardDetails({
+                      ...inwardDetails,
+                      tax: e.target.value
+                    })
+                  }}
+                  placeholder='10'
+                  error={Boolean(errors.tax)}
+                  InputProps={{
+                    endAdornment: <InputAdornment position='end'>%</InputAdornment>
+                  }}
+                />
+              )}
+            />
+            {errors.tax && <FormHelperText sx={{ color: 'error.main' }}>{errors.tax.message}</FormHelperText>}
+          </FormControl>
+
+          <FormControl fullWidth sx={{ mb: 6 }}>
+            <Controller
+              name='discount'
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <TextField
+                  value={value}
+                  type='number'
+                  label='Discount'
+                  onChange={e => {
+                    onChange(e)
+                    setInwardDetails({ ...inwardDetails, discount: e.target.value })
+                  }}
+                  placeholder='10'
+                  error={Boolean(errors.discount)}
+                  InputProps={{
+                    endAdornment: <InputAdornment position='end'>%</InputAdornment>
+                  }}
+                />
+              )}
+            />
+            {errors.discount && <FormHelperText sx={{ color: 'error.main' }}>{errors.discount.message}</FormHelperText>}
+          </FormControl>
+
+          <Typography sx={{ mb: 6 }}>
+            <b>Sub Total - </b>
+            <span style={{ fontSize: '20px' }}>{parseInt(product.Quantity) * inwardDetails.unitPrice}</span>
+          </Typography>
+
+          <Typography sx={{ mb: 6 }}>
+            <b>Tax Rate - </b>
+            <span style={{ fontSize: '20px' }}>
+              {(parseInt(inwardDetails.tax) / 100) * (parseInt(product.Quantity) * inwardDetails.unitPrice)}
+            </span>
+          </Typography>
+
+          <Typography sx={{ mb: 6 }}>
+            <b>Total - </b>
+            <span style={{ fontSize: '20px' }}>
+              {(parseInt(inwardDetails.tax) / 100) * (parseInt(product.Quantity) * inwardDetails.unitPrice) +
+                parseInt(product.Quantity) * inwardDetails.unitPrice -
+                (((parseInt(inwardDetails.tax) / 100) * (parseInt(product.Quantity) * inwardDetails.unitPrice) +
+                  parseInt(product.Quantity) * inwardDetails.unitPrice) *
+                  inwardDetails.discount) /
+                  100}
+            </span>
+          </Typography>
 
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Button size='large' type='submit' variant='contained' sx={{ mr: 3 }}>
