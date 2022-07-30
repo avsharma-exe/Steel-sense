@@ -5,7 +5,7 @@ import mig_db from './database/mig_db'
 // declaring database connection
 const db = mysql.createPool(mig_db.hosted)
 
-// db.connect();
+db.connect();
 
 // execute query function
 export default async function executeQuery({ query, values }) {
@@ -16,6 +16,7 @@ export default async function executeQuery({ query, values }) {
             } 
             // console.log(rows);
             resolve(rows);
+            db.end();
         })
     });
 }
