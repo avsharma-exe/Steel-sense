@@ -5,12 +5,12 @@ import ShieldOutline from 'mdi-material-ui/ShieldOutline'
 
 const navigation = () => [
   {
-    title: 'Home',
+    title: 'Dashboard',
     icon: HomeOutline,
     path: '/home'
   },
   {
-    title: 'Second Page',
+    title: 'Inventory',
     icon: EmailOutline,
     path: '/second-page'
   },

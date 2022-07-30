@@ -10,6 +10,7 @@ import axios from 'axios'
 // ** Config
 import authConfig from 'src/configs/auth'
 import api_configs from 'src/configs/api_configs'
+import useUserDetails from 'src/hooks/useUserDetails'
 
 // ** Defaults
 const defaultProvider = {
@@ -26,6 +27,7 @@ const defaultProvider = {
 const AuthContext = createContext(defaultProvider)
 
 const AuthProvider = ({ children }) => {
+  
   // ** States
   const [user, setUser] = useState(defaultProvider.user)
   const [loading, setLoading] = useState(defaultProvider.loading)
@@ -34,55 +36,71 @@ const AuthProvider = ({ children }) => {
   // ** Hooks
   const router = useRouter()
   useEffect(() => {
-    const initAuth = async () => {
-      setIsInitialized(true)
-      const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)
-      if (storedToken) {
-        setLoading(true)
-        await axios
-          .get(authConfig.meEndpoint, {
-            headers: {
-              Authorization: storedToken
-            }
-          })
-          .then(async response => {
-            setLoading(false)
-            setUser({ ...response.data.userData })
-          })
-          .catch(() => {
-            localStorage.removeItem('userData')
-            localStorage.removeItem('refreshToken')
-            localStorage.removeItem('accessToken')
-            setUser(null)
-            setLoading(false)
-          })
-      } else {
-        setLoading(false)
-      }
-    }
-    initAuth()
+    setUser(localStorage.getItem("userData") ? JSON.parse(localStorage.getItem("userData")) : null)
+    // const initAuth = async () => {
+    //   setIsInitialized(true)
+    //   const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)
+    //   if (storedToken) {
+    //     setLoading(true)
+    //     await axios
+    //       .get(authConfig.meEndpoint, {
+    //         headers: {
+    //           Authorization: storedToken
+    //         }
+    //       })
+    //       .then(async response => {
+    //         setLoading(false)
+    //         setUser({ ...response.data.userData })
+    //       })
+    //       .catch(() => {
+    //         localStorage.removeItem('userData')
+    //         localStorage.removeItem('accessToken')
+    //         setUser(null)
+    //         setLoading(false)
+    //       })
+    //   } else {
+      // setLoading(false)
+    //   }
+    // }
+    // initAuth()
+    setLoading(false)
   }, [])
 
   const handleLogin = (params, errorCallback) => {
     axios
       .post(api_configs.auth.login, params)
       .then(async res => {
-        window.localStorage.setItem(authConfig.storageTokenKeyName, res.data.accessToken)
-      })
-      .then(() => {
-        axios
-          .get(authConfig.meEndpoint, {
-            headers: {
-              Authorization: window.localStorage.getItem(authConfig.storageTokenKeyName)
-            }
-          })
-          .then(async response => {
-            const returnUrl = router.query.returnUrl
-            setUser({ ...response.data.userData })
-            await window.localStorage.setItem('userData', JSON.stringify(response.data.userData))
-            const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
-            router.replace(redirectURL)
-          })
+        if (res.data && !res.data.error) {
+          console.log(res)
+          await window.localStorage.setItem('accessToken', res.data.token);
+          // storing user divisions as array
+          await window.localStorage.setItem('userDivisions', res.data.companyDivisionDetails.map(div => div.Div_ID));
+          await window.localStorage.setItem('userData', JSON.stringify(res.data.user));
+
+          setUser({ ...res.data.user })
+          
+          switch(res.data.user.role){
+            case "L1":
+              router.replace("/l1/dashboard")
+              break;
+
+            case "L2":
+              router.replace("/l2/dashboard")
+              break;
+
+            case "L3":
+              router.replace("/l3/dashboard")
+              break;
+          }
+          
+          const returnUrl = router.query.returnUrl
+          const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
+          
+          
+          router.replace(redirectURL)
+        }
+
+        return errorCallback(res.data)
       })
       .catch(err => {
         if (errorCallback) errorCallback(err)

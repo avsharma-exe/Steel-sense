@@ -18,9 +18,11 @@ import HorizontalAppBarContent from './components/horizontal/AppBarContent'
 
 // ** Hook Import
 import { useSettings } from 'src/@core/hooks/useSettings'
+import { useAcl } from 'src/hooks/useAcl'
 
 const UserLayout = ({ children }) => {
   // ** Hooks
+  const acl = useAcl()
   const { settings, saveSettings } = useSettings()
 
   /**
@@ -32,7 +34,7 @@ const UserLayout = ({ children }) => {
    *  ! Do not change this value unless you know what you are doing. It can break the template.
    */
   const hidden = useMediaQuery(theme => theme.breakpoints.down('lg'))
-
+  
   return (
     <Layout
       hidden={hidden}
@@ -41,7 +43,8 @@ const UserLayout = ({ children }) => {
       {...(settings.layout === 'horizontal'
         ? {
             // ** Navigation Items
-            horizontalNavItems: HorizontalNavItems(),
+            //TODO: add ACL Objects here
+            horizontalNavItems: acl.userMenu(),
 
             // Uncomment the below line when using server-side menu in horizontal layout and comment the above line
             // horizontalNavItems: ServerSideHorizontalNavItems(),
@@ -52,7 +55,7 @@ const UserLayout = ({ children }) => {
           }
         : {
             // ** Navigation Items
-            verticalNavItems: VerticalNavItems(),
+            verticalNavItems: acl.userMenu(),
 
             // Uncomment the below line when using server-side menu in vertical layout and comment the above line
             // verticalNavItems: ServerSideVerticalNavItems(),

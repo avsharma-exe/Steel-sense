@@ -13,6 +13,8 @@ import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
 import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
+import Company from 'mdi-material-ui/Domain'
+
 
 // ** Icons Imports
 import CogOutline from 'mdi-material-ui/CogOutline'
@@ -25,6 +27,7 @@ import HelpCircleOutline from 'mdi-material-ui/HelpCircleOutline'
 
 // ** Context
 import { useAuth } from 'src/hooks/useAuth'
+import useUserDetails from 'src/hooks/useUserDetails'
 
 // ** Styled Components
 const BadgeContentSpan = styled('span')(({ theme }) => ({
@@ -36,6 +39,7 @@ const BadgeContentSpan = styled('span')(({ theme }) => ({
 }))
 
 const UserDropdown = props => {
+  const userDetails = useUserDetails()
   // ** Props
   const { settings } = props
 
@@ -122,11 +126,7 @@ const UserDropdown = props => {
                 horizontal: 'right'
               }}
             >
-              <Avatar
-                alt='John Doe'
-                src='/images/avatars/1.png'
-                sx={{ width: '2.5rem', height: '2.5rem' }}
-              />
+              <Avatar alt='John Doe' src='/images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
             </Badge>
             <Box
               sx={{
@@ -136,35 +136,48 @@ const UserDropdown = props => {
                 flexDirection: 'column'
               }}
             >
-              <Typography sx={{ fontWeight: 600 }}>John Doe</Typography>
-              <Typography
-                variant='body2'
-                sx={{ fontSize: '0.8rem', color: 'text.disabled' }}
-              >
-                Admin
+              <Typography sx={{ fontWeight: 600 }}>{userDetails.FirstName + ' ' + userDetails.LastName}</Typography>
+              <Typography variant='body2' sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>
+                {userDetails.role}
               </Typography>
             </Box>
           </Box>
         </Box>
         <Divider sx={{ mt: 0, mb: 1 }} />
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+        <MenuItem sx={{ p: 0 }} onClick={() => {
+          router.push("/user-profile/")
+          handleDropdownClose()
+        }}>
           <Box sx={styles}>
             <AccountOutline sx={{ marginRight: 2 }} />
             Profile
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <EmailOutline sx={{ marginRight: 2 }} />
-            Inbox
-          </Box>
-        </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <MessageOutline sx={{ marginRight: 2 }} />
-            Chat
-          </Box>
-        </MenuItem>
+
+        {userDetails.role === 'L1' ? (
+          <MenuItem sx={{ p: 0 }} onClick={() => {
+            router.push("/l1/company-details/")
+            handleDropdownClose()
+          }}>
+            <Box sx={styles}>
+              <Company sx={{ marginRight: 2 }} />
+              Company Details
+            </Box>
+          </MenuItem>
+        ) : null}
+
+        {userDetails.role === 'L3' ? (
+          <MenuItem sx={{ p: 0 }} onClick={() => {
+            router.push("/l3/create-supplier/")
+            handleDropdownClose()
+          }}>
+            <Box sx={styles}>
+              <Company sx={{ marginRight: 2 }} />
+              Create Supplier
+            </Box>
+          </MenuItem>
+        ) : null}
+
         <Divider />
         <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
           <Box sx={styles}>
@@ -172,19 +185,7 @@ const UserDropdown = props => {
             Settings
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <CurrencyUsd sx={{ marginRight: 2 }} />
-            Pricing
-          </Box>
-        </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <HelpCircleOutline sx={{ marginRight: 2 }} />
-            FAQ
-          </Box>
-        </MenuItem>
-        <Divider />
+
         <MenuItem sx={{ py: 2 }} onClick={handleLogout}>
           <LogoutVariant
             sx={{
