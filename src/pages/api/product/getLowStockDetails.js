@@ -9,11 +9,10 @@ export default async function handler(req, res) {
   }
 
   let Co_ID = req.query.company
-  let divisions = req.query['division[]']
+  let Div_ID = req.query.division
 
   try {
-    console.log(divisions.toString())
-    const getLowStockProducts = await Product.Read.getLowStockProducts(Co_ID, divisions.toString())
+    const getLowStockProducts = await Product.Read.getLowStockProducts(Co_ID, Div_ID)
     const allLowStockProducts = []
     if (getLowStockProducts.length === 0)
       res.send({

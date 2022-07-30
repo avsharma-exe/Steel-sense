@@ -4,8 +4,7 @@ const Read = {
   getAllIndentsOfACompany,
   getAllIndentsOfACompanyDivision,
   getIndentParticulars,
-  getIndentByID,
-  getPurchaseOrder
+  getIndentByID
 }
 
 /**
@@ -21,8 +20,7 @@ function getAllIndentsOfACompany(co_id) {
     LEFT JOIN Product_Stock pst on psip.P_ID = pst.P_ID
     LEFT JOIN Product_Master pm on psip.P_ID = pm.P_ID
     LEFT JOIN Division_Master dm on psi.Div_ID = dm.Div_ID
-    
-    AND psi.Co_ID = ? Where psip.currentStatus in (0 , 199)`,
+    AND psi.Co_ID = ? Where psip.currentStatus = 0`,
     values: [co_id]
   })
 }
@@ -74,18 +72,6 @@ function getIndentParticulars(indent_id) {
   return executeQuery({
     query: `SELECT * FROM Product_Stock_Indent_Particulars join Product_Master on Product_Master.P_ID = Product_Stock_Indent_Particulars.P_ID WHERE P_Stock_Indent_ID = ?`,
     values: [indent_id]
-  })
-}
-
-
-function getPurchaseOrder(company_id , div_id) {
-  return executeQuery({
-    query: `SELECT * FROM Product_Stock_Inward_Voucher
-    join Product_Master on Product_Master.P_ID = Product_Stock_Inward_Voucher.P_ID
-    join Product_Stock_Inward on Product_Stock_Inward.P_Stock_In_Voucher_ID = Product_Stock_Inward_Voucher.P_Stock_In_Voucher_ID
-    join Company_Master on Product_Stock_Inward_Voucher.Supplier_ID = Company_Master.Co_ID
-    where Product_Stock_Inward_Voucher.Co_ID = ? and Product_Stock_Inward_Voucher.Div_ID = ?`,
-    values: [company_id , div_id]
   })
 }
 

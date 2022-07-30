@@ -49,8 +49,6 @@ export default {
       create: "/indent/create",
       getAll: "/indent/get-all",
       approve: "/indent/approve",
-      createPurchaseOrder: "/indent/createPurchaseOrder",
-      getIncomingOrder: "/indent/getIncomingOrder"
     },
     stockInOut: {
       createStockInward: "stockInOut/createStockInward"
