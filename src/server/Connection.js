@@ -10,6 +10,7 @@ db.connect();
 // execute query function
 export default async function executeQuery({ query, values }) {
     return new Promise((resolve, reject) => {
+        console.log(query)
         db.query(query, values, (error, rows, fields) => {
             if (error) {
                 reject(error);
