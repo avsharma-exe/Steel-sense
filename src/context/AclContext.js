@@ -73,11 +73,6 @@ const AclProvider = ({ children }) => {
             title: 'Users',
             path: '/l1/users',
             icon: AccountOutline
-          },
-          {
-            title: 'Approve Voucher',
-            path: '/l1/approve-voucher',
-            icon: ShieldOutline
           }
         ]
       case 'L2':
@@ -111,6 +106,11 @@ const AclProvider = ({ children }) => {
             title: 'Purchase Order',
             path: '/l2/purchase-order',
             icon: ClipboardListOutline
+          },
+          {
+            title: 'Suppliers',
+            path: '/l2/all-suppliers',
+            icon: Domain
           }
         ]
       case 'L3':
@@ -139,11 +139,6 @@ const AclProvider = ({ children }) => {
             title: 'Indent',
             path: '/l3/indent',
             icon: ClipboardListOutline
-          },
-          {
-            title: 'Suppliers',
-            path: '/l3/all-suppliers',
-            icon: Domain
           }
         ]
     }

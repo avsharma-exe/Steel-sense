@@ -174,6 +174,8 @@ const Home = () => {
     })
   }
 
+  console.log(allCompanies)
+
   useEffect(() => {
     getAllCompanies()
   }, [open])
@@ -225,16 +227,23 @@ const Home = () => {
         {/* <Divider /> */}
 
         <CardContent>
+
+        {allCompanies.length ? (
           <BasicTable
-            columns={[
-              { id: 'name', label: 'Name', minWidth: 170 },
-              { id: 'status', label: 'Status', minWidth: 170 },
-              { id: 'createdby', label: 'Created By', minWidth: 170 },
-              { id: 'actions', label: 'Actions', minWidth: 170 }
-            ]}
-            rows={allCompanies}
-            onRowClickHandle={rowData => {}}
+          columns={[
+            { id: 'name', label: 'Name', minWidth: 170 },
+            { id: 'status', label: 'Status', minWidth: 170 },
+            { id: 'createdby', label: 'Created By', minWidth: 170 },
+            { id: 'actions', label: 'Actions', minWidth: 170 }
+          ]}
+          rows={allCompanies}
+          onRowClickHandle={rowData => {}}
           />
+          ) : (
+          <Typography variant={'h6'} sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+            No Companies!!! Please Create companies using above <Domain sx={{ ml: 2 }} /> Create company
+          </Typography>)
+        }
         </CardContent>
       </Card>
     </>

@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
 
   try {
-
+      console.log(req.query.coid)
       let allUsers = await User.Read.getAllCompanyUsers(req.query.coid)
 
       if (allUsers) {

@@ -157,8 +157,8 @@ const AddCompany = () => {
       MobileNo: data.user.mobile,
       otherDetails: {
         Co_ID: company_id,
-        Div_ID: 0,
-        Role_ID: 1,
+        divisions: [0],
+        Role_ID: 2,
         status: 50
       }
     })

@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   let body = req.body
   // console.log(body)
   try {
-    let updateIndentStatus = await Indent.Update.updateIndentStatus(!!body.update ? 50 : 149, body.indent_particular)
+    let updateIndentStatus = await Indent.Update.updateIndentStatus(!!body.update ? !!body.createStockInward ? 99 : 50 : 149, body.indent_particular)
     let updateIndentApprovedBy = await Indent.Update.updateIndentApprovedBy(body.user, body.indent)
 
     if (updateIndentStatus && updateIndentApprovedBy) {

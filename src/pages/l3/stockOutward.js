@@ -93,8 +93,10 @@ const StockUsage = () => {
   const userDetails = useUserDetails()
 
   const handleSubmit = async e => {
+
     // console.log(selectedProduct)
     e.preventDefault()
+
     let body = {
       voucher : {
         Co_ID : userDetails.Co_ID,
@@ -140,9 +142,9 @@ const StockUsage = () => {
           setAllProducts(res.data.allProducts)
         }
       })
-    // console.log(selectedDiv,InvoiceTo, Consignee, Supplier, InvoiceDate, TermsOfPayment, DispatchedThrough, Destination, TermsOfDelivery,
-      TruckInfo, InvoiceSubTotal, InvoiceTax, InvoiceTotal )
+
     // console.log(selectedProduct, Quantity, Rate, DiscountPercent, TaxRate, Amount, isItemReceived, isInwardChecked, Remarks, isPaymentCompleted)
+    // console.log(selectedDiv,InvoiceTo, Consignee, Supplier, InvoiceDate, TermsOfPayment, DispatchedThrough, Destination, TermsOfDelivery,
   }
 
   return (

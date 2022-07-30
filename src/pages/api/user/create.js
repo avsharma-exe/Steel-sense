@@ -20,7 +20,6 @@ export default async function handler(req, res) {
       const otherDetails = body.otherDetails
       delete body.otherDetails
       otherDetails["status"] = 50
-      console.log(hash,' ------ ',pass)
 
       // add new user to UserMaster
       let result = await User.Create.createNewUser(body)

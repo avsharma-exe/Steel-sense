@@ -84,6 +84,7 @@ const Users = () => {
   const getAllUsers = async () => {
     setLoader(true)
     await secureApi.get(api_configs.user.getAllCompanyUser, { params: { coid: userDetails.Co_ID } }).then(res => {
+      console.log(res)
       if (res.status === 200) {
         let users = []
         if (res.data.allUsers) {
@@ -111,12 +112,14 @@ const Users = () => {
       .then(res => {
         if (res.status === 200) {
           setAllDivision(res.data.allDivisions)
+
           // console.log(res.data.allDivisions)
         }
       })
       .then(
         secureApi.get(api_configs.role.getAll).then(res => {
           setAllRoles(res.data.allRoles)
+
           // console.log(res.data.allRoles)
         })
       )
@@ -124,7 +127,7 @@ const Users = () => {
 
   useEffect(() => {
     getAllUsers(), getDivisions()
-  }, [open, openNew])
+  }, [open, openNew, addUserOpen])
   useEffect(() => {
     setL1Users(
       allUsers.filter(l1user => {
@@ -147,7 +150,7 @@ const Users = () => {
         }
       })
     )
-  }, [allUsers])
+  }, [allUsers, addUserOpen])
 
   return (
     <>
@@ -176,6 +179,7 @@ const Users = () => {
           />
         </DialogContent>
         <DialogContent>
+          {selectedRowData.Role_ID === 2 || selectedRowData.Role_ID ===  3 ? null :
           <Autocomplete
             sx={{ w: '100%', mt: '5px' }}
             value={
@@ -205,6 +209,7 @@ const Users = () => {
               />
             )}
           />
+          }
         </DialogContent>
         <DialogContent>
           <Autocomplete
@@ -290,7 +295,6 @@ const Users = () => {
               columns={[
                 { id: 'firstName', label: 'First Name', minWidth: 170 },
                 { id: 'lastName', label: 'Last Name', minWidth: 170 },
-                { id: 'division', label: 'Division', minWidth: 170 },
                 { id: 'description', label: 'Description', minWidth: 170 },
                 { id: 'status', label: 'Status', minWidth: 170 },
                 { id: 'actions', label: 'Action', minWidth: 170 }
@@ -322,7 +326,7 @@ const Users = () => {
                 columns={[
                   { id: 'firstName', label: 'First Name', minWidth: 170 },
                   { id: 'lastName', label: 'Last Name', minWidth: 170 },
-                  { id: 'division', label: 'Division', minWidth: 170 },
+                  // { id: 'division', label: 'Division', minWidth: 170 },
                   { id: 'description', label: 'Description', minWidth: 170 },
                   { id: 'status', label: 'Status', minWidth: 170 },
                   { id: 'actions', label: 'Action', minWidth: 170 }

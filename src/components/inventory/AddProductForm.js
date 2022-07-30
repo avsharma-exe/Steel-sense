@@ -203,15 +203,14 @@ const AddProductForm = ({ onCloseHandle, getProducts }) => {
   }
 
   const getUserDivisions = async () => {
-    let userDivision = await secureApi(api_configs.user.getDivisions, {
+    let userDivision = await secureApi(api_configs.division.getAll, {
       params: {
-        user_id: userDetails.User_ID,
-        role: userDetails.Role_ID,
-        co_id: userDetails.Co_ID
+        coid: userDetails.Co_ID
       }
     })
+    console.log(userDivision)
     if (userDivision.status === 200) {
-      setDivisions(userDivision.data.userDivisions)
+      setDivisions(userDivision.data.allDivisions)
     }
   }
 
@@ -615,7 +614,7 @@ const AddProductForm = ({ onCloseHandle, getProducts }) => {
                                 )}
                               </FormControl>
                             </Grid>
-                            
+
                             <Grid item xs={12} sm={6}>
                               <FormControl fullWidth>
                                 <Controller

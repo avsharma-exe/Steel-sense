@@ -143,10 +143,11 @@ function getProductAllDetails(p_id) {
  * @param {*} co_id
  * @returns database data from ProductMaster
  */
-function getLowStockProducts(co_id, div_id) {
+function getLowStockProducts(co_id, divisions) {
+  console.log(divisions)
   return executeQuery({
-    query: "Select ps.P_ID, ps.CurrentStock, ps.LastStock, ps.LowStockLimit, ps.MaxStockLimit from Product_Stock ps LEFT JOIN Product_Company_Division pcd on ps.P_ID = pcd.P_ID where ps.LowStockLimit >= ps.CurrentStock AND pcd.Co_ID = ? AND pcd.Div_ID = ?",
-    values: [co_id, div_id]
+    query: "Select ps.P_ID, ps.CurrentStock, ps.LastStock, ps.LowStockLimit, ps.MaxStockLimit from Product_Stock ps LEFT JOIN Product_Company_Division pcd on ps.P_ID = pcd.P_ID where ps.LowStockLimit >= ps.CurrentStock AND pcd.Co_ID = ? AND pcd.Div_ID IN (?)",
+    values: [co_id, divisions]
   })
 }
 

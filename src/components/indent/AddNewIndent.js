@@ -17,6 +17,7 @@ import useUserDetails from 'src/hooks/useUserDetails'
 import DatePicker from '@mui/lab/DatePicker'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import AdapterDateFns from '@mui/lab/AdapterDateFns'
+
 // ** Third Party Imports
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -101,6 +102,7 @@ const AddNewIndent = props => {
   const addIndent = async data => {
     data['expected_date'] = ex_date
     data['productName'] = product.PName
+
     // console.log()
     const body = {
       indent : {
@@ -134,6 +136,7 @@ const AddNewIndent = props => {
 
   const onSubmit = async data => {
     addIndent(data)
+
     // TODO: Add User API CALL
   }
 
@@ -169,6 +172,7 @@ const AddNewIndent = props => {
                 <TextField
                   value = {productDetails ? productDetails.name : ''}
                   disabled
+
                   // label='Product Name'
                   onChange={onChange}
                   placeholder=''

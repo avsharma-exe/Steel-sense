@@ -72,11 +72,11 @@ const Inventory = () => {
                 productItemCode: <Typography>{product.productDetails[0].PItemCode}</Typography>,
                 stock:
                   product.stockDetails[0].CurrentStock > product.stockDetails[0].LowStockLimit ? (
-                    
+
                     // <Chip label={product.stockDetails[0].CurrentStock} color='success' />
                     <Chip label={product.stockDetails[0].CurrentStock} sx={{ color: 'green' }} />
                   ) : (
-                    
+
                     // <Chip label={product.stockDetails[0].CurrentStock} color='danger' />
                     <Chip label={product.stockDetails[0].CurrentStock} sx={{ color: 'red' }} />
                   )
@@ -113,9 +113,11 @@ const Inventory = () => {
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
               <Typography variant={'h6'}>Inventory</Typography>
               <Box sx={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
+                { userDetails.Role_ID == 4 ? null :
                 <Button size='small' type='submit' variant='contained' onClick={() => setShowAddProductForm(true)}>
-                  Add Product
+                Add Product
                 </Button>
+                }
               </Box>
             </Box>
           }
@@ -136,8 +138,10 @@ const Inventory = () => {
               ]}
               rows={products}
               onRowClickHandle={rowData => {
-                setEditProduct(rowData.srNo.props.data)
-                setShowEditProductForm(true)
+                if( userDetails.Role_ID !== 4 ){
+                  setEditProduct(rowData.srNo.props.data)
+                  setShowEditProductForm(true)
+                }
               }}
             />
           ) : showLoader ? (

@@ -126,7 +126,7 @@ const AddNewUser = props => {
         Email: data.email,
         otherDetails: {
           Role_ID: role,
-          divisions: division,
+          divisions: division.length ? division : [0],
           Co_ID: userDetails.Co_ID
         }
       })
@@ -177,9 +177,9 @@ const AddNewUser = props => {
               render={({ field: { value, onChange } }) => (
                 <TextField
                   value={value}
-                  label='Full Name'
+                  label='First Name'
                   onChange={onChange}
-                  placeholder='John'
+                  placeholder='Jignesh'
                   error={Boolean(errors.firstName)}
                 />
               )}
@@ -198,7 +198,7 @@ const AddNewUser = props => {
                   value={value}
                   label='Last Name'
                   onChange={onChange}
-                  placeholder='Doe'
+                  placeholder='Patel'
                   error={Boolean(errors.lastName)}
                 />
               )}
@@ -259,11 +259,12 @@ const AddNewUser = props => {
           </FormControl>
           {errors.role && <FormHelperText sx={{ color: 'error.main' }}>{errors.role.message}</FormHelperText>}
 
+          { role == '4' ?
           <FormControl fullWidth>
             <InputLabel id='user-divisions-label'>Select Division</InputLabel>
             <Select
               multiple
-              label='Chip'
+              label='Select Division'
               value={division}
               MenuProps={MenuProps}
               id='user-divisions'
@@ -287,9 +288,9 @@ const AddNewUser = props => {
                 </MenuItem>
               ))}
             </Select>
-          </FormControl>
+          </FormControl> : null
+          }
 
-         
           {errors.division && <FormHelperText sx={{ color: 'error.main' }}>{errors.division.message}</FormHelperText>}
           <Box sx={{ display: 'flex', alignItems: 'center', marginTop: "1rem" }}>
             <Button size='large' type='submit' variant='contained' sx={{ mr: 3 }}>

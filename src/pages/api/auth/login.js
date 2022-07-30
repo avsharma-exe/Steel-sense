@@ -15,13 +15,13 @@ export default async function handler(req, res) {
   let body = req.body
 
   let result = await User.Read.getUserDetails(body.email)
-
+  console.log(result)
   // check if user exists in the DB
   if (result.length > 0) {
     let user = result[0]
     if (user['Co_ID'] !== 0 && user['company_master_status'] !== 50) {
       res.status(400).send({ message: 'User is not active' })
-      
+
       return
     }
 

@@ -168,7 +168,8 @@ const Divisions = () => {
         {/* <Divider /> */}
 
         <CardContent>
-          <BasicTable
+          {allDivisions.length ? (
+            <BasicTable
             columns={[
               { id: 'name', label: 'Name', minWidth: 170 },
 
@@ -176,7 +177,11 @@ const Divisions = () => {
             ]}
             rows={allDivisions}
             onRowClickHandle={rowData => {}}
-          />
+            />
+          ) : (
+            <Typography>No Divisions Found</Typography>
+          )}
+
         </CardContent>
       </Card>
     </>

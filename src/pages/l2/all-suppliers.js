@@ -153,7 +153,7 @@ const AllSuppliers = () => {
                   size='small'
                   type='submit'
                   variant='contained'
-                  onClick={() => window.location.assign('/l3/create-supplier')}
+                  onClick={() => window.location.assign('/l2/create-supplier')}
                 >
                   Add Supplier
                 </Button>
