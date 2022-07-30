@@ -6,6 +6,11 @@ module.exports = {
   },
   parser: '@babel/eslint-parser',
   extends: ['next/core-web-vitals', 'prettier'],
+  rules: {
+    'react/no-unescaped-entities': 'off',
+    '@next/next/no-page-custom-font': 'off'
+  },
+
   parserOptions: {
     ecmaVersion: 11,
     sourceType: 'module',
