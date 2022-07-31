@@ -12,11 +12,15 @@ export default async function handler(req, res) {
   try {
     const inward = body.inward
     delete body.inward
+    let ExpectedDate = body.InvoiceDate
+    delete body.InvoiceDate
+
+    const updateProductStockIndentParticulars = await Indent.Update.indentParticular(body.Quantity, ExpectedDate)
     const createProductStockInwardVoucher = await Indent.Create.productStockInwardVoucher(body)
     inward['P_Stock_In_Voucher_ID'] = createProductStockInwardVoucher.insertId
     console.log(inward)
     const createProductStockInward = await Indent.Create.productStockInward(inward)
-    console.log(createProductStockInward)
+    console.log(createProductStockInward, updateProductStockIndentParticulars)
     if (createProductStockInward) {
       res.send({
         error: false,

@@ -36,6 +36,7 @@ const Dashboard = () => {
     })
 
     if (incommingOrders.status === 200) {
+      console.log(incommingOrders.data)
       let orders = []
       await incommingOrders.data.incommingOrders.forEach(order => {
         if (order.length > 0)

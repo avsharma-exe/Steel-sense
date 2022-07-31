@@ -140,8 +140,20 @@ const Dashboard = () => {
     }
   }
 
+  const getBillEntry = async () => {
+    const entries = await secureApi.get(api_configs.stockInOut.getAllInwards, {
+      params: {
+        company: userDetails.Co_ID,
+      }
+    }).then(resp => {
+      console.log(resp)
+    })
+
+  }
+
   useEffect(() => {
     getIndents()
+    getBillEntry()
   }, [])
 
   return (

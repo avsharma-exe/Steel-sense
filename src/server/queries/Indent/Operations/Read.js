@@ -81,10 +81,10 @@ function getIndentParticulars(indent_id) {
 function getPurchaseOrder(company_id , div_id) {
   return executeQuery({
     query: `SELECT * FROM Product_Stock_Inward_Voucher
-    join Product_Master on Product_Master.P_ID = Product_Stock_Inward_Voucher.P_ID
-    join Product_Stock_Inward on Product_Stock_Inward.P_Stock_In_Voucher_ID = Product_Stock_Inward_Voucher.P_Stock_In_Voucher_ID
-    join Company_Master on Product_Stock_Inward_Voucher.Supplier_ID = Company_Master.Co_ID
-    where Product_Stock_Inward_Voucher.Co_ID = ? and Product_Stock_Inward_Voucher.Div_ID = ?`,
+    left join Product_Master on Product_Master.P_ID = Product_Stock_Inward_Voucher.P_ID
+    left join Product_Stock_Inward on Product_Stock_Inward.P_Stock_In_Voucher_ID = Product_Stock_Inward_Voucher.P_Stock_In_Voucher_ID
+    left join Company_Master on Product_Stock_Inward_Voucher.Supplier_ID = Company_Master.Co_ID
+    where Product_Stock_Inward_Voucher.Co_ID = ? and Product_Stock_Inward_Voucher.Div_ID = ? and Product_Stock_Inward.status <> 50`,
     values: [company_id , div_id]
   })
 }

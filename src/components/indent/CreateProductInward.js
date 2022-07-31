@@ -105,6 +105,7 @@ const CreateProductInward = props => {
       InvoiceDate:
         data.invoice_date.getDate() + '-' + (data.invoice_date.getMonth() + 1) + '-' + data.invoice_date.getFullYear(),
       inward: {
+        status: 0,
         UnitPrice: inwardDetails.unitPrice,
         DiscountPercent: inwardDetails.discount,
         TaxPercent: inwardDetails.tax,
