@@ -26,7 +26,7 @@ const Inventory = () => {
   const [showLoader, setShowLoader] = useState(false)
   const [editProduct, setEditProduct] = useState({})
   const [showEditProductForm, setShowEditProductForm] = useState(false)
-  const [divs, setDivisions] = useState([])
+  const [divs, setDivisions] = useState(null)
   const [selectedRowData, setSelectedRowData] = useState({})
   const [openNew, setOpenNew] = useState(false)
   const [newRowData, setNewRowData] = useState({})
@@ -38,61 +38,80 @@ const Inventory = () => {
       }
     })
     if (allDivs.status === 200) {
-      setDivisions(allDivs.data.allDivisions)
+      if(userDetails.Div_ID){
+        setDivisions(allDivs.data.allDivisions.filter(function(div){
+          if(div.Div_ID === userDetails.Div_ID ){
+            return div
+          }
+        }))
+      }else{
+        setDivisions(allDivs.data.allDivisions)
+      }
+
     }
   }
 
   const getProducts = () => {
-    setShowLoader(true)
-    secureApi
-      .get(api_configs.product.getAll, {
-        params: {
-          company: userDetails.Co_ID
-        }
-      })
-      .then(resp => {
-        if (resp.status === 200) {
-          let allProducts = []
-          if (resp.data.allProducts) {
-            resp.data.allProducts.map((product, index) => {
-              let productRow = {
-                srNo: <Typography data={product}>{index + 1}</Typography>,
-                productName: <Typography>{product.productDetails[0].PName}</Typography>,
-                division: <Typography>{divs.map(function(div){
-                  if(div.Div_ID === product.stockDetails[0].Div_ID ){
-                    return div.DivisionName
-                  }
-                }) }</Typography>,
-                stock:
-                  product.stockDetails[0].CurrentStock > product.stockDetails[0].LowStockLimit ? (
-
-                    // <Chip label={product.stockDetails[0].CurrentStock} color='success' />
-                    <Chip label={product.stockDetails[0].CurrentStock} sx={{ color: 'green' }} />
-                  ) : (
-
-                    // <Chip label={product.stockDetails[0].CurrentStock} color='danger' />
-                    <Chip label={product.stockDetails[0].CurrentStock} sx={{ color: 'red' }} />
-                  )
-              }
-              allProducts.push(productRow)
-            })
+    {
+      divs ?
+      secureApi
+        .get(userDetails.Div_ID ? api_configs.product.getDivProducts : api_configs.product.getAll, {
+          params: {
+            company: userDetails.Co_ID,
+            div_id: userDetails.Div_ID
           }
+        })
+        .then(resp => {
+          if (resp.status === 200) {
+            let allProducts = []
+            if (resp.data.allProducts) {
+              resp.data.allProducts.map((product, index) => {
+                console.log(product)
+                let productRow = {
 
-          setProducts(allProducts)
-          setShowLoader(false)
-        }
-      })
+                  srNo: <Typography data={product}>{index + 1}</Typography>,
+                  productName: <Typography>{product.productDetails[0].PName}</Typography>,
+                  division: <Typography>{divs.map(function(div){
+                    if(div.Div_ID === product.stockDetails[0].Div_ID ){
+                      return div.DivisionName
+                    }
+                  }) }</Typography>,
+                  stock:
+                    product.stockDetails[0].CurrentStock > product.stockDetails[0].LowStockLimit ? (
+
+                      // <Chip label={product.stockDetails[0].CurrentStock} color='success' />
+                      <Chip label={product.stockDetails[0].CurrentStock} sx={{ color: 'green' }} />
+                    ) : (
+
+                      // <Chip label={product.stockDetails[0].CurrentStock} color='danger' />
+                      <Chip label={product.stockDetails[0].CurrentStock} sx={{ color: 'red' }} />
+                    )
+                }
+                allProducts.push(productRow)
+              })
+            }
+
+            setProducts(allProducts)
+            setShowLoader(false)
+          }
+        }) : setShowLoader(true)
+    }
+
   }
 
   useEffect(() => {
-    getAllDivisions(),
+    getAllDivisions()
+  },[])
+
+  useEffect(() => {
     getProducts()
-  }, [divs])
+  },[divs])
+
 
   return (
     <>
       {showAddProductForm ? (
-        <AddProductForm onCloseHandle={setShowAddProductForm} getProducts={() => getProducts()} divisions= {divs}/>
+        <AddProductForm onCloseHandle={setShowAddProductForm} getProducts={() => getProducts()} allDivs= {divs}/>
       ) : null}
       {showEditProductForm ? (
         <EditProductForm

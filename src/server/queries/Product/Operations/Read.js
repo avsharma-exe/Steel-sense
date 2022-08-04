@@ -15,7 +15,7 @@ const Read = {
 
 /**
  * get all product details query
- * @param {*} 
+ * @param {*}
  * @returns database data for all products
  */
 function getAllProducts(co_id) {
@@ -37,7 +37,10 @@ function getAllProductsIDsOfACompany(co_id) {
 
 function getAllDivsionProducts(co_id,div_id) {
   return executeQuery({
-    query: `SELECT c.* FROM Product_Master c LEFT JOIN Product_Company_Division p ON c.P_ID=p.P_ID WHERE p.Co_ID = ? AND p.Div_ID = ?`,
+    query: `SELECT c.*, s.* FROM Product_Master c
+            LEFT JOIN Product_Company_Division p ON c.P_ID=p.P_ID
+            LEFT JOIN Product_Stock s ON c.P_ID=s.P_ID
+            WHERE p.Co_ID = ? AND p.Div_ID = ?`,
     values: [co_id,div_id]
   })
 }
@@ -83,10 +86,10 @@ function getProductUnitData(p_id) {
  * @param {*} p_id
  * @returns database data from Product_Stock table
  */
-function getProductStockData(p_id) {
+function getProductStockData(p_id,div_id) {
   return executeQuery({
-    query: `SELECT * FROM Product_Stock WHERE P_ID = ?`,
-    values: [p_id]
+    query: `SELECT * FROM Product_Stock WHERE P_ID = ? AND Div_ID = ?`,
+    values: [p_id, div_id]
   })
 }
 

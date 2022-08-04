@@ -70,7 +70,9 @@ const stockDetailsSchema = yup.object().shape({
 })
 
 
-const AddProductForm = ({ onCloseHandle, getProducts }) => {
+const AddProductForm = ({ onCloseHandle, getProducts, allDivs }) => {
+
+  // console.log(allDivs)
 
   const userDetails = useUserDetails()
   const [loading, setLoading] = useState(false)
@@ -78,8 +80,9 @@ const AddProductForm = ({ onCloseHandle, getProducts }) => {
   const [activeVerticalStep, setActiveVerticalStep] = useState(0)
   const [productDetails, setProductDetails] = useState(defaultProductDetails)
   const [stockDetails, setStockDetails] = useState(defaultStockDetails)
-  const [divisions, setDivisions] = useState([])
+  const [divisions, setDivisions] = useState(allDivs)
   const [allStocks, setAllStocks] = useState({})
+  const [submitForm, setSubmit] = useState(false)
 
 
 
@@ -117,17 +120,17 @@ const AddProductForm = ({ onCloseHandle, getProducts }) => {
     stockDetailsReset(defaultStockDetails)
   }
 
-  const getUserDivisions = async () => {
-    let userDivision = await secureApi(api_configs.division.getAll, {
-      params: {
-        coid: userDetails.Co_ID
-      }
-    })
-    console.log(userDivision)
-    if (userDivision.status === 200) {
-      setDivisions(userDivision.data.allDivisions)
-    }
-  }
+  // const getUserDivisions = async () => {
+  //   let userDivision = await secureApi(api_configs.division.getAll, {
+  //     params: {
+  //       coid: userDetails.Co_ID
+  //     }
+  //   })
+  //   console.log(userDivision)
+  //   if (userDivision.status === 200) {
+  //     setDivisions(userDivision.data.allDivisions)
+  //   }
+  // }
 
   const addProduct = async () => {
     setLoading(true)
@@ -156,7 +159,7 @@ const AddProductForm = ({ onCloseHandle, getProducts }) => {
 
   const onSubmit = async data => {
     if (activeStep === 1) {
-      if (activeVerticalStep === divisions.length - 1) addProduct()
+      setSubmit(true)
     } else setActiveStep(activeStep + 1)
     switch (activeStep) {
       case 0:
@@ -172,6 +175,9 @@ const AddProductForm = ({ onCloseHandle, getProducts }) => {
         setAllStocks(allstocks)
         stockDetailsReset(defaultStockDetails)
         setActiveVerticalStep(activeVerticalStep + 1)
+
+        if(submitForm)
+          addProduct()
 
         // setStockDetails(data)
         break
@@ -446,9 +452,9 @@ const AddProductForm = ({ onCloseHandle, getProducts }) => {
     }
   }
 
-  useEffect(() => {
-    getUserDivisions()
-  }, [])
+  // useEffect(() => {
+  //   getUserDivisions()
+  // }, [])
 
   return (
     <>

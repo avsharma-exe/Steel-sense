@@ -10,10 +10,20 @@ export default async function handler(req, res) {
   let body = req.body
 
   try {
-    let userfeilds = { CreatedBy: body.userDetails.User_ID, UpdateBy: body.userDetails.User_ID }
+    let date = new Date()
+      // 2021-07-02 23:29:08.000000
+    date = date.getFullYear() + "-" +
+           parseInt(date.getMonth() + 1) +
+           "-" + date.getDate() + " " +
+           date.getHours() + ":" +
+           date.getMinutes()
+    let userfeilds = { CreatedBy: body.userDetails.User_ID,
+                       UpdateBy: body.userDetails.User_ID,
+                       CreatedDT: date, UpdatedDT: date }
 
     const productDetails = {
       PName: body.productDetails.productName,
+      status: 50,
       ...userfeilds
     }
 
@@ -28,8 +38,9 @@ export default async function handler(req, res) {
     }
 
     await Object.keys(body.allStocks).forEach(async division => {
-      let stock = body.allStocks[division]
 
+      let stock = body.allStocks[division]
+      console.log(division, ' ---- ', body.allStocks[division], ' ------ ', )
       const productStockDetails = {
         P_ID: addProductDetails.insertId,
         CurrentStock: stock.openingStock,
@@ -39,8 +50,11 @@ export default async function handler(req, res) {
         Div_ID: division,
         ...userfeilds
       }
+      console.log(division, ' ---- ', body.allStocks[division], ' ------ ', productStockDetails)
       await Product.Create.createProductStockDetails(productStockDetails)
     })
+
+
 
     await Object.keys(body.allStocks).map(async division => {
       await Product.Create.createProductCompanyDivision({
@@ -49,6 +63,7 @@ export default async function handler(req, res) {
         Div_ID: division,
         ...userfeilds
       })
+      console.log(division, ' ---- ')
     })
 
     const addProductPriceDetails = await Product.Create.createProductPriceDetails(priceDetails)
