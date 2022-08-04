@@ -37,13 +37,13 @@ import { Console } from 'mdi-material-ui'
 const schema = yup.object().shape({})
 
 const defaultValues = {
-  quantity: '',
-  discount: '',
-  tax: '',
-  taxRate: '',
-  unitPrice: '',
-  supplier: '',
-  invoice_date: ''
+  quantity: 0,
+  discount: 0,
+  tax: 0,
+  taxRate: 0,
+  unitPrice: 0,
+  supplier: 0,
+  invoice_date: 0
 }
 
 const Header = styled(Box)(({ theme }) => ({
@@ -55,7 +55,7 @@ const Header = styled(Box)(({ theme }) => ({
 }))
 
 const CreateProductInward = props => {
-  const { open, toggle, productDetails } = props
+  const { open, toggle, productDetails, close } = props
   const [product, setProduct] = useState(productDetails)
   const [allSuppliers, setAllSuppliers] = useState([])
   const [Supplier, setSupplier] = useState(allSuppliers[0])
@@ -64,13 +64,13 @@ const CreateProductInward = props => {
   const [ex_date, setExDate] = useState(new Date())
 
   const [inwardDetails, setInwardDetails] = useState({
-    total: '',
-    subtotal: '',
-    taxrate: '',
-    rate: '',
-    discount: '',
-    unitPrice: '',
-    tax: ''
+    total: 0,
+    subtotal: 0,
+    taxrate: 0,
+    rate: 0,
+    discount: 0,
+    unitPrice: 0,
+    tax: 0
   })
 
   const getSuppliers = async () => {
@@ -102,8 +102,9 @@ const CreateProductInward = props => {
       P_ID: productDetails.P_ID,
       Supplier_ID: Supplier.Co_ID,
       Quantity: inwardDetails.quantity,
-      InvoiceDate:
-        data.invoice_date.getDate() + '-' + (data.invoice_date.getMonth() + 1) + '-' + data.invoice_date.getFullYear(),
+      indent: productDetails.indent_particulars_id,
+      ExpectedDate:
+        productDetails.ExpectedDate.getDate() + '-' + (productDetails.ExpectedDate.getMonth() + 1) + '-' + productDetails.ExpectedDate.getFullYear(),
       inward: {
         status: 0,
         UnitPrice: inwardDetails.unitPrice,
@@ -121,18 +122,18 @@ const CreateProductInward = props => {
 
     if(createPurchaseOrder.status === 200) {
       toggle()
-
     }
   }
 
   const handleClose = () => {
     reset()
-    toggle()
+    close()
   }
 
   useEffect(() => {
     getSuppliers()
   }, [])
+  
 
   return (
     <Drawer
@@ -189,10 +190,15 @@ const CreateProductInward = props => {
                   <DatePicker
                     name='invoice_date'
                     fullWidth
-                    label='Expected Date'
-                    value={value}
-                    onChange={onChange}
-                    renderInput={params => <TextField {...params} />}
+                    // label='Expected Date'
+                    value={product.ExpectedDate ? new Date(product.ExpectedDate) : new Date(productDetails.ExpectedDate)}
+                    onChange={(e) => {
+                      console.log(e)
+                      onChange(e)
+                      setProduct({...product, ExpectedDate: e})
+
+                    }}
+                    renderInput={params => <TextField {...params}  />}
                   />
                 </LocalizationProvider>
               )}

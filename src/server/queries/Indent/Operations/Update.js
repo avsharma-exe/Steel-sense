@@ -20,10 +20,10 @@ function updateIndentApprovedBy(user , indent) {
   })
 }
 
-function indentParticular(qty , ex_date) {
+function indentParticular(qty , ex_date,indent) {
   return executeQuery({
-    query: `UPDATE Product_Stock_Indent_Particulars SET Quantity = ? WHERE ExpectedDate = ?`,
-    values: [qty,ex_date]
+    query: `UPDATE Product_Stock_Indent_Particulars SET Quantity = ?, ExpectedDate = ? WHERE P_Stock_Indent_Particulars_ID = ?`,
+    values: [qty,ex_date, indent]
   })
 }
 

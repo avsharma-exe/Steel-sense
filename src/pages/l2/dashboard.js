@@ -171,6 +171,12 @@ const Dashboard = () => {
             data: {}
           })
         }}
+        close={() => {
+          setShowProductStockInwardVoucher({
+            show: !showProductStockInwardVoucher.show,
+            data: {}
+          })
+        }}
       />
       <Dialog
         open={confirmDialog.show}
