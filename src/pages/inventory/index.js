@@ -26,10 +26,21 @@ const Inventory = () => {
   const [showLoader, setShowLoader] = useState(false)
   const [editProduct, setEditProduct] = useState({})
   const [showEditProductForm, setShowEditProductForm] = useState(false)
-
+  const [divs, setDivisions] = useState([])
   const [selectedRowData, setSelectedRowData] = useState({})
   const [openNew, setOpenNew] = useState(false)
   const [newRowData, setNewRowData] = useState({})
+
+  const getAllDivisions = async () => {
+    let allDivs = await secureApi(api_configs.division.getAll, {
+      params: {
+        coid: userDetails.Co_ID
+      }
+    })
+    if (allDivs.status === 200) {
+      setDivisions(allDivs.data.allDivisions)
+    }
+  }
 
   const getProducts = () => {
     setShowLoader(true)
@@ -46,30 +57,12 @@ const Inventory = () => {
             resp.data.allProducts.map((product, index) => {
               let productRow = {
                 srNo: <Typography data={product}>{index + 1}</Typography>,
-                productName:
-                  product.productDetails.length > 0 ? (
-                    <Tooltip
-                      title={
-                        'Print Name: ' + product.productDetails[0].PPrintName
-                          ? product.productDetails[0].PPrintName
-                          : product.productDetails[0].PName
-                      }
-                      arrow
-                    >
-                      <Typography>{product.productDetails[0].PName}</Typography>
-                    </Tooltip>
-                  ) : (
-                    ''
-                  ),
-                productGroup:
-                  product.productDetails.length > 0 ? (
-                    <Tooltip title={'Product Brand: ' + product.productDetails[0].PBrand} arrow>
-                      <Typography>{product.productDetails[0].PGroup}</Typography>
-                    </Tooltip>
-                  ) : (
-                    ''
-                  ),
-                productItemCode: <Typography>{product.productDetails[0].PItemCode}</Typography>,
+                productName: <Typography>{product.productDetails[0].PName}</Typography>,
+                division: <Typography>{divs.map(function(div){
+                  if(div.Div_ID === product.stockDetails[0].Div_ID ){
+                    return div.DivisionName
+                  }
+                }) }</Typography>,
                 stock:
                   product.stockDetails[0].CurrentStock > product.stockDetails[0].LowStockLimit ? (
 
@@ -92,13 +85,14 @@ const Inventory = () => {
   }
 
   useEffect(() => {
+    getAllDivisions(),
     getProducts()
-  }, [])
+  }, [divs])
 
   return (
     <>
       {showAddProductForm ? (
-        <AddProductForm onCloseHandle={setShowAddProductForm} getProducts={() => getProducts()} />
+        <AddProductForm onCloseHandle={setShowAddProductForm} getProducts={() => getProducts()} divisions= {divs}/>
       ) : null}
       {showEditProductForm ? (
         <EditProductForm
@@ -130,8 +124,7 @@ const Inventory = () => {
               columns={[
                 { id: 'srNo', label: 'Sr No.' },
                 { id: 'productName', label: 'Product Name' },
-                { id: 'productGroup', label: 'Product Group' },
-                { id: 'productItemCode', label: 'Product Item Code' },
+                { id: 'division', label: 'Division' },
                 { id: 'stock', label: 'Stock Available' }
 
                 // { id: 'actions', label: 'Actions', minWidth: 170 }

@@ -1,4 +1,3 @@
-import Company from '../../../server/queries/Company/Company'
 import Product from '../../../server/queries/Product/Product'
 
 export default async function handler(req, res) {
@@ -15,10 +14,6 @@ export default async function handler(req, res) {
 
     const productDetails = {
       PName: body.productDetails.productName,
-      PGroup: body.productDetails.productGroup,
-      PBrand: body.productDetails.productBrand,
-      PItemCode: body.productDetails.itemCode,
-      PPrintName: body.productDetails.printName,
       ...userfeilds
     }
 
@@ -26,35 +21,11 @@ export default async function handler(req, res) {
 
     const priceDetails = {
       P_ID: addProductDetails.insertId,
-      PurchasePrice: body.priceDetails.purchasePrice,
-
-      SalePrice: body.priceDetails.salePrice,
-      MinSalePrice: body.priceDetails.minSalePice,
-      Product_Price_Detailscol: body.priceDetails.mrp,
+      PurchasePrice: body.productDetails.purchasePrice,
+      LastPurchasePrice: body.productDetails.purchasePrice,
+      Unit: body.productDetails.unit,
       ...userfeilds
     }
-
-    const productGstDetails = {
-      P_ID: addProductDetails.insertId,
-      HSN_SAC_Code: body.gstDetails.hsnCode,
-      CGST: body.gstDetails.cgst,
-      SGST: body.gstDetails.sgst,
-      Cess: body.gstDetails.cess,
-      IGST: body.gstDetails.igst,
-      ...userfeilds
-    }
-
-    
-    await Object.keys(body.allStocks).forEach(async division => {
-      let stock = body.allStocks[division]
-      
-      const productUnit = {
-        P_ID: addProductDetails.insertId,
-        UnitName: stock.unit,
-        ...userfeilds
-      }
-      await Product.Create.createProductUnitDetails(productUnit)
-    })
 
     await Object.keys(body.allStocks).forEach(async division => {
       let stock = body.allStocks[division]
@@ -79,12 +50,11 @@ export default async function handler(req, res) {
         ...userfeilds
       })
     })
-    
-    const addProductPriceDetails = await Product.Create.createProductPriceDetails(priceDetails)
-    
-    const createProductGstDetails = await Product.Create.createProductGSTDetails(productGstDetails)
 
-    if (addProductPriceDetails && createProductGstDetails) {
+    const addProductPriceDetails = await Product.Create.createProductPriceDetails(priceDetails)
+
+
+    if (addProductPriceDetails) {
       res.send({
         error: false,
         msg: 'Product added successfully'
