@@ -15,10 +15,14 @@ export default async function handler(req, res) {
     let ExpectedDate = body.ExpectedDate
     let indent = body.indent
     delete body.InvoiceDate
+    delete body.ExpectedDate
     delete body.indent
 
     const updateProductStockIndentParticulars = await Indent.Update.indentParticular(body.Quantity, ExpectedDate, indent)
+    console.log(body)
     const createProductStockInwardVoucher = await Indent.Create.productStockInwardVoucher(body)
+    console.log(createProductStockInwardVoucher) 
+    console.log(createProductStockInwardVoucher.insertId)
     inward['P_Stock_In_Voucher_ID'] = createProductStockInwardVoucher.insertId
     console.log(inward)
     const createProductStockInward = await Indent.Create.productStockInward(inward)
