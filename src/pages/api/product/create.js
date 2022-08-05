@@ -1,4 +1,3 @@
-import Company from '../../../server/queries/Company/Company'
 import Product from '../../../server/queries/Product/Product'
 
 export default async function handler(req, res) {
@@ -11,14 +10,20 @@ export default async function handler(req, res) {
   let body = req.body
 
   try {
-    let userfeilds = { CreatedBy: body.userDetails.User_ID, UpdateBy: body.userDetails.User_ID }
+    let date = new Date()
+      // 2021-07-02 23:29:08.000000
+    date = date.getFullYear() + "-" +
+           parseInt(date.getMonth() + 1) +
+           "-" + date.getDate() + " " +
+           date.getHours() + ":" +
+           date.getMinutes()
+    let userfeilds = { CreatedBy: body.userDetails.User_ID,
+                       UpdateBy: body.userDetails.User_ID,
+                       CreatedDT: date, UpdatedDT: date }
 
     const productDetails = {
       PName: body.productDetails.productName,
-      PGroup: body.productDetails.productGroup,
-      PBrand: body.productDetails.productBrand,
-      PItemCode: body.productDetails.itemCode,
-      PPrintName: body.productDetails.printName,
+      status: 50,
       ...userfeilds
     }
 
@@ -26,39 +31,16 @@ export default async function handler(req, res) {
 
     const priceDetails = {
       P_ID: addProductDetails.insertId,
-      PurchasePrice: body.priceDetails.purchasePrice,
-
-      SalePrice: body.priceDetails.salePrice,
-      MinSalePrice: body.priceDetails.minSalePice,
-      Product_Price_Detailscol: body.priceDetails.mrp,
+      PurchasePrice: body.productDetails.purchasePrice,
+      LastPurchasePrice: body.productDetails.purchasePrice,
+      Unit: body.productDetails.unit,
       ...userfeilds
     }
 
-    const productGstDetails = {
-      P_ID: addProductDetails.insertId,
-      HSN_SAC_Code: body.gstDetails.hsnCode,
-      CGST: body.gstDetails.cgst,
-      SGST: body.gstDetails.sgst,
-      Cess: body.gstDetails.cess,
-      IGST: body.gstDetails.igst,
-      ...userfeilds
-    }
-
-    
     await Object.keys(body.allStocks).forEach(async division => {
-      let stock = body.allStocks[division]
-      
-      const productUnit = {
-        P_ID: addProductDetails.insertId,
-        UnitName: stock.unit,
-        ...userfeilds
-      }
-      await Product.Create.createProductUnitDetails(productUnit)
-    })
 
-    await Object.keys(body.allStocks).forEach(async division => {
       let stock = body.allStocks[division]
-
+      console.log(division, ' ---- ', body.allStocks[division], ' ------ ', )
       const productStockDetails = {
         P_ID: addProductDetails.insertId,
         CurrentStock: stock.openingStock,
@@ -68,8 +50,11 @@ export default async function handler(req, res) {
         Div_ID: division,
         ...userfeilds
       }
+      console.log(division, ' ---- ', body.allStocks[division], ' ------ ', productStockDetails)
       await Product.Create.createProductStockDetails(productStockDetails)
     })
+
+
 
     await Object.keys(body.allStocks).map(async division => {
       await Product.Create.createProductCompanyDivision({
@@ -78,13 +63,13 @@ export default async function handler(req, res) {
         Div_ID: division,
         ...userfeilds
       })
+      console.log(division, ' ---- ')
     })
-    
-    const addProductPriceDetails = await Product.Create.createProductPriceDetails(priceDetails)
-    
-    const createProductGstDetails = await Product.Create.createProductGSTDetails(productGstDetails)
 
-    if (addProductPriceDetails && createProductGstDetails) {
+    const addProductPriceDetails = await Product.Create.createProductPriceDetails(priceDetails)
+
+
+    if (addProductPriceDetails) {
       res.send({
         error: false,
         msg: 'Product added successfully'

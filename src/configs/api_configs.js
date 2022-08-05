@@ -53,6 +53,7 @@ export default {
       getIncomingOrder: "/indent/getIncomingOrder"
     },
     stockInOut: {
-      createStockInward: "stockInOut/createStockInward"
-    }
+      createStockInward: "stockInOut/createStockInward",
+      getAllInwards: "stockInOut/getAllCompanyInwards"
+    },
 }

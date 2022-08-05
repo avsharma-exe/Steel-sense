@@ -29,7 +29,9 @@ import { InputAdornment } from '@mui/material'
 import { secureApi } from 'src/helpers/apiGenerator'
 import api_configs from '../../configs/api_configs'
 
-const CreateStockInward = ({ indent, onClose }) => {
+const CreateStockInward = ({ indent, onClose, updateIncommingOreders }) => {
+
+  console.log(indent)
 
   const [allProducts, setAllProducts] = useState([])
   const [allSuppliers, setAllSuppliers] = useState([])
@@ -90,7 +92,9 @@ const CreateStockInward = ({ indent, onClose }) => {
       TruckInfo: TruckInfo,
       Quantity: status === '99' ? parseInt(indent.Quantity) - parseInt(quantity) : quantity,
       user: userDetails.User_ID,
-      status: status
+      status: status,
+      P_Stock_In_ID: indent.P_Stock_In_ID,
+      P_Stock_In_Voucher_ID: indent.P_Stock_In_Voucher_ID
     }
 
     console.log(body)
@@ -99,6 +103,7 @@ const CreateStockInward = ({ indent, onClose }) => {
       // console.log()
       if (!res.data.error) {
         setAllProducts(res.data.allProducts)
+        updateIncommingOreders()
       }
     })
   }
@@ -164,7 +169,6 @@ const CreateStockInward = ({ indent, onClose }) => {
                   labelId='stepper-linear-personal-country'
                   aria-describedby='stepper-linear-personal-country-helper'
                 >
-                  <MenuItem value='0'> - Not Filled - </MenuItem>
                   <MenuItem value='50'>- Fully Filled -</MenuItem>
                   <MenuItem value='99'>- Partially Filled-</MenuItem>
                 </Select>

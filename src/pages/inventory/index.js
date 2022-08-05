@@ -18,87 +18,112 @@ import Tooltip from '@mui/material/Tooltip'
 import Chip from '@mui/material/Chip'
 import CircularProgress from '@mui/material/CircularProgress'
 import EditProductForm from 'src/components/inventory/EditProductForm'
+import useUserDivisions from 'src/hooks/useUserDivisions'
 
 const Inventory = () => {
   const userDetails = useUserDetails()
+  const userDivisions = useUserDivisions()
   const [products, setProducts] = useState([])
   const [showAddProductForm, setShowAddProductForm] = useState(false)
   const [showLoader, setShowLoader] = useState(false)
   const [editProduct, setEditProduct] = useState({})
   const [showEditProductForm, setShowEditProductForm] = useState(false)
-
+  const [divs, setDivisions] = useState(null)
   const [selectedRowData, setSelectedRowData] = useState({})
   const [openNew, setOpenNew] = useState(false)
   const [newRowData, setNewRowData] = useState({})
 
-  const getProducts = () => {
-    setShowLoader(true)
-    secureApi
-      .get(api_configs.product.getAll, {
-        params: {
-          company: userDetails.Co_ID
-        }
-      })
-      .then(resp => {
-        if (resp.status === 200) {
-          let allProducts = []
-          if (resp.data.allProducts) {
-            resp.data.allProducts.map((product, index) => {
-              let productRow = {
-                srNo: <Typography data={product}>{index + 1}</Typography>,
-                productName:
-                  product.productDetails.length > 0 ? (
-                    <Tooltip
-                      title={
-                        'Print Name: ' + product.productDetails[0].PPrintName
-                          ? product.productDetails[0].PPrintName
-                          : product.productDetails[0].PName
-                      }
-                      arrow
-                    >
-                      <Typography>{product.productDetails[0].PName}</Typography>
-                    </Tooltip>
-                  ) : (
-                    ''
-                  ),
-                productGroup:
-                  product.productDetails.length > 0 ? (
-                    <Tooltip title={'Product Brand: ' + product.productDetails[0].PBrand} arrow>
-                      <Typography>{product.productDetails[0].PGroup}</Typography>
-                    </Tooltip>
-                  ) : (
-                    ''
-                  ),
-                productItemCode: <Typography>{product.productDetails[0].PItemCode}</Typography>,
-                stock:
-                  product.stockDetails[0].CurrentStock > product.stockDetails[0].LowStockLimit ? (
-
-                    // <Chip label={product.stockDetails[0].CurrentStock} color='success' />
-                    <Chip label={product.stockDetails[0].CurrentStock} sx={{ color: 'green' }} />
-                  ) : (
-
-                    // <Chip label={product.stockDetails[0].CurrentStock} color='danger' />
-                    <Chip label={product.stockDetails[0].CurrentStock} sx={{ color: 'red' }} />
-                  )
-              }
-              allProducts.push(productRow)
-            })
-          }
-
-          setProducts(allProducts)
-          setShowLoader(false)
-        }
-      })
+  const getAllDivisions = async () => {
+    let allDivs = await secureApi(api_configs.division.getAll, {
+      params: {
+        coid: userDetails.Co_ID
+      }
+    })
+    if (allDivs.status === 200) {
+      if (userDetails.Div_ID) {
+        setDivisions(
+          allDivs.data.allDivisions.filter(function (div) {
+            if (div.Div_ID === userDetails.Div_ID) {
+              return div
+            }
+          })
+        )
+      } else {
+        setDivisions(allDivs.data.allDivisions)
+      }
+    }
   }
+
+  const getProducts = () => {
+    {
+      divs
+        ? secureApi
+            .get(api_configs.product.getAll, {
+              params: {
+                company: userDetails.Co_ID,
+                div_id: userDetails.Div_ID
+              }
+            })
+            .then(resp => {
+              if (resp.status === 200) {
+                let allProducts = []
+                if (resp.data.allProducts) {
+                  resp.data.allProducts.map((product, index) => {
+                    let productRow = {
+                      srNo: <Typography data={product}>{index + 1}</Typography>,
+                      productName: <Typography>{product.productDetails && product.productDetails[0].PName}</Typography>,
+                      division: (
+                        <Typography>
+                          {divs.map(function (div) {
+                            if (product.stockDetails && div.Div_ID === product.stockDetails[0].Div_ID) {
+                              return div.DivisionName
+                            }
+                          })}
+                        </Typography>
+                      ),
+                      stock:
+                        product.stockDetails &&
+                        (product.stockDetails[0].CurrentStock > product.stockDetails[0].LowStockLimit ? (
+                          // <Chip label={product.stockDetails[0].CurrentStock} color='success' />
+                          <Chip label={product.stockDetails[0].CurrentStock} sx={{ color: 'green' }} />
+                        ) : (
+                          // <Chip label={product.stockDetails[0].CurrentStock} color='danger' />
+                          <Chip label={product.stockDetails[0].CurrentStock} sx={{ color: 'red' }} />
+                        ))
+                    }
+                    if (userDetails.Role_ID == 4) {
+                      console.log("inside" , userDivisions , product.stockDetails[0].Div_ID)
+                      if (product.stockDetails && userDivisions.includes(String(product.stockDetails[0].Div_ID))) {
+                        allProducts.push(productRow)
+                      }
+                    } else {
+                      allProducts.push(productRow)
+                    }
+                  })
+                }
+
+                setProducts(allProducts)
+                setShowLoader(false)
+              }
+            })
+        : setShowLoader(true)
+    }
+  }
+
+  console.log(userDivisions)
+
+  useEffect(() => {
+    getAllDivisions()
+  }, [])
 
   useEffect(() => {
     getProducts()
-  }, [])
+  }, [divs])
 
   return (
     <>
       {showAddProductForm ? (
-        <AddProductForm onCloseHandle={setShowAddProductForm} getProducts={() => getProducts()} />
+        <AddProductForm onCloseHandle={setShowAddProductForm} getProducts={() => getProducts()} allDivs={divs} />
       ) : null}
       {showEditProductForm ? (
         <EditProductForm
@@ -113,11 +138,11 @@ const Inventory = () => {
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
               <Typography variant={'h6'}>Inventory</Typography>
               <Box sx={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
-                { userDetails.Role_ID == 4 ? null :
-                <Button size='small' type='submit' variant='contained' onClick={() => setShowAddProductForm(true)}>
-                Add Product
-                </Button>
-                }
+                {userDetails.Role_ID == 4 ? null : (
+                  <Button size='small' type='submit' variant='contained' onClick={() => setShowAddProductForm(true)}>
+                    Add Product
+                  </Button>
+                )}
               </Box>
             </Box>
           }
@@ -130,15 +155,14 @@ const Inventory = () => {
               columns={[
                 { id: 'srNo', label: 'Sr No.' },
                 { id: 'productName', label: 'Product Name' },
-                { id: 'productGroup', label: 'Product Group' },
-                { id: 'productItemCode', label: 'Product Item Code' },
+                { id: 'division', label: 'Division' },
                 { id: 'stock', label: 'Stock Available' }
 
                 // { id: 'actions', label: 'Actions', minWidth: 170 }
               ]}
               rows={products}
               onRowClickHandle={rowData => {
-                if( userDetails.Role_ID !== 4 ){
+                if (userDetails.Role_ID !== 4) {
                   setEditProduct(rowData.srNo.props.data)
                   setShowEditProductForm(true)
                 }

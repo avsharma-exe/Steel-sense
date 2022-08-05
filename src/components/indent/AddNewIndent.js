@@ -58,7 +58,7 @@ const Header = styled(Box)(({ theme }) => ({
 }))
 
 const AddNewIndent = props => {
-  const { open, toggle, productDetails } = props
+  const { open, toggle, productDetails, updateDashboard } = props
   const [product, setProduct] = useState()
   const [product_stock, setProductStock] = useState()
   const userDetails = useUserDetails()
@@ -130,6 +130,7 @@ const AddNewIndent = props => {
           // console.log('Error aa gaya')
         }
         toggle()
+        updateDashboard()
         reset()
       })
   }

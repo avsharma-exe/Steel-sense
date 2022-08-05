@@ -15,7 +15,10 @@ export default async function handler(req, res) {
     // CreatedBy: 12,
     // UpdatedDT: null,
     // UpdateBy: 12,
-      let temp = body.stockDetails
+    let stocks = body.stockDetails
+    let i = 0;
+    for (let temp of stocks) {
+      
       const productStockDetails = {
         CurrentStock: temp.CurrentStock,
         LastStock: temp.CurrentStock,
@@ -23,24 +26,32 @@ export default async function handler(req, res) {
         LowStockLimit: temp.LowStockLimit,
         MaxStockLimit: temp.MaxStockLimit,
         CreatedBy: temp.CreatedBy,
-        UpdateBy: temp.UpdateBy
+        UpdateBy: body.userDetails.User_ID
       }
-      // console.log(productStockDetails,'AAAAAAAAAAAAAA')
+
       const product_ID = temp.P_ID
       delete productStockDetails.P_ID
       let date = new Date()
-      // 2021-07-02 23:29:08.000000
-      productStockDetails['UpdatedDT'] = date.getFullYear() + "-" + parseInt(date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes()
+      productStockDetails['UpdatedDT'] =
+        date.getFullYear() +
+        '-' +
+        parseInt(date.getMonth() + 1) +
+        '-' +
+        date.getDate() +
+        ' ' +
+        date.getHours() +
+        ':' +
+        date.getMinutes()
       // Update User details in COmpnay_User
-      let result = await Product.Update.updateStockDetails(productStockDetails,product_ID)
-
-      if (result) {
-        res.send({
-          error: false,
-          msg: 'Product Stock Details updated successfully',
-          result,
-        })
-      }
+      await Product.Update.updateStockDetails(productStockDetails, product_ID)
+      i++;
+    }
+    if (i === stocks.length) {
+      res.send({
+        error: false,
+        msg: 'Product Stock Details updated successfully',
+      })
+    }
   } catch (e) {
     throw e
   }
