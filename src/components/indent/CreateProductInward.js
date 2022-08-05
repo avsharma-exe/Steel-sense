@@ -104,7 +104,7 @@ const CreateProductInward = props => {
       Quantity: inwardDetails.quantity,
       indent: productDetails.indent_particulars_id,
       ExpectedDate:
-        productDetails.ExpectedDate.getDate() + '-' + (productDetails.ExpectedDate.getMonth() + 1) + '-' + productDetails.ExpectedDate.getFullYear(),
+        data.invoice_date.getDate() + '-' + (data.invoice_date.getMonth() + 1) + '-' + data.invoice_date.getFullYear(),
       inward: {
         status: 0,
         UnitPrice: inwardDetails.unitPrice,

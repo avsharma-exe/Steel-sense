@@ -29,7 +29,7 @@ import { InputAdornment } from '@mui/material'
 import { secureApi } from 'src/helpers/apiGenerator'
 import api_configs from '../../configs/api_configs'
 
-const CreateStockInward = ({ indent, onClose }) => {
+const CreateStockInward = ({ indent, onClose, updateIncommingOreders }) => {
 
   console.log(indent)
 
@@ -103,6 +103,7 @@ const CreateStockInward = ({ indent, onClose }) => {
       // console.log()
       if (!res.data.error) {
         setAllProducts(res.data.allProducts)
+        updateIncommingOreders()
       }
     })
   }
