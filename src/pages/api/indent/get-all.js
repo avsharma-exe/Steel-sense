@@ -9,9 +9,10 @@ export default async function handler(req, res) {
   }
 
   let Co_ID = req.query.company
-
+  let divisions = req.query['divisions[]'] && req.query['divisions[]'].length === 1 ? [req.query['divisions[]']] : req.query['divisions[]']
+  
   try {
-    let allIndents = await Indent.Read.getAllIndentsOfACompany(Co_ID)
+    let allIndents = divisions ? await Indent.Read.getAllIndentsOfACompanyByDiv(Co_ID , divisions)  : await Indent.Read.getAllIndentsOfACompany(Co_ID)
     if (allIndents) {
       res.send({
         error: false,

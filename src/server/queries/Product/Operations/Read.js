@@ -10,7 +10,8 @@ const Read = {
   getProductOtherData,
   getProductAllDetails,
   getLowStockProducts,
-  getAllDivsionProducts
+  getAllDivsionProducts,
+  getAllProductsIDsOfACompanyByDivision
 }
 
 /**
@@ -35,13 +36,20 @@ function getAllProductsIDsOfACompany(co_id) {
   })
 }
 
-function getAllDivsionProducts(co_id,div_id) {
+function getAllProductsIDsOfACompanyByDivision(co_id , divisions) {
+  return executeQuery({
+    query: `SELECT * FROM Product_Company_Division WHERE Co_ID = ? AND Div_ID IN (?)`,
+    values: [co_id , divisions]
+  })
+}
+
+function getAllDivsionProducts(co_id,divisions) {
   return executeQuery({
     query: `SELECT c.*, s.* FROM Product_Master c
             LEFT JOIN Product_Company_Division p ON c.P_ID=p.P_ID
             LEFT JOIN Product_Stock s ON c.P_ID=s.P_ID
-            WHERE p.Co_ID = ? AND p.Div_ID = ?`,
-    values: [co_id,div_id]
+            WHERE p.Co_ID = ? AND p.Div_ID IN (?)`,
+    values: [co_id,divisions]
   })
 }
 
@@ -88,7 +96,7 @@ function getProductUnitData(p_id) {
  */
 function getProductStockData(p_id,div_id) {
   return executeQuery({
-    query: `SELECT * FROM Product_Stock join Division_Master on Division_Master.Div_ID = Product_Stock.Div_ID WHERE P_ID = ?`,
+    query: `SELECT * FROM Product_Stock WHERE P_ID = ? AND Div_ID = ?`,
     values: [p_id, div_id]
   })
 }

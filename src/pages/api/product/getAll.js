@@ -23,6 +23,8 @@ export default async function handler(req, res) {
       const productDetails = await Product.Read.getProductMasterData(product.P_ID)
       const priceDetails = await Product.Read.getProductPriceDetailsData(product.P_ID)
       const stockDetails = await Product.Read.getProductStockData(product.P_ID,product.Div_ID)
+      
+      console.log(stockDetails)
 
       let product_details = {
         productDetails,

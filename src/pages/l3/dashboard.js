@@ -42,7 +42,7 @@ const Dashboard = () => {
     })
 
     if (incommingOrders.status === 200) {
-      console.log(incommingOrders.data)
+      
       let orders = []
       await incommingOrders.data.incommingOrders.forEach(order => {
         if (order.length > 0)
@@ -102,7 +102,7 @@ const Dashboard = () => {
       .get(api_configs.indent.getAll, {
         params: {
           company: userDetails.Co_ID,
-          division: userDetails.Div_ID
+          divisions: userDivisions
         }
       })
       .then(resp => {
