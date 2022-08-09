@@ -157,7 +157,12 @@ function getProductAllDetails(p_id) {
 function getLowStockProducts(co_id, divisions) {
   console.log(divisions)
   return executeQuery({
-    query: "Select ps.P_ID, ps.CurrentStock, ps.LastStock, ps.LowStockLimit, ps.MaxStockLimit from Product_Stock ps LEFT JOIN Product_Company_Division pcd on ps.P_ID = pcd.P_ID where ps.LowStockLimit >= ps.CurrentStock AND pcd.Co_ID = ? AND pcd.Div_ID IN (?)",
+    query: `Select ps.P_ID, ps.CurrentStock, ps.LastStock, ps.LowStockLimit, ps.MaxStockLimit
+            from Product_Stock ps
+            LEFT JOIN Product_Company_Division pcd on ps.P_ID = pcd.P_ID  and pcd.Div_ID = ps.Div_ID
+            where ps.LowStockLimit >= ps.CurrentStock
+            AND pcd.Co_ID = ?
+            AND pcd.Div_ID IN (?)`,
     values: [co_id, divisions]
   })
 }
