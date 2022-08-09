@@ -80,7 +80,7 @@ const CreateStockInward = ({ indent, onClose, updateIncommingOreders }) => {
     // e.preventDefault()
 
     let body = {
-      Co_ID: indent.Co_ID,
+      Co_ID: userDetails.Co_ID,
       Div_ID: indent.Div_ID,
       P_ID: indent.P_ID,
       Supplier_ID: indent.Co_ID,

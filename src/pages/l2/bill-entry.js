@@ -25,68 +25,113 @@ import Box from '@mui/material/Box'
 import { secureApi } from 'src/helpers/apiGenerator'
 import api_configs from '../../configs/api_configs'
 
+
 const StockInward = () => {
 
+  const userDetails = useUserDetails()
+
+  const [entries, setAllEntries] = useState(null)
+  const [status, setStatus] = useState(99)
+  const [InvoiceDate, setInvoiceDate] = useState(new Date())
+  const [taxPercent, setTax] = useState(null)
+  const [billAmount, setBillAmount] = useState(null)
+
+  const getBillEntry = async () => {
+    await secureApi.get(api_configs.stockInOut.getAllInwards, {
+      params: {
+        company: userDetails.Co_ID,
+      }
+    }).then(resp => {
+      console.log(resp.data.allInwards)
+      setAllEntries(resp.data.allInwards[0])
+    })
+  }
+
+  useEffect(() => {
+    getBillEntry()
+  }, [])
+
+  const handleSubmit = async (e)=> {
+    e.preventDefault()
+    //TODO: rowData me row ka data aayega jo select hogi fir sahi se set kar k uncomment kar dena
+    let body = {
+      // P_Stock_In_ID: rowData.P_Stock_In_ID,
+      DueOn: InvoiceDate.getFullYear() + "-" + parseInt(InvoiceDate.getMonth() + 1) + "-" + InvoiceDate.getDate() + " " + InvoiceDate.getHours() + ":" + InvoiceDate.getMinutes(),
+      TaxPercent: taxPercent,
+      BillAmount: billAmount,
+      status: status,
+      user_id: userDetails.User_ID
+    }
+    console.log(body)
+    //TODO: jab updar row data se stock Inward Id aa jaaye toh call karna ye api
+    // await secureApi.patch(api_configs.stockInOut.updateBillEntry, body).then(res => {
+    //   console.log(res)
+    // })
+    }
   return (
     <Card>
       <CardHeader title='Bill Entry' titleTypographyProps={{ variant: 'h6' }} />
       <CardContent sx={{ minHeight: 500, display: 'flex' }}>
         <form onSubmit={e => handleSubmit(e)}>
         <Grid container spacing={5}>
-        <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
-              label='Product Name'
-              placeholder='Nozzel'
+              value = {entries ? entries.PName : null}
+              disabled
 
             />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
-              label='Quantity'
-              placeholder='12 Ton'
+              // label='Quantity'
+              value = {entries ? entries.Quantity + '       ' + entries.Unit : null}
+              disabled
 
             />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
-              label='Supplier Name'
-              placeholder='Supplier1'
+              // label='Supplier Name'
+              value = {entries ? entries.SupplierName : null}
+              disabled
 
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label='Invoice Number'
-              placeholder='123456789'
-
-            />
+            <Select
+              labelId="payment_status"
+              id="p_status"
+              value={status}
+              label="Payment Status"
+              onChange={e => setStatus(e.target.value)}
+            >
+              <MenuItem value={99}>Is Due</MenuItem>
+              <MenuItem value={199}>Paid</MenuItem>
+            </Select>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label='Payment Date/Due'
-              placeholder='MH-XX-CC-7777'
-
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label='Is Payment Due'
-              placeholder='MH-XX-CC-7777'
-
-            />
+            <FormControl fullWidth>
+              <LocalizationProvider dateAdapter={AdapterDateFns} fullWidth>
+                <DatePicker
+                  fullWidth
+                  label='Payment/Due Date'
+                  value={InvoiceDate}
+                  onChange={newValue => setInvoiceDate(newValue)}
+                  renderInput={params => <TextField {...params} />}
+                />
+              </LocalizationProvider>
+            </FormControl>
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               label='Amount without GST'
               placeholder='100000'
-
+              value = {billAmount ? billAmount : null}
+              onChange={e => setBillAmount(e.target.value)}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -94,7 +139,8 @@ const StockInward = () => {
               fullWidth
               label='GST'
               placeholder='2'
-
+              value = {taxPercent ? taxPercent : null}
+              onChange={e => setTax(e.target.value)}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -102,21 +148,18 @@ const StockInward = () => {
               fullWidth
               label='Total with GST'
               placeholder='102000'
-
             />
           </Grid>
         </Grid>
 
-
-          <Divider sx={{ m: 0 }} />
-          <CardActions>
-            <Button size='large' type='submit' sx={{ mr: 2 }} variant='contained'>
-              Submit
-            </Button>
-            <Button size='large' color='secondary' variant='outlined'>
-              Cancel
-            </Button>
-          </CardActions>
+        <CardActions>
+          <Button size='large' type='submit' sx={{ mr: 2 }} variant='contained'>
+            Submit
+          </Button>
+          <Button size='large' color='secondary' variant='outlined'>
+            Cancel
+          </Button>
+        </CardActions>
         </form>
       </CardContent>
     </Card>
