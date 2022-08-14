@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   let body = req.body
   // console.log(body)
   try {
-      const indent = body.indent
+      let indent = body.indent
       indent['CreatedBy'] = body.indent.user
       let date = new Date()
       let CreatedDt = date.getFullYear() +
@@ -22,9 +22,12 @@ export default async function handler(req, res) {
       indent['IndentNo'] = 1
       delete indent.user
 
-      const indent_particular = body.indent_particulars
+      let indent_particular = body.indent_particulars
+      
       indent_particular['CreatedBy'] = body.indent.user
       indent_particular['CreatedDt'] = CreatedDt
+
+      console.log(indent_particular)
 
       // add new indent to P_Stock_Indent
       let result = await Indent.Create.createNewIndent(indent)

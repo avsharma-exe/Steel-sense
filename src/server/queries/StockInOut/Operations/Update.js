@@ -3,8 +3,8 @@ import executeQuery from '../../../../server/Connection'
 const Update = {
   updateStockInward,
   updateProductStockInwardVoucher,
-  updateProductStockInwardStatus
-
+  updateProductStockInwardStatus,
+  updateBillEntry
 }
 
 /**
@@ -31,6 +31,13 @@ function updateProductStockInwardStatus(status, inward_id) {
   return executeQuery({
     query: 'UPDATE Product_Stock_Inward SET status = ? WHERE P_Stock_In_ID = ?',
     values: [status, inward_id]
+  })
+}
+
+function updateBillEntry(body, inward_id) {
+  return executeQuery({
+    query: 'UPDATE Product_Stock_Inward SET ? WHERE P_Stock_In_ID = ?',
+    values: [body, inward_id]
   })
 }
 

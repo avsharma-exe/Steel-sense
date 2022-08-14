@@ -36,15 +36,7 @@ import { Console } from 'mdi-material-ui'
 
 const schema = yup.object().shape({})
 
-const defaultValues = {
-  quantity: 0,
-  discount: 0,
-  tax: 0,
-  taxRate: 0,
-  unitPrice: 0,
-  supplier: 0,
-  invoice_date: 0
-}
+
 
 const Header = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -88,7 +80,15 @@ const CreateProductInward = props => {
     handleSubmit,
     formState: { errors }
   } = useForm({
-    defaultValues,
+    defaultValues: {
+      quantity: 0,
+      discount: 0,
+      tax: 0,
+      taxRate: 0,
+      unitPrice: 0,
+      supplier: 0,
+      invoice_date: product.ExpectedDate ? new Date(product.ExpectedDate) : new Date(productDetails.ExpectedDate)
+    },
     mode: 'onChange',
     resolver: yupResolver(schema)
   })
@@ -103,8 +103,9 @@ const CreateProductInward = props => {
       Supplier_ID: Supplier.Co_ID,
       Quantity: inwardDetails.quantity,
       indent: productDetails.indent_particulars_id,
+      Indent_ID: productDetails.indent_id,
       ExpectedDate:
-        data.invoice_date.getDate() + '-' + (data.invoice_date.getMonth() + 1) + '-' + data.invoice_date.getFullYear(),
+        data.invoice_date ? data.invoice_date.getDate() + '-' + (data.invoice_date.getMonth() + 1) + '-' + data.invoice_date.getFullYear() : product.ExpectedDate,
       inward: {
         status: 0,
         UnitPrice: inwardDetails.unitPrice,
@@ -158,6 +159,11 @@ const CreateProductInward = props => {
             <b>Division - </b>
             <span style={{ fontSize: '20px' }}>{productDetails ? productDetails.DivisionName : ''}</span>
           </Typography>
+          <Typography sx={{ mb: 6 }}>
+            <b>Quantity Requested - </b>
+            <span style={{ fontSize: '20px' }}>{productDetails ? productDetails.Quantity : ''}</span>
+          </Typography>
+          
 
           <Grid item xs={12} sm={6} sx={{ mb: 6 }}>
             <Autocomplete
@@ -190,7 +196,7 @@ const CreateProductInward = props => {
                   <DatePicker
                     name='invoice_date'
                     fullWidth
-                    // label='Expected Date'
+                    label='Expected Date'
                     value={product.ExpectedDate ? new Date(product.ExpectedDate) : new Date(productDetails.ExpectedDate)}
                     onChange={(e) => {
                       console.log(e)
@@ -256,59 +262,9 @@ const CreateProductInward = props => {
               )}
             />
           </FormControl>
-          <FormControl fullWidth sx={{ mb: 6 }}>
-            <Controller
-              name='tax'
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <TextField
-                  value={value}
-                  type='number'
-                  label='Tax'
-                  onChange={e => {
-                    onChange(e)
-                    setInwardDetails({
-                      ...inwardDetails,
-                      tax: e.target.value
-                    })
-                  }}
-                  placeholder='10'
-                  error={Boolean(errors.tax)}
-                  InputProps={{
-                    endAdornment: <InputAdornment position='end'>%</InputAdornment>
-                  }}
-                />
-              )}
-            />
-            {errors.tax && <FormHelperText sx={{ color: 'error.main' }}>{errors.tax.message}</FormHelperText>}
-          </FormControl>
+          
 
-          <FormControl fullWidth sx={{ mb: 6 }}>
-            <Controller
-              name='discount'
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <TextField
-                  value={value}
-                  type='number'
-                  label='Discount'
-                  onChange={e => {
-                    onChange(e)
-                    setInwardDetails({ ...inwardDetails, discount: e.target.value })
-                  }}
-                  placeholder='10'
-                  error={Boolean(errors.discount)}
-                  InputProps={{
-                    endAdornment: <InputAdornment position='end'>%</InputAdornment>
-                  }}
-                />
-              )}
-            />
-            {errors.discount && <FormHelperText sx={{ color: 'error.main' }}>{errors.discount.message}</FormHelperText>}
-          </FormControl>
-
+{/*           
           <Typography sx={{ mb: 6 }}>
             <b>Sub Total - </b>
             <span style={{ fontSize: '20px' }}>{parseInt(product.Quantity) * inwardDetails.unitPrice}</span>
@@ -319,7 +275,7 @@ const CreateProductInward = props => {
             <span style={{ fontSize: '20px' }}>
               {(parseInt(inwardDetails.tax) / 100) * (parseInt(product.Quantity) * inwardDetails.unitPrice)}
             </span>
-          </Typography>
+          </Typography> */}
 
           <Typography sx={{ mb: 6 }}>
             <b>Total - </b>

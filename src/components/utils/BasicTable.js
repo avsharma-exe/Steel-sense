@@ -10,6 +10,7 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
+import Refresh from 'mdi-material-ui/Refresh'
 
 // const columns = [
 //   { id: 'name', label: 'Name', minWidth: 170 },
@@ -37,9 +38,7 @@ import TablePagination from '@mui/material/TablePagination'
 //   }
 // ]
 
-
-
-const BasicTable = ({rows , columns, onRowClickHandle}) => {
+const BasicTable = ({ rows, columns, onRowClickHandle, reload }) => {
   // ** States
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
@@ -55,6 +54,13 @@ const BasicTable = ({rows , columns, onRowClickHandle}) => {
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+      {reload && <Refresh
+        sx={{
+          float: 'right',
+          cursor: "pointer"
+        }}
+        onClick={() => reload && reload()}
+      />}
       <TableContainer sx={{ maxHeight: 300 }}>
         <Table stickyHeader aria-label='sticky table'>
           <TableHead>
@@ -69,7 +75,13 @@ const BasicTable = ({rows , columns, onRowClickHandle}) => {
           <TableBody>
             {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(row => {
               return (
-                <TableRow hover role='checkbox' tabIndex={-1} key={row.code} onClick={() => onRowClickHandle && onRowClickHandle(row)}>
+                <TableRow
+                  hover
+                  role='checkbox'
+                  tabIndex={-1}
+                  key={row.code}
+                  onClick={() => onRowClickHandle && onRowClickHandle(row)}
+                >
                   {columns.map(column => {
                     const value = row[column.id]
 

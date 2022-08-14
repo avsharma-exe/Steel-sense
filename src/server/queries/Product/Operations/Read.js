@@ -10,7 +10,8 @@ const Read = {
   getProductOtherData,
   getProductAllDetails,
   getLowStockProducts,
-  getAllDivsionProducts
+  getAllDivsionProducts,
+  getAllProductsIDsOfACompanyByDivision
 }
 
 /**
@@ -35,13 +36,20 @@ function getAllProductsIDsOfACompany(co_id) {
   })
 }
 
-function getAllDivsionProducts(co_id,div_id) {
+function getAllProductsIDsOfACompanyByDivision(co_id , divisions) {
+  return executeQuery({
+    query: `SELECT * FROM Product_Company_Division WHERE Co_ID = ? AND Div_ID IN (?)`,
+    values: [co_id , divisions]
+  })
+}
+
+function getAllDivsionProducts(co_id,divisions) {
   return executeQuery({
     query: `SELECT c.*, s.* FROM Product_Master c
             LEFT JOIN Product_Company_Division p ON c.P_ID=p.P_ID
             LEFT JOIN Product_Stock s ON c.P_ID=s.P_ID
-            WHERE p.Co_ID = ? AND p.Div_ID = ?`,
-    values: [co_id,div_id]
+            WHERE p.Co_ID = ? AND p.Div_ID IN (?)`,
+    values: [co_id,divisions]
   })
 }
 
@@ -88,7 +96,7 @@ function getProductUnitData(p_id) {
  */
 function getProductStockData(p_id,div_id) {
   return executeQuery({
-    query: `SELECT * FROM Product_Stock join Division_Master on Division_Master.Div_ID = Product_Stock.Div_ID WHERE P_ID = ?`,
+    query: `SELECT * FROM Product_Stock join Division_Master on Division_Master.Div_ID = Product_Stock.Div_ID WHERE P_ID = ? AND Product_Stock.Div_ID = ?`,
     values: [p_id, div_id]
   })
 }
@@ -149,8 +157,16 @@ function getProductAllDetails(p_id) {
 function getLowStockProducts(co_id, divisions) {
   console.log(divisions)
   return executeQuery({
-    query: "Select ps.P_ID, ps.CurrentStock, ps.LastStock, ps.LowStockLimit, ps.MaxStockLimit from Product_Stock ps LEFT JOIN Product_Company_Division pcd on ps.P_ID = pcd.P_ID where ps.LowStockLimit >= ps.CurrentStock AND pcd.Co_ID = ? AND pcd.Div_ID IN (?)",
-    values: [co_id, divisions]
+    query: `Select ps.P_ID, ps.CurrentStock, ps.LastStock, ps.LowStockLimit, ps.MaxStockLimit, ps.Div_ID
+            from Product_Stock ps
+            LEFT JOIN Product_Company_Division pcd on ps.P_ID = pcd.P_ID  and pcd.Div_ID = ps.Div_ID
+            where ps.LowStockLimit >= ps.CurrentStock
+            AND pcd.Co_ID = ?
+            AND pcd.Div_ID IN (?)
+            AND ps.P_ID NOT IN (Select Product_Stock_Indent_Particulars.P_ID from Product_Stock_Indent 
+            join Product_Stock_Indent_Particulars on Product_Stock_Indent_Particulars.P_Stock_Indent_ID = Product_Stock_Indent.P_Stock_Indent_ID
+            where Product_Stock_Indent.Div_ID IN (?) AND Product_Stock_Indent_Particulars.CurrentStatus IN (0 , 50, 199) )`,
+    values: [co_id, divisions, divisions]
   })
 }
 

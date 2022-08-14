@@ -15,6 +15,8 @@ function updateProductMaster(body,product_ID) {
   })
 }
 
+
+
 function updatePriceDetails(body,product_ID) {
   return executeQuery({
     query: `UPDATE Product_Price_Details SET ? WHERE P_ID = ?`,

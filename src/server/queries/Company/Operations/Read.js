@@ -63,7 +63,7 @@ function getCompanyMasterData(co_id) {
  */
 function getCompanyDetailsData(co_id) {
   return executeQuery({
-    query: `SELECT * FROM Company_Details WHERE Co_ID = ?`,
+    query: `SELECT * FROM Company_Details join Company_Master on Company_Master.Co_ID = Company_Details.Co_ID WHERE Company_Master.Co_ID = ?`,
     values: [co_id]
   })
 }

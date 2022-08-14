@@ -19,6 +19,10 @@ import Chip from '@mui/material/Chip'
 import CircularProgress from '@mui/material/CircularProgress'
 import EditProductForm from 'src/components/inventory/EditProductForm'
 import useUserDivisions from 'src/hooks/useUserDivisions'
+import CustomChip from 'src/@core/components/mui/chip'
+import { getStatusText } from 'src/helpers/statusHelper'
+import Exclamation from 'mdi-material-ui/Exclamation';
+import CheckCircle from 'mdi-material-ui/CheckCircle';
 
 const Inventory = () => {
   const userDetails = useUserDetails()
@@ -40,10 +44,11 @@ const Inventory = () => {
       }
     })
     if (allDivs.status === 200) {
-      if (userDetails.Div_ID) {
+      if (!userDivisions.includes('0')) {
         setDivisions(
           allDivs.data.allDivisions.filter(function (div) {
-            if (div.Div_ID === userDetails.Div_ID) {
+            
+            if (userDivisions.includes(String(div.Div_ID))) {
               return div
             }
           })
@@ -56,12 +61,14 @@ const Inventory = () => {
 
   const getProducts = () => {
     {
+      setShowLoader(true)
       divs
         ? secureApi
-            .get(api_configs.product.getAll, {
+            .get(userDivisions.includes('0') ? api_configs.product.getAll  : api_configs.product.getDivProducts, {
               params: {
                 company: userDetails.Co_ID,
-                div_id: userDetails.Div_ID
+                div_id: userDetails.Div_ID,
+                userDivisions
               }
             })
             .then(resp => {
@@ -69,36 +76,32 @@ const Inventory = () => {
                 let allProducts = []
                 if (resp.data.allProducts) {
                   resp.data.allProducts.map((product, index) => {
+                    
                     let productRow = {
                       srNo: <Typography data={product}>{index + 1}</Typography>,
-                      productName: <Typography>{product.productDetails && product.productDetails[0].PName}</Typography>,
+                      productName: <Typography>{product.productDetails[0].PName}</Typography>,
+                      
+                      stock:
+                        product.stockDetails[0].CurrentStock > product.stockDetails[0].LowStockLimit ? (
+                          // <Chip label={product.stockDetails[0].CurrentStock} color='success' />
+                          <CustomChip size='small' skin='light' color='success' label={product.stockDetails[0].CurrentStock} icon={<CheckCircle fontSize='small' />}/>
+                        ) : (
+                          // <Chip label={product.stockDetails[0].CurrentStock} color='danger' />
+                          <CustomChip size='small' skin='light' color='error' label={product.stockDetails[0].CurrentStock} icon={<Exclamation fontSize='small' />}/>
+                        ),
                       division: (
                         <Typography>
-                          {divs.map(function (div) {
-                            if (product.stockDetails && div.Div_ID === product.stockDetails[0].Div_ID) {
-                              return div.DivisionName
+                          {divs.map(div => {
+                            console.log(div.Div_ID, product.stockDetails[0].Div_ID , div.DivisionName, product.productDetails[0].PName)
+                            if (div.Div_ID === product.stockDetails[0].Div_ID) {
+                              return <CustomChip size='small' skin='light' color='primary' label={div.DivisionName} />
                             }
                           })}
                         </Typography>
                       ),
-                      stock:
-                        product.stockDetails &&
-                        (product.stockDetails[0].CurrentStock > product.stockDetails[0].LowStockLimit ? (
-                          // <Chip label={product.stockDetails[0].CurrentStock} color='success' />
-                          <Chip label={product.stockDetails[0].CurrentStock} sx={{ color: 'green' }} />
-                        ) : (
-                          // <Chip label={product.stockDetails[0].CurrentStock} color='danger' />
-                          <Chip label={product.stockDetails[0].CurrentStock} sx={{ color: 'red' }} />
-                        ))
+                      status: getStatusText(product.productDetails[0].status)
                     }
-                    if (userDetails.Role_ID == 4) {
-                      console.log("inside" , userDivisions , product.stockDetails[0].Div_ID)
-                      if (product.stockDetails && userDivisions.includes(String(product.stockDetails[0].Div_ID))) {
-                        allProducts.push(productRow)
-                      }
-                    } else {
-                      allProducts.push(productRow)
-                    }
+                    allProducts.push(productRow)
                   })
                 }
 
@@ -106,11 +109,9 @@ const Inventory = () => {
                 setShowLoader(false)
               }
             })
-        : setShowLoader(true)
+        : null
     }
   }
-
-  console.log(userDivisions)
 
   useEffect(() => {
     getAllDivisions()
@@ -155,8 +156,9 @@ const Inventory = () => {
               columns={[
                 { id: 'srNo', label: 'Sr No.' },
                 { id: 'productName', label: 'Product Name' },
+                { id: 'stock', label: 'Stock Available' },
                 { id: 'division', label: 'Division' },
-                { id: 'stock', label: 'Stock Available' }
+                { id: 'status' , label: 'Status'}
 
                 // { id: 'actions', label: 'Actions', minWidth: 170 }
               ]}
@@ -167,6 +169,7 @@ const Inventory = () => {
                   setShowEditProductForm(true)
                 }
               }}
+              reload={getProducts}
             />
           ) : showLoader ? (
             <CircularProgress
