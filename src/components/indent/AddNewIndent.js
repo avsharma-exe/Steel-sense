@@ -6,6 +6,8 @@ import Drawer from '@mui/material/Drawer'
 import Select from '@mui/material/Select'
 import Button from '@mui/material/Button'
 import MenuItem from '@mui/material/MenuItem'
+import CircularProgress from '@mui/material/CircularProgress'
+
 import { styled } from '@mui/material/styles'
 import TextField from '@mui/material/TextField'
 import InputLabel from '@mui/material/InputLabel'
@@ -32,22 +34,9 @@ import { InputAdornment } from '@mui/material'
 import { Console } from 'mdi-material-ui'
 
 const schema = yup.object().shape({
-  quantity: yup
-    .number()
-    .typeError('Quantity to be ordered is required')
-    .required(),
-  description: yup
-    .string()
-    .required(),
-
+  quantity: yup.number().typeError('Quantity to be ordered is required').required(),
+  description: yup.string().required()
 })
-
-const defaultValues = {
-  quantity: '',
-  description: '',
-  expected_date: '',
-  current_stock: ''
-}
 
 const Header = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -62,8 +51,8 @@ const AddNewIndent = props => {
   const [product, setProduct] = useState()
   const [product_stock, setProductStock] = useState()
   const userDetails = useUserDetails()
+  const [createIndent, setCreateIndent] = useState(false)
   const [ex_date, setExDate] = useState(new Date())
-
 
   const {
     reset,
@@ -72,67 +61,64 @@ const AddNewIndent = props => {
     handleSubmit,
     formState: { errors }
   } = useForm({
-    defaultValues,
+    defaultValues: {
+      description: '',
+      expected_date: '',
+      current_stock: ''
+    },
     mode: 'onChange',
     resolver: yupResolver(schema)
   })
 
   const getProductDetails = async () => {
-    await secureApi.get(api_configs.product.getProductByID, { params: { product: productDetails.id } }).then(res => {
+    await secureApi
+      .get(api_configs.product.getProductByID, {
+        params: { product: productDetails.id, division: productDetails.division }
+      })
+      .then(res => {
         if (productDetails.id && res.data.product.length > 0) {
-            // console.log(res.data);
           setProduct(res.data.product[0])
           setProductStock(res.data.p_stock[0])
         }
       })
   }
 
-  // const getAllDivision = async () => {
-  //   await secureApi.get(api_configs.division.getAll, { params: { coid: userDetails.Co_ID } }).then(res => {
-  //     if (res.data.allDivisions.length > 0) {
-  //       let allDivision = []
-  //       res.data.allDivisions.map(div => {
-  //         allDivision.push({ id: div.Div_ID, label: div.DivisionName })
-  //       })
-  //       setAllDivision(allDivision)
-  //     }
-  //   })
-  // }
-
   const addIndent = async data => {
+    setCreateIndent(true)
     data['expected_date'] = ex_date
     data['productName'] = product.PName
 
-    // console.log()
+    console.log(data)
     const body = {
-      indent : {
-        Co_ID : userDetails.Co_ID,
-        Div_ID : userDetails.Div_ID,
-        user : userDetails.User_ID
+      indent: {
+        Co_ID: userDetails.Co_ID,
+        Div_ID: userDetails.Div_ID,
+        user: userDetails.User_ID
       },
-      indent_particulars : {
-        Description : data.description,
-        P_ID : productDetails.id,
-        Quantity : data.quantity,
-        CurrentStatus : 0,
-        ExpectedDate : data.expected_date.getFullYear() +
-        '-' + parseInt(data.expected_date.getMonth() + 1) +
-        '-' + data.expected_date.getDate() +
-        ' ' + data.expected_date.getHours() +
-        ':' + data.expected_date.getMinutes(),
+      indent_particulars: {
+        Description: data.description,
+        P_ID: productDetails.id,
+        Quantity: data.quantity,
+        CurrentStatus: 0,
+        ExpectedDate:
+          data.expected_date.getFullYear() +
+          '-' +
+          parseInt(data.expected_date.getMonth() + 1) +
+          '-' +
+          data.expected_date.getDate()
+          
       }
     }
-    await secureApi
-      .post(api_configs.indent.create, body)
-      .then(res => {
-        // console.log()
-        if (!res.data.error) {
-          // console.log('Error aa gaya')
-        }
-        toggle()
-        updateDashboard()
-        reset()
-      })
+    await secureApi.post(api_configs.indent.create, body).then(res => {
+    setCreateIndent(false)
+      // console.log()
+      if (!res.data.error) {
+        console.log('erorr occured')
+      }
+      toggle()
+      updateDashboard()
+      reset()
+    })
   }
 
   const onSubmit = async data => {
@@ -144,6 +130,7 @@ const AddNewIndent = props => {
   const handleClose = () => {
     reset()
     toggle()
+    setCreateIndent(false)
   }
 
   useEffect(() => {
@@ -166,22 +153,39 @@ const AddNewIndent = props => {
       <Box sx={{ p: 5 }}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormControl fullWidth sx={{ mb: 6 }}>
-            <Controller
-              name='productName'
-              control={control}
-              render={({ field: { value, onChange } }) => (
-                <TextField
-                  value = {productDetails ? productDetails.name : ''}
-                  disabled
-
-                  // label='Product Name'
-                  onChange={onChange}
-                  placeholder=''
-                  error={Boolean(errors.firstName)}
+            <Typography>
+              <b>Product Name -</b>{' '}
+              {productDetails ? (
+                productDetails.name
+              ) : (
+                <CircularProgress
+                  sx={{
+                    color: 'common.black',
+                    width: '20px !important',
+                    height: '20px !important',
+                    mr: theme => theme.spacing(2)
+                  }}
                 />
               )}
-            />
-            {errors.productName && <FormHelperText sx={{ color: 'error.main' }}>{errors.productName.message}</FormHelperText>}
+            </Typography>
+          </FormControl>
+
+          <FormControl fullWidth sx={{ mb: 6 }}>
+            <Typography>
+              <b>Current Stock -</b>{' '}
+              {product_stock ? (
+                product_stock.CurrentStock
+              ) : (
+                <CircularProgress
+                  sx={{
+                    color: 'common.black',
+                    width: '20px !important',
+                    height: '20px !important',
+                    mr: theme => theme.spacing(2)
+                  }}
+                />
+              )}
+            </Typography>
           </FormControl>
           <FormControl fullWidth sx={{ mb: 6 }}>
             <Controller
@@ -192,7 +196,7 @@ const AddNewIndent = props => {
                 <TextField
                   value={value}
                   type='number'
-                  label='Quantity'
+                  label='Required Quantity'
                   onChange={onChange}
                   placeholder='10'
                   error={Boolean(errors.quantity)}
@@ -206,30 +210,13 @@ const AddNewIndent = props => {
           </FormControl>
           <FormControl fullWidth sx={{ mb: 6 }}>
             <Controller
-              name='current_stock'
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <TextField
-                  disabled
-                  value={product_stock ? product_stock.CurrentStock : null}
-                  type='number'
-                  onChange={onChange}
-                  error={Boolean(errors.current_stock)}
-                />
-              )}
-            />
-            {errors.current_stock && <FormHelperText sx={{ color: 'error.main' }}>{errors.current_stock.message}</FormHelperText>}
-          </FormControl>
-          <FormControl fullWidth sx={{ mb: 6 }}>
-            <Controller
               name='expected_date'
               control={control}
               rules={{ required: true }}
               render={({ field: { value, onChange } }) => (
                 <LocalizationProvider dateAdapter={AdapterDateFns} fullWidth>
                   <DatePicker
-                    name= 'expected_date'
+                    name='expected_date'
                     fullWidth
                     label='Expected Date'
                     value={ex_date}
@@ -239,7 +226,9 @@ const AddNewIndent = props => {
                 </LocalizationProvider>
               )}
             />
-            {errors.expected_date && <FormHelperText sx={{ color: 'error.main' }}>{errors.expected_date.message}</FormHelperText>}
+            {errors.expected_date && (
+              <FormHelperText sx={{ color: 'error.main' }}>{errors.expected_date.message}</FormHelperText>
+            )}
           </FormControl>
           <FormControl fullWidth sx={{ mb: 6 }}>
             <Controller
@@ -256,12 +245,25 @@ const AddNewIndent = props => {
                 />
               )}
             />
-            {errors.description && <FormHelperText sx={{ color: 'error.main' }}>{errors.description.message}</FormHelperText>}
+            {errors.description && (
+              <FormHelperText sx={{ color: 'error.main' }}>{errors.description.message}</FormHelperText>
+            )}
           </FormControl>
 
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Button size='large' type='submit' variant='contained' sx={{ mr: 3 }}>
-              Save
+              {createIndent ? (
+                <CircularProgress
+                  sx={{
+                    color: 'common.white',
+                    width: '20px !important',
+                    height: '20px !important',
+                    mr: theme => theme.spacing(2)
+                  }}
+                />
+              ) : (
+                'Save'
+              )}
             </Button>
             <Button size='large' variant='outlined' color='secondary' onClick={handleClose}>
               Cancel
@@ -274,4 +276,3 @@ const AddNewIndent = props => {
 }
 
 export default AddNewIndent
-

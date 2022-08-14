@@ -118,6 +118,9 @@ const CreateStockInward = ({ indent, onClose, updateIncommingOreders }) => {
                 <Typography>
                   <b>Supplier -</b> {indent.CompanyName ? indent.CompanyName : ''}
                 </Typography>
+                <Typography>
+                  <b>Requested Quantity -</b> {indent.Quantity ? indent.Quantity + " " + indent.Unit : ''}
+                </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <FormControl fullWidth>
@@ -147,7 +150,14 @@ const CreateStockInward = ({ indent, onClose, updateIncommingOreders }) => {
                   type="number"
 
                   placeholder='12'
-                  onChange={e => setQuantity(e.target.value)}
+                  onChange={e => {
+                    setQuantity(e.target.value)
+                    if(e.target.value >= parseInt(indent.Quantity)) {
+                      setStatus(50)
+                    } else {
+                      setStatus(99)
+                    }
+                  }}
                   InputProps={{
                     endAdornment: <InputAdornment position='end'>{productUnit && productUnit.UnitName}</InputAdornment>,
                     inputProps: { min: 0, max: indent.Quantity }
@@ -156,18 +166,19 @@ const CreateStockInward = ({ indent, onClose, updateIncommingOreders }) => {
               </Grid>
 
               <Grid item xs={12} sm={6}>
-                <Select
+                <TextField
                   value={status}
                   label='Status'
                   onChange={e => setStatus(e.target.value)}
-                  style={{width: "100%"}}
+                  style={{width: "100%", color: "black"}}
                   placeholder='Status'
                   labelId='stepper-linear-personal-country'
                   aria-describedby='stepper-linear-personal-country-helper'
+                  select
                 >
-                  <MenuItem value='50'>- Fully Filled -</MenuItem>
-                  <MenuItem value='99'>- Partially Filled-</MenuItem>
-                </Select>
+                  <MenuItem key={1} value='50'>- Fully Filled -</MenuItem>
+                  <MenuItem key={1} value='99'>- Partially Filled-</MenuItem>
+                </TextField>
               </Grid>
             </Grid>
           </CardContent>

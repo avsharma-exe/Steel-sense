@@ -11,6 +11,8 @@ import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 import Checkbox from '@mui/material/Checkbox'
 import TextField from '@mui/material/TextField'
+import CircularProgress from '@mui/material/CircularProgress'
+
 import InputLabel from '@mui/material/InputLabel'
 import IconButton from '@mui/material/IconButton'
 import Box from '@mui/material/Box'
@@ -112,7 +114,7 @@ const defaultValues = {
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false)
-
+  const [login, setLogin] = useState(false)
   // ** Hooks
   const auth = useAuth()
   const theme = useTheme()
@@ -135,6 +137,7 @@ const LoginPage = () => {
   })
 
   const onSubmit = data => {
+    setLogin(true)
     const { email, password } = data
 
     auth.login({ email, password }, error => {
@@ -143,13 +146,13 @@ const LoginPage = () => {
           type: 'manual',
           message: error.msg
         })
-      }
-      else if (error.msg === 'User Not Found') {
+      } else if (error.msg === 'User Not Found') {
         setError('email', {
           type: 'manual',
           message: error.msg
         })
       }
+      setLogin(false)
     })
   }
   const imageSource = skin === 'bordered' ? 'auth-v2-login-illustration-bordered' : 'auth-v2-login-illustration'
@@ -341,7 +344,18 @@ const LoginPage = () => {
                 </Link>
               </Box>
               <Button fullWidth size='large' type='submit' variant='contained' sx={{ mb: 7 }}>
-                Login
+                {login ? (
+                  <CircularProgress
+                    sx={{
+                      color: 'common.white',
+                      width: '20px !important',
+                      height: '20px !important',
+                      mr: theme => theme.spacing(2)
+                    }}
+                  />
+                ) : (
+                  'Login'
+                )}
               </Button>
             </form>
           </BoxWrapper>

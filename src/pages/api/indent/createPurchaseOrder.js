@@ -13,6 +13,9 @@ export default async function handler(req, res) {
     const inward = body.inward
     delete body.inward
     let ExpectedDate = body.ExpectedDate
+    ExpectedDate = ExpectedDate.split("-").reverse()
+    ExpectedDate = ExpectedDate.join("-")
+    console.log(ExpectedDate)
     let indent = body.indent
     delete body.InvoiceDate
     delete body.ExpectedDate

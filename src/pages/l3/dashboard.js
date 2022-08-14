@@ -10,6 +10,7 @@ import { getIndentStatusText } from 'src/helpers/statusHelper'
 import useUserDivisions from 'src/hooks/useUserDivisions'
 import CreateStockInward from 'src/components/indent/CreateStockInward'
 import CircularProgress from '@mui/material/CircularProgress'
+import displayDate from 'src/helpers/dateHelper'
 
 const Dashboard = () => {
   const userDetails = useUserDetails()
@@ -42,19 +43,23 @@ const Dashboard = () => {
     })
 
     if (incommingOrders.status === 200) {
-      
       let orders = []
       await incommingOrders.data.incommingOrders.forEach(order => {
-        if (order.length > 0)
+        if (order.length > 0) {
+          let expectedDate = order[0].ExpectedDate.split('T')[0]
+          let newDate = expectedDate.split('-')
+          newDate = new Date(newDate[0], parseInt(newDate[1]) - 1, newDate[2])
+
           orders.push({
             name: order[0].PName,
             qty: order[0].Quantity,
             t_info: order[0].TruckInfo,
+            expectedDate: displayDate(newDate),
             inward: (
               <Button
                 variant='contained'
                 color='primary'
-                style={{ color: 'white' }}
+                style={{ color: 'white', fontSize: 10 }}
                 onClick={() =>
                   setCreateStockInward({
                     show: true,
@@ -66,6 +71,7 @@ const Dashboard = () => {
               </Button>
             )
           })
+        }
       })
       setCreateStockInward({
         show: false,
@@ -89,7 +95,6 @@ const Dashboard = () => {
       .then(resp => {
         if (resp.status === 200) {
           setLowStockProducts(resp.data.allLowStockProducts)
-          // console.log('low stock', resp.data.allLowStockProducts)
         }
       })
     setLowStockLoader(false)
@@ -128,10 +133,11 @@ const Dashboard = () => {
       })
   }
 
-  const handleCreateIndent = ({ P_ID, PName }) => {
+  const handleCreateIndent = ({ P_ID, PName, Div_ID }) => {
     setProductDetails({
       id: P_ID,
-      name: PName
+      name: PName,
+      division: Div_ID
     })
     toggleAddIndentDrawer()
   }
@@ -160,6 +166,15 @@ const Dashboard = () => {
           updateIncommingOreders={getIncommingOders}
         />
       ) : null}
+      <AddNewIndent
+        open={addIndentOpen}
+        toggle={toggleAddIndentDrawer}
+        productDetails={productDetails}
+        updateDashboard={() => {
+          getIndents()
+          getLowStockProducts()
+        }}
+      />
       <Grid container spacing={6}>
         <Grid item md={6}>
           <Card sx={{ height: '100%' }}>
@@ -186,7 +201,8 @@ const Dashboard = () => {
                 <BasicTable
                   columns={[
                     { id: 'name', label: 'Name', minWidth: 170 },
-                    { id: 'qty', label: 'Quantity', minWidth: 170 },
+                    { id: 'expectedDate', label: 'Expected Date', minWidth: 170 },
+                    
                     { id: 'inward', label: 'Inward', minWidth: 170 }
                   ]}
                   rows={incommingOrders}
@@ -278,15 +294,20 @@ const Dashboard = () => {
                   ]}
                   rows={
                     !!indents && indents.length
-                      ? indents.map(indent => ({
-                          id: indent.P_Stock_Indent_ID,
-                          name: indent.PName,
-                          division: indent.DivisionName,
-                          qty: indent.Quantity,
-                          liod: 'Wed Jun 04 2022',
-                          eta: indent.ExpectedDate,
-                          status: getIndentStatusText(indent.CurrentStatus)
-                        }))
+                      ? indents.map(indent => {
+                          let expectedDate = indent.ExpectedDate.split('T')[0]
+                          let newDate = expectedDate.split('-')
+                          newDate = new Date(newDate[0], parseInt(newDate[1]) - 1, newDate[2])
+                          return {
+                            id: indent.P_Stock_Indent_ID,
+                            name: indent.PName,
+                            division: indent.DivisionName,
+                            qty: indent.Quantity,
+                            liod: 'Wed Jun 04 2022',
+                            eta: displayDate(newDate),
+                            status: getIndentStatusText(indent.CurrentStatus)
+                          }
+                        })
                       : []
                   }
                 />
@@ -294,10 +315,6 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         </Grid>
-        <AddNewIndent open={addIndentOpen} toggle={toggleAddIndentDrawer} productDetails={productDetails} updateDashboard={() => {
-          getIndents()
-          getLowStockProducts()
-        }}/>
       </Grid>
     </>
   )

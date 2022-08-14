@@ -55,6 +55,8 @@ export default {
     stockInOut: {
       createStockInward: "stockInOut/createStockInward",
       getAllInwards: "stockInOut/getAllCompanyInwards",
-      updateBillEntry: "stockInOut/updateBillEntry"
+      updateBillEntry: "stockInOut/updateBillEntry",
+      getBillEntries: "stockInOut/getPurchaseOrderForBillEntry",
+      getBillDetails: "stockInOut/getBillDetails"
     },
 }
