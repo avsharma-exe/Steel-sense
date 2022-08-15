@@ -202,7 +202,7 @@ const Dashboard = () => {
                   columns={[
                     { id: 'name', label: 'Name', minWidth: 170 },
                     { id: 'expectedDate', label: 'Expected Date', minWidth: 170 },
-                    
+
                     { id: 'inward', label: 'Inward', minWidth: 170 }
                   ]}
                   rows={incommingOrders}
