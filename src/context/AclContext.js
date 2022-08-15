@@ -87,26 +87,26 @@ const AclProvider = ({ children }) => {
             path: '/inventory',
             icon: DatabaseOutline
           },
-          {
-            title: 'Bill Entry',
-            path: '/l2/bill-entry',
-            icon: DatabaseArrowDownOutline
-          },
-          {
-            title: 'Invoice Due',
-            path: '/l2/invoice-due',
-            icon: DatabaseArrowUpOutline
-          },
-          {
-            title: 'Quotation',
-            path: '/l2/quotation',
-            icon: ClipboardListOutline
-          },
-          {
-            title: 'Purchase Order',
-            path: '/l2/purchase-order',
-            icon: ClipboardListOutline
-          },
+          // {
+          //   title: 'Bill Entry',
+          //   path: '/l2/bill-entry',
+          //   icon: DatabaseArrowDownOutline
+          // },
+          // {
+          //   title: 'Invoice Due',
+          //   path: '/l2/invoice-due',
+          //   icon: DatabaseArrowUpOutline
+          // },
+          // {
+          //   title: 'Quotation',
+          //   path: '/l2/quotation',
+          //   icon: ClipboardListOutline
+          // },
+          // {
+          //   title: 'Purchase Order',
+          //   path: '/l2/purchase-order',
+          //   icon: ClipboardListOutline
+          // },
           {
             title: 'Suppliers',
             path: '/l2/all-suppliers',
@@ -125,21 +125,21 @@ const AclProvider = ({ children }) => {
             path: '/inventory',
             icon: DatabaseOutline
           },
-          {
-            title: 'Stock Inward',
-            path: '/l3/stockInward',
-            icon: DatabaseArrowDownOutline
-          },
-          {
-            title: 'Stock Usage',
-            path: '/l3/stockOutward',
-            icon: DatabaseArrowUpOutline
-          },
-          {
-            title: 'Indent',
-            path: '/l3/indent',
-            icon: ClipboardListOutline
-          }
+          // {
+          //   title: 'Stock Inward',
+          //   path: '/l3/stockInward',
+          //   icon: DatabaseArrowDownOutline
+          // },
+          // {
+          //   title: 'Stock Usage',
+          //   path: '/l3/stockOutward',
+          //   icon: DatabaseArrowUpOutline
+          // },
+          // {
+          //   title: 'Indent',
+          //   path: '/l3/indent',
+          //   icon: ClipboardListOutline
+          // }
         ]
     }
   }
