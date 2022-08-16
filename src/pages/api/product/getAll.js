@@ -11,36 +11,34 @@ export default async function handler(req, res) {
   let Co_ID = req.query.company
 
   try {
-    let getAllProducts = await Product.Read.getAllProductsIDsOfACompany(Co_ID)
-    let allProducts = []
-    if(getAllProducts.length === 0) res.send({
-      error: true,
-      msg: "Products Not Found"
-    })
-
-    for (let i = 0; i < getAllProducts.length; i++) {
-      let product = getAllProducts[i]
-      const productDetails = await Product.Read.getProductMasterData(product.P_ID)
-      const priceDetails = await Product.Read.getProductPriceDetailsData(product.P_ID)
-      const stockDetails = await Product.Read.getProductStockData(product.P_ID,product.Div_ID)
-      
-      console.log(stockDetails)
-
-      let product_details = {
-        productDetails,
-        priceDetails,
-        stockDetails
-      }
-
-      // console.log("index" , getAllProducts.length , i)
-      allProducts.push(product_details)
-      if (i >= getAllProducts.length - 1) {
-        res.send({
-          error: false,
-          allProducts
-        })
-      }
+    let allProducts = await Product.Read.getAllProductsIDsOfACompany(Co_ID)
+    if(allProducts.length === 0){
+      res.send({
+        error: true,
+        msg: "Products Not Found"
+      })
+    } else {
+      res.send({
+        error: false,
+        allProducts
+      })
     }
+
+    // let p_id = getAllProducts.filter(p => {return(p.P_ID)})
+
+    // const productDetails = await Product.Read.getProductMasterData(p_id)
+    // const priceDetails = await Product.Read.getProductPriceDetailsData(p_id)
+    // const stockDetails = await Product.Read.getProductStockData(Co_ID,Div_ID)
+
+
+    // let product_details = {
+    //   productDetails,
+    //   priceDetails,
+    //   stockDetails
+    // }
+
+    // console.log("index" , getAllProducts.length , i)
+    // allProducts.push(product_details)
   } catch (e) {
     throw e
   }
