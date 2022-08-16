@@ -84,7 +84,7 @@ const Inventory = () => {
                             size='small'
                             skin='light'
                             color='success'
-                            label={product.CurrentStock}
+                            label={product.CurrentStock + " " + product.Unit}
                             icon={<CheckCircle fontSize='small' />}
                           />
                         ) : (
@@ -93,7 +93,7 @@ const Inventory = () => {
                             size='small'
                             skin='light'
                             color='error'
-                            label={product.CurrentStock}
+                            label={product.CurrentStock + " " + product.Unit}
                             icon={<Exclamation fontSize='small' />}
                           />
                         ),

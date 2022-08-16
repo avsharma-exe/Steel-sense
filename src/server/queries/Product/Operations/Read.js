@@ -45,7 +45,7 @@ function getAllProductsIDsOfACompany(co_id) {
 
 function getAllProductsIDsOfACompanyByDivision(co_id , divisions) {
   return executeQuery({
-    query: `SELECT pcd.P_ID, pcd.Div_ID, pm.PName, ppd.Unit, pm.status, ppd.PurchasePrice, ppd.LastPurchasePrice, ps.CurrentStock, ps.LastStock,  ppd.LowStockLimit, ppd.MaxStockLimit
+    query: `SELECT pcd.P_ID, pcd.Div_ID, pm.PName, ppd.Unit, pm.status, ppd.PurchasePrice, ppd.LastPurchasePrice, ps.CurrentStock, ps.LastStock,  ps.LowStockLimit, ps.MaxStockLimit
             FROM Product_Company_Division pcd
             LEFT JOIN Product_Master pm on pm.P_ID = pcd.P_ID
             LEFT JOIN Product_Price_Details ppd on ppd.P_ID = pcd.P_ID
