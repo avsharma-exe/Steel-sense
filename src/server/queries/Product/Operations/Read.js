@@ -31,8 +31,9 @@ function getAllProducts(co_id) {
  */
 function getAllProductsIDsOfACompany(co_id) {
   return executeQuery({
-    query: `SELECT pcd.P_ID, pcd.Div_ID, pm.PName, pm.status, ppd.PurchasePrice, ppd.LastPurchasePrice, ps.CurrentStock, ps.LastStock
+    query: `SELECT pcd.P_ID, pcd.Div_ID, pm.PName, ppd.Unit, pm.status, ppd.PurchasePrice, ppd.LastPurchasePrice, ps.CurrentStock, ps.LastStock,  ps.LowStockLimit, ps.MaxStockLimit,  dm.DivisionName
             FROM Product_Company_Division pcd
+            LEFT JOIN Division_Master dm on dm.Div_ID = pcd.Div_ID
             LEFT JOIN Product_Master pm on pm.P_ID = pcd.P_ID
             LEFT JOIN Product_Price_Details ppd on ppd.P_ID = pcd.P_ID
             LEFT JOIN Product_Stock ps on ps.P_ID = pcd.P_ID and ps.Div_ID = pcd.Div_ID
@@ -43,7 +44,7 @@ function getAllProductsIDsOfACompany(co_id) {
 
 function getAllProductsIDsOfACompanyByDivision(co_id , divisions) {
   return executeQuery({
-    query: `SELECT pcd.P_ID, pcd.Div_ID, pm.PName, pm.status, ppd.PurchasePrice, ppd.LastPurchasePrice, ps.CurrentStock, ps.LastStock
+    query: `SELECT pcd.P_ID, pcd.Div_ID, pm.PName, ppd.Unit, pm.status, ppd.PurchasePrice, ppd.LastPurchasePrice, ps.CurrentStock, ps.LastStock,  ppd.LowStockLimit, ppd.MaxStockLimit
             FROM Product_Company_Division pcd
             LEFT JOIN Product_Master pm on pm.P_ID = pcd.P_ID
             LEFT JOIN Product_Price_Details ppd on ppd.P_ID = pcd.P_ID

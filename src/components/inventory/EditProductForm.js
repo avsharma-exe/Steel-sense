@@ -46,18 +46,18 @@ const stockDetailsSchema = yup.object().shape({
 const EditProductForm = ({ product, onCloseHandle, getProducts }) => {
   const userDetails = useUserDetails();
   const [productDetails, setProductDetails] = useState(
-    product.productDetails && product.priceDetails
+    product
       ? {
-          P_ID: product.productDetails[0].P_ID,
-          PName: product.productDetails[0].PName,
-          Unit: product.priceDetails[0].Unit,
-          PricePerUnit: product.priceDetails[0].PurchasePrice
+          P_ID: product.P_ID,
+          PName: product.PName,
+          Unit: product.Unit,
+          PricePerUnit: product.PurchasePrice
         }
       : null
   )
   const [value, setValue] = useState('product-info')
   const [loader, setLoader] = useState(false)
-  const [stockDetails, setStockDetails] = useState(product.stockDetails ? product.stockDetails : [])
+  const [stockDetails, setStockDetails] = useState(product ? [product] : [])
   const [stockDivisionTabs, setStockDivisionTabs] = useState(0)
 
   const {
@@ -66,9 +66,9 @@ const EditProductForm = ({ product, onCloseHandle, getProducts }) => {
     formState: { errors: productDetailsError }
   } = useForm({
     defaultValues: {
-      PName: product.productDetails[0].PName,
-      Unit: product.priceDetails[0].Unit,
-      PricePerUnit: product.priceDetails[0].PurchasePrice
+      PName: product.PName,
+      Unit: product.Unit,
+      PricePerUnit: product.PurchasePrice
     },
     resolver: yupResolver(productDetailsSchema)
   })
@@ -80,9 +80,9 @@ const EditProductForm = ({ product, onCloseHandle, getProducts }) => {
     formState: { errors: stockDetailsError }
   } = useForm({
     defaultValues: {
-      CurrentStock: product.stockDetails[0].CurrentStock,
-      LowStockLimit: product.stockDetails[0].LowStockLimit,
-      MaxStockLimit: product.stockDetails[0].MaxStockLimit
+      CurrentStock: product.CurrentStock,
+      LowStockLimit: product.LowStockLimit,
+      MaxStockLimit: product.MaxStockLimit
     },
     resolver: yupResolver(stockDetailsSchema)
   })

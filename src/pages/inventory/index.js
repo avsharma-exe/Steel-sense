@@ -14,15 +14,13 @@ import AddProductForm from '../../components/inventory/AddProductForm'
 import { secureApi } from 'src/helpers/apiGenerator'
 import api_configs from 'src/configs/api_configs'
 import useUserDetails from 'src/hooks/useUserDetails'
-import Tooltip from '@mui/material/Tooltip'
-import Chip from '@mui/material/Chip'
 import CircularProgress from '@mui/material/CircularProgress'
 import EditProductForm from 'src/components/inventory/EditProductForm'
 import useUserDivisions from 'src/hooks/useUserDivisions'
 import CustomChip from 'src/@core/components/mui/chip'
 import { getStatusText } from 'src/helpers/statusHelper'
-import Exclamation from 'mdi-material-ui/Exclamation';
-import CheckCircle from 'mdi-material-ui/CheckCircle';
+import Exclamation from 'mdi-material-ui/Exclamation'
+import CheckCircle from 'mdi-material-ui/CheckCircle'
 
 const Inventory = () => {
   const userDetails = useUserDetails()
@@ -47,7 +45,6 @@ const Inventory = () => {
       if (!userDivisions.includes('0')) {
         setDivisions(
           allDivs.data.allDivisions.filter(function (div) {
-
             if (userDivisions.includes(String(div.Div_ID))) {
               return div
             }
@@ -64,7 +61,7 @@ const Inventory = () => {
       setShowLoader(true)
       divs
         ? secureApi
-            .get(userDivisions.includes('0') ? api_configs.product.getAll  : api_configs.product.getDivProducts, {
+            .get(userDivisions.includes('0') ? api_configs.product.getAll : api_configs.product.getDivProducts, {
               params: {
                 company: userDetails.Co_ID,
                 div_id: userDetails.Div_ID,
@@ -76,7 +73,6 @@ const Inventory = () => {
                 let allProducts = []
                 if (resp.data.allProducts) {
                   resp.data.allProducts.map((product, index) => {
-
                     let productRow = {
                       srNo: <Typography data={product}>{index + 1}</Typography>,
                       productName: <Typography>{product.PName}</Typography>,
@@ -84,15 +80,27 @@ const Inventory = () => {
                       stock:
                         product.CurrentStock > product.LowStockLimit ? (
                           // <Chip label={product.CurrentStock} color='success' />
-                          <CustomChip size='small' skin='light' color='success' label={product.CurrentStock} icon={<CheckCircle fontSize='small' />}/>
+                          <CustomChip
+                            size='small'
+                            skin='light'
+                            color='success'
+                            label={product.CurrentStock}
+                            icon={<CheckCircle fontSize='small' />}
+                          />
                         ) : (
                           // <Chip label={product.CurrentStock} color='danger' />
-                          <CustomChip size='small' skin='light' color='error' label={product.CurrentStock} icon={<Exclamation fontSize='small' />}/>
+                          <CustomChip
+                            size='small'
+                            skin='light'
+                            color='error'
+                            label={product.CurrentStock}
+                            icon={<Exclamation fontSize='small' />}
+                          />
                         ),
                       division: (
                         <Typography>
                           {divs.map(div => {
-                            console.log(div.Div_ID, product.Div_ID , div.DivisionName, product.PName)
+                            console.log(div.Div_ID, product.Div_ID, div.DivisionName, product.PName)
                             if (div.Div_ID === product.Div_ID) {
                               return <CustomChip size='small' skin='light' color='primary' label={div.DivisionName} />
                             }
@@ -158,7 +166,7 @@ const Inventory = () => {
                 { id: 'productName', label: 'Product Name' },
                 { id: 'stock', label: 'Stock Available' },
                 { id: 'division', label: 'Division' },
-                { id: 'status' , label: 'Status'}
+                { id: 'status', label: 'Status' }
 
                 // { id: 'actions', label: 'Actions', minWidth: 170 }
               ]}
