@@ -11,7 +11,8 @@ const Read = {
   getProductAllDetails,
   getLowStockProducts,
   getAllDivsionProducts,
-  getAllProductsIDsOfACompanyByDivision
+  getAllProductsIDsOfACompanyByDivision,
+  getProductStockDataByID
 }
 
 /**
@@ -71,7 +72,7 @@ function getAllDivsionProducts(co_id,divisions) {
  */
 function getProductMasterData(p_id) {
   return executeQuery({
-    query: `SELECT * FROM Product_Master WHERE P_ID in ?`,
+    query: `SELECT * FROM Product_Master WHERE P_ID in (?)`,
     values: [p_id]
   })
 }
@@ -83,7 +84,7 @@ function getProductMasterData(p_id) {
  */
 function getProductPriceDetailsData(p_id) {
   return executeQuery({
-    query: `SELECT * FROM Product_Price_Details WHERE P_ID in ?`,
+    query: `SELECT * FROM Product_Price_Details WHERE P_ID in (?)`,
     values: [p_id]
   })
 }
@@ -107,10 +108,23 @@ function getProductUnitData(p_id) {
  */
 function getProductStockData(co_id,div_id) {
   return executeQuery({
-    query: `SELECT * FROM Product_Stock join Division_Master on Division_Master.Div_ID = Product_Stock.Div_ID WHERE Co_ID = ? AND Product_Stock.Div_ID = ?`,
+    query: `SELECT * FROM Product_Stock join Division_Master on Division_Master.Div_ID = Product_Stock.Div_ID WHERE Product_Stock.Co_ID = ? AND Product_Stock.Div_ID = ?`,
     values: [co_id, div_id]
   })
 }
+
+/**
+ * Fetches All the product stock details for a given product id
+ * @param {*} p_id
+ * @returns database data from Product_Stock table
+ */
+ function getProductStockDataByID(p_id,div_id) {
+  return executeQuery({
+    query: `SELECT * FROM Product_Stock join Division_Master on Division_Master.Div_ID = Product_Stock.Div_ID WHERE Product_Stock.P_ID = ? AND Product_Stock.Div_ID = ?`,
+    values: [p_id, div_id]
+  })
+}
+
 
 /**
  * Fetches All the product GST details for a given product id
