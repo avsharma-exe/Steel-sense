@@ -7,6 +7,7 @@ import Select from '@mui/material/Select'
 import Button from '@mui/material/Button'
 import MenuItem from '@mui/material/MenuItem'
 import CircularProgress from '@mui/material/CircularProgress'
+import CustomChip from 'src/@core/components/mui/chip'
 
 import { styled } from '@mui/material/styles'
 import TextField from '@mui/material/TextField'
@@ -106,11 +107,10 @@ const AddNewIndent = props => {
           parseInt(data.expected_date.getMonth() + 1) +
           '-' +
           data.expected_date.getDate()
-          
       }
     }
     await secureApi.post(api_configs.indent.create, body).then(res => {
-    setCreateIndent(false)
+      setCreateIndent(false)
       // console.log()
       if (!res.data.error) {
         console.log('erorr occured')
@@ -173,8 +173,36 @@ const AddNewIndent = props => {
           <FormControl fullWidth sx={{ mb: 6 }}>
             <Typography>
               <b>Current Stock -</b>{' '}
-              {product_stock ? (
-                product_stock.CurrentStock
+              {product_stock && product ? (
+                <CustomChip
+                  size='small'
+                  skin='light'
+                  color='error'
+                  label={product_stock.CurrentStock + ' ' + product.UnitName}
+                />
+              ) : (
+                <CircularProgress
+                  sx={{
+                    color: 'common.black',
+                    width: '20px !important',
+                    height: '20px !important',
+                    mr: theme => theme.spacing(2)
+                  }}
+                />
+              )}
+            </Typography>
+          </FormControl>
+          <FormControl fullWidth sx={{ mb: 6 }}>
+            <Typography>
+              <b>Min Stock Required - </b>{' '}
+              {product_stock && product ? (
+                <CustomChip
+                size='small'
+                skin='light'
+                color='success'
+                label={product_stock.LowStockLimit + ' ' + product.UnitName}
+              />
+                
               ) : (
                 <CircularProgress
                   sx={{
