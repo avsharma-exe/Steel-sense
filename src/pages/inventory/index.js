@@ -47,7 +47,7 @@ const Inventory = () => {
       if (!userDivisions.includes('0')) {
         setDivisions(
           allDivs.data.allDivisions.filter(function (div) {
-            
+
             if (userDivisions.includes(String(div.Div_ID))) {
               return div
             }
@@ -76,30 +76,30 @@ const Inventory = () => {
                 let allProducts = []
                 if (resp.data.allProducts) {
                   resp.data.allProducts.map((product, index) => {
-                    
+
                     let productRow = {
                       srNo: <Typography data={product}>{index + 1}</Typography>,
-                      productName: <Typography>{product.productDetails[0].PName}</Typography>,
-                      
+                      productName: <Typography>{product.PName}</Typography>,
+
                       stock:
-                        product.stockDetails[0].CurrentStock > product.stockDetails[0].LowStockLimit ? (
-                          // <Chip label={product.stockDetails[0].CurrentStock} color='success' />
-                          <CustomChip size='small' skin='light' color='success' label={product.stockDetails[0].CurrentStock} icon={<CheckCircle fontSize='small' />}/>
+                        product.CurrentStock > product.LowStockLimit ? (
+                          // <Chip label={product.CurrentStock} color='success' />
+                          <CustomChip size='small' skin='light' color='success' label={product.CurrentStock} icon={<CheckCircle fontSize='small' />}/>
                         ) : (
-                          // <Chip label={product.stockDetails[0].CurrentStock} color='danger' />
-                          <CustomChip size='small' skin='light' color='error' label={product.stockDetails[0].CurrentStock} icon={<Exclamation fontSize='small' />}/>
+                          // <Chip label={product.CurrentStock} color='danger' />
+                          <CustomChip size='small' skin='light' color='error' label={product.CurrentStock} icon={<Exclamation fontSize='small' />}/>
                         ),
                       division: (
                         <Typography>
                           {divs.map(div => {
-                            console.log(div.Div_ID, product.stockDetails[0].Div_ID , div.DivisionName, product.productDetails[0].PName)
-                            if (div.Div_ID === product.stockDetails[0].Div_ID) {
+                            console.log(div.Div_ID, product.Div_ID , div.DivisionName, product.PName)
+                            if (div.Div_ID === product.Div_ID) {
                               return <CustomChip size='small' skin='light' color='primary' label={div.DivisionName} />
                             }
                           })}
                         </Typography>
                       ),
-                      status: getStatusText(product.productDetails[0].status)
+                      status: getStatusText(product.status)
                     }
                     allProducts.push(productRow)
                   })
