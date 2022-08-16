@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     for (let i = 0; i < getLowStockProducts.length; i++) {
       let product = getLowStockProducts[i]
       const productDetails = await Product.Read.getProductMasterData(product.P_ID)
-
+      console.log(productDetails)
       product['PName'] = productDetails[0]['PName']
 
       // console.log('index', product, i)
