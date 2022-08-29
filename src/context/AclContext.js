@@ -11,6 +11,7 @@ import ClipboardListOutline from 'mdi-material-ui/ClipboardListOutline'
 import HomeOutline from 'mdi-material-ui/HomeOutline'
 import AccountOutline from 'mdi-material-ui/AccountOutline'
 import Domain from 'mdi-material-ui/Domain'
+
 import ShieldOutline from 'mdi-material-ui/ShieldOutline'
 
 // ** Next Import
@@ -111,6 +112,11 @@ const AclProvider = ({ children }) => {
             title: 'Suppliers',
             path: '/l2/all-suppliers',
             icon: Domain
+          },
+          {
+            title: 'Bill Entries',
+            path: '/l2/all-bills',
+            icon: ClipboardListOutline
           }
         ]
       case 'L3':

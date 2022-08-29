@@ -9,6 +9,14 @@ import {
   Creation
 } from 'mdi-material-ui'
 import BasicTable from 'src/components/utils/BasicTable'
+import Autocomplete from '@mui/material/Autocomplete'
+import DatePicker from '@mui/lab/DatePicker'
+import TextField from '@mui/material/TextField'
+import { InputAdornment } from '@mui/material'
+
+import LocalizationProvider from '@mui/lab/LocalizationProvider'
+import AdapterDateFns from '@mui/lab/AdapterDateFns'
+
 import EyeOutline from 'mdi-material-ui/EyeOutline'
 import PencilOutline from 'mdi-material-ui/PencilOutline'
 import Box from '@mui/material/Box'
@@ -31,6 +39,7 @@ import DialogContentText from '@mui/material/DialogContentText'
 import CreateProductInward from 'src/components/indent/CreateProductInward'
 import displayDate from 'src/helpers/dateHelper'
 import useUserDivisions from 'src/hooks/useUserDivisions'
+import CreateMultiplePurchaseOrder from 'src/components/indent/CreateMultiplePurchaseOrder'
 
 const Dashboard = () => {
   const userDetails = useUserDetails()
@@ -38,6 +47,10 @@ const Dashboard = () => {
   const [billEntries, setBillEntries] = useState([])
   const [indentRequest, setIndentRequest] = useState([])
   const [invoiceDue, setInvoiceDue] = useState([])
+  const [showApproveMultipleForm, setShowApproveMultipleForm] = useState({
+    show: false,
+    indents: []
+  })
 
   const [showProductStockInwardVoucher, setShowProductStockInwardVoucher] = useState({
     show: false,
@@ -51,6 +64,15 @@ const Dashboard = () => {
 
   const [indents, setIndents] = useState([])
   const [indentsArray, setIndentsArray] = useState([])
+  const [allSuppliers, setAllSuppliers] = useState([])
+
+  const getSuppliers = async () => {
+    await secureApi.get(api_configs.supplier.getAll, { params: { coid: userDetails.Co_ID } }).then(res => {
+      if (res.status === 200) {
+        setAllSuppliers(res.data.allCompanies)
+      }
+    })
+  }
 
   const getBillEntires = () => {
     secureApi
@@ -70,7 +92,7 @@ const Dashboard = () => {
               stock_name: entry.PName,
               qty: entry.Quantity + ' ' + entry.Unit,
               unit_price: '₹' + entry.UnitPrice + ' per ' + entry.Unit,
-              
+
               tax: entry.TaxPercent === 0 ? '-' : entry.TaxPercent,
               total_price: '₹' + entry.TotalAmount,
               due_date: entry.DueOn ? entry.DueOn : '-',
@@ -78,14 +100,13 @@ const Dashboard = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <Tooltip title='Edit Bill Entry'>
                     <Box>
-                    <Link href={`/l2/edit-bill/${entry.P_Stock_In_Voucher_ID}?company=${entry.company}`} passHref>
-                      <IconButton size='small' sx={{ mr: 0.5 }}>
-                        <PencilOutline />
-                      </IconButton>
-                    </Link>
+                      <Link href={`/l2/edit-bill/${entry.P_Stock_In_Voucher_ID}?company=${entry.company}`} passHref>
+                        <IconButton size='small' sx={{ mr: 0.5 }}>
+                          <PencilOutline />
+                        </IconButton>
+                      </Link>
                     </Box>
                   </Tooltip>
-
                 </Box>
               )
             }
@@ -100,19 +121,19 @@ const Dashboard = () => {
     secureApi
       .get(api_configs.indent.getAll, {
         params: {
-          company: userDetails.Co_ID,
-          
+          company: userDetails.Co_ID
         }
       })
       .then(resp => {
         let indents = []
         setIndents(resp.data.allIndents)
         if (resp.status === 200) {
-          resp.data.allIndents.map(indent => {
+          resp.data.allIndents.map((indent, index) => {
             let expectedDate = indent.ExpectedDate.split('T')[0]
             let newDate = expectedDate.split('-')
             newDate = new Date(newDate[0], parseInt(newDate[1]) - 1, newDate[2])
             indents.push({
+              indent,
               CreatedDT: indent.CreatedDT.split('T')[0],
               StockName: indent.PName,
               Qty: indent.Quantity,
@@ -197,12 +218,22 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
-    getIndents()
-    getBillEntires()
+    Promise.all([getIndents(), getBillEntires(), getSuppliers()])
   }, [])
 
   return (
     <>
+      {showApproveMultipleForm.show && (
+        <CreateMultiplePurchaseOrder
+          indents={showApproveMultipleForm.indents}
+          handleClose={() =>
+            setShowApproveMultipleForm({
+              show: false,
+              indents: []
+            })
+          }
+        />
+      )}
       <CreateProductInward
         afterCreation={() => {
           sendApproval(true, true)
@@ -273,9 +304,98 @@ const Dashboard = () => {
           <Card sx={{ height: '100%' }}>
             <CardHeader
               title={
-                <Typography variant={'h6'} sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                  Indent Request By L3 <DownloadOutline sx={{ ml: 2, color: theme => theme.palette.success.main }} />
-                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                  <Typography variant={'h6'} sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                    Indent Request By L3 <DownloadOutline sx={{ ml: 2, color: theme => theme.palette.success.main }} />
+                  </Typography>
+                  <Box sx={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
+                    {userDetails.Role_ID == 4 ? null : (
+                      <Button
+                        size='small'
+                        type='submit'
+                        variant='contained'
+                        onClick={() =>
+                          setShowApproveMultipleForm({
+                            show: true,
+                            indents:
+                              indentsArray &&
+                              indentsArray.map(indent => {
+                                console.log(indent)
+                                return {
+                                  product: indent['StockName'],
+                                  division: indent['Division'],
+                                  qty_request: indent['Qty'],
+                                  supplier: (
+                                    <Autocomplete
+                                      value={allSuppliers[0]}
+                                      onChange={(event, value) => {
+                                        setSupplier(value)
+                                      }}
+                                      options={allSuppliers}
+                                      getOptionLabel={option => option.CompanyName}
+                                      renderOption={(props, option) => <Box {...props}>{option.CompanyName}</Box>}
+                                      renderInput={params => (
+                                        <TextField
+                                          {...params}
+                                          name='Supplier'
+                                          label='Choose a Supplier'
+                                          inputProps={{
+                                            ...params.inputProps
+                                          }}
+                                        />
+                                      )}
+                                    />
+                                  ),
+                                  expected_date: (
+                                    <LocalizationProvider dateAdapter={AdapterDateFns} fullWidth>
+                                      <DatePicker
+                                        name='invoice_date'
+                                        fullWidth
+                                        label='Expected Date'
+                                        value={new Date(indent.ExpectedDate)}
+                                        onChange={e => {
+                                          console.log(e)
+                                        }}
+                                        renderInput={params => <TextField {...params} />}
+                                      />
+                                    </LocalizationProvider>
+                                  ),
+                                  qty: (
+                                    <TextField
+                                      value={indent.Quantity}
+                                      type='number'
+                                      label='Quantity'
+                                      onChange={e => {
+                                        onChange(e)
+                                      }}
+                                      placeholder='10'
+                                      InputProps={{
+                                        endAdornment: <InputAdornment position='end'>{indent.UnitName}</InputAdornment>
+                                      }}
+                                    />
+                                  ),
+                                  unit_p: (
+                                    <TextField
+                                      // value={indent.Quantity}
+                                      type='number'
+                                      label='Unit Price'
+                                      onChange={e => {
+                                        onChange(e)
+                                      }}
+                                      placeholder='10'
+                                    />
+                                  ),
+                                  total: 0
+                                }
+                              })
+                          })
+                        }
+                      >
+                        Approve Multiple
+                      </Button>
+                    )}
+                  </Box>
+                </Box>
               }
             ></CardHeader>
             <CardContent>
