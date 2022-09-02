@@ -36,6 +36,8 @@ import DatePicker from 'react-datepicker'
 
 // ** Styles
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
+
+// ** Helpers
 import displayAmount from 'src/helpers/displayAmount'
 
 const CustomInput = forwardRef(({ ...props }, ref) => {
@@ -76,14 +78,6 @@ const Edit = props => {
 
   // ** Hook
   const theme = useTheme()
-
-  // ** Deletes form
-  const deleteForm = e => {
-    e.preventDefault()
-
-    // @ts-ignore
-    e.target.closest('.repeater-wrapper').remove()
-  }
 
   // ** Handle Invoice To Change
   const handleInvoiceChange = event => {

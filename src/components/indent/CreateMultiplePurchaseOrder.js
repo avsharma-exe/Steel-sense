@@ -28,16 +28,39 @@ import TableHead from '@mui/material/TableHead'
 import TableContainer from '@mui/material/TableContainer'
 import TableSortLabel from '@mui/material/TableSortLabel'
 import TablePagination from '@mui/material/TablePagination'
+import Box from '@mui/material/Box'
 
-const CreateMultiplePurchaseOrder = ({ indents, handleClose }) => {
+import Autocomplete from '@mui/material/Autocomplete'
+import DatePicker from '@mui/lab/DatePicker'
+import TextField from '@mui/material/TextField'
+import { InputAdornment } from '@mui/material'
+
+import LocalizationProvider from '@mui/lab/LocalizationProvider'
+import AdapterDateFns from '@mui/lab/AdapterDateFns'
+
+import EyeOutline from 'mdi-material-ui/EyeOutline'
+import { secureApi } from 'src/helpers/apiGenerator'
+import api_configs from 'src/configs/api_configs'
+import useUserDetails from 'src/hooks/useUserDetails'
+import displayAmount from 'src/helpers/displayAmount'
+import toast from 'react-hot-toast'
+import CircularProgress from '@mui/material/CircularProgress'
+
+const CreateMultiplePurchaseOrder = ({ indentsList, handleClose, allSuppliers }) => {
+  const userDetails = useUserDetails()
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
-
+  const [loading, setLoading] = useState(false)
+  const [indents, setIndents] = useState(
+    indentsList.map(indent => {
+      return { ...indent, supplier: allSuppliers[0], qty: '', unit_p: '', expected_date: new Date(), total: 0 }
+    })
+  )
   const columns = [
-    { id: 'product', label: 'Product', minWidth: 170 },
-    { id: 'division', label: 'Division', minWidth: 100 },
+    { id: 'StockName', label: 'Product', minWidth: 170 },
+    { id: 'Division', label: 'Division', minWidth: 100 },
     {
-      id: 'qty_request',
+      id: 'Qty',
       label: 'Quantity Requested',
       minWidth: 170
     },
@@ -70,6 +93,52 @@ const CreateMultiplePurchaseOrder = ({ indents, handleClose }) => {
       minWidth: 170
     }
   ]
+
+  const approveAndCreateMultipleOrder = async () => {
+    setLoading(true)
+    const approvalList =
+      indents &&
+      indents.map(indent => {
+        if (indent.qty !== '' && indent.unit_p !== '' && indent.total !== 0) {
+          const date = new Date('2022-09-09T06:36:17.000Z')
+          return {
+            User_ID: userDetails.User_ID,
+            Co_ID: userDetails.Co_ID,
+            Div_ID: indent.indent.indent.Div_ID,
+            P_ID: indent.indent.indent.P_ID,
+            Supplier_ID: indent.supplier.Co_ID,
+            Quantity: indent.qty,
+            indent: indent.indent.indent.indent_particulars_id,
+            Indent_ID: indent.indent.indent.indent_id,
+            ExpectedDate: date.getDate() + '-' + (date.getMonth() + 1) + '-' + date.getFullYear(),
+            inward: {
+              status: 0,
+              UnitPrice: indent.unit_p,
+              DiscountPercent: '',
+              TaxPercent: '',
+              TotalAmount: indent.total
+            }
+          }
+        }
+        return null
+      })
+    await secureApi
+      .post(
+        api_configs.indent.createMultiplePurchaseOrder,
+        approvalList.filter(function (el) {
+          return el != null
+        })
+      )
+      .then(resp => {
+        if (resp.status === 200) {
+          // after approval
+          toast.success('Approved & Purchase Order Created')
+          handleClose()
+        }
+        setLoading(false)
+      })
+  }
+
   return (
     <Dialog fullScreen onClose={handleClose} aria-labelledby='full-screen-dialog-title' open={true}>
       <DialogTitle id='full-screen-dialog-title'>
@@ -96,7 +165,102 @@ const CreateMultiplePurchaseOrder = ({ indents, handleClose }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {indents.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(row => {
+            {indentsList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+              row['supplier'] = (
+                <Autocomplete
+                  value={indents[index].supplier}
+                  onChange={(event, value) => {
+                    setIndents(current =>
+                      current.map(obj => {
+                        if (obj.indent.indent.indent_id === row.indent.indent.indent_id) {
+                          return { ...obj, supplier: value }
+                        }
+
+                        return obj
+                      })
+                    )
+                  }}
+                  options={allSuppliers}
+                  getOptionLabel={option => option.CompanyName}
+                  renderOption={(props, option) => <Box {...props}>{option.CompanyName}</Box>}
+                  renderInput={params => (
+                    <TextField
+                      {...params}
+                      name='Supplier'
+                      label='Choose a Supplier'
+                      inputProps={{
+                        ...params.inputProps
+                      }}
+                    />
+                  )}
+                />
+              )
+              row['expected_date'] = (
+                <LocalizationProvider dateAdapter={AdapterDateFns} fullWidth>
+                  <DatePicker
+                    name='invoice_date'
+                    fullWidth
+                    label='Expected Date'
+                    value={indents[index].expected_date}
+                    onChange={e => {
+                      setIndents(current =>
+                        current.map(obj => {
+                          if (obj.indent.indent.indent_id === row.indent.indent.indent_id) {
+                            return { ...obj, expected_date: e }
+                          }
+
+                          return obj
+                        })
+                      )
+                    }}
+                    renderInput={params => <TextField {...params} />}
+                  />
+                </LocalizationProvider>
+              )
+              row['qty'] = (
+                <TextField
+                  value={indents[index].qty}
+                  type='number'
+                  label='Quantity'
+                  onChange={e => {
+                    setIndents(current =>
+                      current.map(obj => {
+                        if (obj.indent.indent.indent_id === row.indent.indent.indent_id) {
+                          return { ...obj, qty: e.target.value, total: indents[index].unit_p * e.target.value }
+                        }
+
+                        return obj
+                      })
+                    )
+                  }}
+                  placeholder='10'
+                  InputProps={{
+                    endAdornment: <InputAdornment position='end'>{row.indent.indent.UnitName}</InputAdornment>
+                  }}
+                />
+              )
+              row['unit_p'] = (
+                <TextField
+                  value={indents[index].unit_p}
+                  onChange={e => {
+                    setIndents(current =>
+                      current.map(obj => {
+                        if (obj.indent.indent.indent_id === row.indent.indent.indent_id) {
+                          return { ...obj, unit_p: e.target.value, total: indents[index].qty * e.target.value }
+                        }
+
+                        return obj
+                      })
+                    )
+                  }}
+                  type='number'
+                  label={'Unit Price per ' + row.indent.indent.UnitName}
+                  placeholder='10'
+                />
+              )
+
+              row['total'] = displayAmount(indents[index].unit_p * indents[index].qty)
+
               return (
                 <TableRow hover role='checkbox' tabIndex={-1} key={row.code}>
                   {columns.map(column => {
@@ -115,9 +279,20 @@ const CreateMultiplePurchaseOrder = ({ indents, handleClose }) => {
         </Table>
       </DialogContent>
       <DialogActions>
-        <Button color={'success'} onClick={() => approveIndent(true, true)}>
-          Approve & Create Purchase Order
-        </Button>
+        {loading ? (
+          <CircularProgress
+            sx={{
+              color: 'common.black',
+              width: '20px !important',
+              height: '20px !important',
+              mr: theme => theme.spacing(2)
+            }}
+          />
+        ) : (
+          <Button color={'success'} onClick={() => approveAndCreateMultipleOrder()}>
+            Approve & Create Purchase Order
+          </Button>
+        )}
       </DialogActions>
     </Dialog>
   )

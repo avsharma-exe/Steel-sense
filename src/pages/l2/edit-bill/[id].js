@@ -20,7 +20,7 @@ import api_configs from 'src/configs/api_configs'
 import useUserDetails from 'src/hooks/useUserDetails'
 import CircularProgress from '@mui/material/CircularProgress'
 
-const EditBill = () => {
+const EditBill = ({context}) => {
   const router = useRouter()
   const { id, company } = router.query
   const userDetails = useUserDetails()
@@ -131,5 +131,6 @@ const EditBill = () => {
     </>
   )
 }
+
 
 export default EditBill

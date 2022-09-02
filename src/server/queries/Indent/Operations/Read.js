@@ -18,10 +18,11 @@ function getAllIndentsOfACompanyByDiv(co_id , divisions) {
   return executeQuery({
     query: `Select dm.DivisionName, psip.P_Stock_Indent_Particulars_ID as indent_particulars_id,
     psip.P_Stock_Indent_ID as indent_id, psip.P_ID, psip.Quantity, psip.Description,
-    psip.CurrentStatus, psip.ExpectedDate, psip.CreatedDT, psi.Div_ID, psi.CreatedBy, pst.CurrentStock, pm.PName
+    psip.CurrentStatus, psip.ExpectedDate, psip.CreatedDT, psi.Div_ID, psi.CreatedBy, pst.CurrentStock, pm.PName, ppd.Unit as UnitName
     from Product_Stock_Indent psi
     Left Join Product_Stock_Indent_Particulars psip on psip.P_Stock_Indent_ID = psi.P_Stock_Indent_ID
     Left Join Product_Master pm on pm.P_ID = psip.P_ID
+    Left Join Product_Price_Details ppd on ppd.P_ID = pm.P_ID
     Left Join Division_Master dm on dm.Div_ID = psi.Div_ID
     Left Join Product_Stock pst on pst.P_ID = psip.P_ID AND pst.Div_ID = psi.Div_ID
     Where psi.Co_ID = ? and psi.Div_ID in (?) and psip.CurrentStatus in (0,50)`,
@@ -39,11 +40,12 @@ function getAllIndentsOfACompanyByDiv(co_id , divisions) {
   return executeQuery({
     query: `Select dm.DivisionName, psip.P_Stock_Indent_Particulars_ID as indent_particulars_id,
     psip.P_Stock_Indent_ID as indent_id, psip.P_ID, psip.Quantity, psip.Description,
-    psip.CurrentStatus, psip.ExpectedDate, psip.CreatedDT, psi.Div_ID, psi.CreatedBy, pst.CurrentStock, pm.PName
+    psip.CurrentStatus, psip.ExpectedDate, psip.CreatedDT, psi.Div_ID, psi.CreatedBy, pst.CurrentStock, pm.PName, ppd.Unit as UnitName
     from Product_Stock_Indent psi
     Left Join Product_Stock_Indent_Particulars psip on psip.P_Stock_Indent_ID = psi.P_Stock_Indent_ID
     Left Join Product_Master pm on pm.P_ID = psip.P_ID
     Left Join Division_Master dm on dm.Div_ID = psi.Div_ID
+    Left Join Product_Price_Details ppd on ppd.P_ID = pm.P_ID
     Left Join Product_Stock pst on pst.P_ID = psip.P_ID AND pst.Div_ID = psi.Div_ID
     Where psi.Co_ID = ? and psip.CurrentStatus in (0,50)`,
     values: [co_id ]

@@ -9,15 +9,7 @@ import {
   Creation
 } from 'mdi-material-ui'
 import BasicTable from 'src/components/utils/BasicTable'
-import Autocomplete from '@mui/material/Autocomplete'
-import DatePicker from '@mui/lab/DatePicker'
-import TextField from '@mui/material/TextField'
-import { InputAdornment } from '@mui/material'
 
-import LocalizationProvider from '@mui/lab/LocalizationProvider'
-import AdapterDateFns from '@mui/lab/AdapterDateFns'
-
-import EyeOutline from 'mdi-material-ui/EyeOutline'
 import PencilOutline from 'mdi-material-ui/PencilOutline'
 import Box from '@mui/material/Box'
 import Tooltip from '@mui/material/Tooltip'
@@ -84,7 +76,7 @@ const Dashboard = () => {
       .then(resp => {
         if (resp.status === 200) {
           console.log(resp.data.allBillEntries)
-          let billEntries = resp.data.allBillEntries.map(entry => {
+          let billEntries = resp.data.allBillEntries && resp.data.allBillEntries.map(entry => {
             let newDate = entry.InvoiceDate.split('-')
             return {
               party_name: entry.CompanyName,
@@ -128,56 +120,58 @@ const Dashboard = () => {
         let indents = []
         setIndents(resp.data.allIndents)
         if (resp.status === 200) {
-          resp.data.allIndents.map((indent, index) => {
-            let expectedDate = indent.ExpectedDate.split('T')[0]
-            let newDate = expectedDate.split('-')
-            newDate = new Date(newDate[0], parseInt(newDate[1]) - 1, newDate[2])
-            indents.push({
-              indent,
-              CreatedDT: indent.CreatedDT.split('T')[0],
-              StockName: indent.PName,
-              Qty: indent.Quantity,
-              ExpectedDate: displayDate(newDate),
-              CurrentStock: indent.CurrentStock,
-              Division: indent.DivisionName,
-              actions:
-                indent.CurrentStatus === 0 ? (
-                  <Button
-                    variant='contained'
-                    endIcon={<CheckCircleOutline />}
-                    color={'success'}
-                    style={{ color: 'white' }}
-                    onClick={() => {
-                      setConfirmDialog({
-                        show: true,
-                        data: indent
-                      })
-                    }}
-                  >
-                    Approve
-                  </Button>
-                ) : (
-                  <Button
-                    variant='contained'
-                    endIcon={<Creation />}
-                    color={'primary'}
-                    style={{ color: 'white' }}
-                    onClick={() => {
-                      setShowProductStockInwardVoucher({
-                        show: true,
-                        data: indent
-                      })
-                      setConfirmDialog({
-                        show: false,
-                        data: indent
-                      })
-                    }}
-                  >
-                    Purchase Order
-                  </Button>
-                )
-            })
-          })
+          resp.data.allIndents
+            ? resp.data.allIndents.map((indent, index) => {
+                let expectedDate = indent.ExpectedDate.split('T')[0]
+                let newDate = expectedDate.split('-')
+                newDate = new Date(newDate[0], parseInt(newDate[1]) - 1, newDate[2])
+                indents.push({
+                  indent,
+                  CreatedDT: indent.CreatedDT.split('T')[0],
+                  StockName: indent.PName,
+                  Qty: indent.Quantity + ' ' + indent.UnitName,
+                  ExpectedDate: displayDate(newDate),
+                  CurrentStock: indent.CurrentStock + ' ' + indent.UnitName,
+                  Division: indent.DivisionName,
+                  actions:
+                    indent.CurrentStatus === 0 ? (
+                      <Button
+                        variant='contained'
+                        endIcon={<CheckCircleOutline />}
+                        color={'success'}
+                        style={{ color: 'white' }}
+                        onClick={() => {
+                          setConfirmDialog({
+                            show: true,
+                            data: indent
+                          })
+                        }}
+                      >
+                        Approve
+                      </Button>
+                    ) : (
+                      <Button
+                        variant='contained'
+                        endIcon={<Creation />}
+                        color={'primary'}
+                        style={{ color: 'white' }}
+                        onClick={() => {
+                          setShowProductStockInwardVoucher({
+                            show: true,
+                            data: indent
+                          })
+                          setConfirmDialog({
+                            show: false,
+                            data: indent
+                          })
+                        }}
+                      >
+                        Purchase Order
+                      </Button>
+                    )
+                })
+              })
+            : null
           setIndentsArray(indents)
         }
       })
@@ -225,13 +219,15 @@ const Dashboard = () => {
     <>
       {showApproveMultipleForm.show && (
         <CreateMultiplePurchaseOrder
-          indents={showApproveMultipleForm.indents}
-          handleClose={() =>
+          indentsList={showApproveMultipleForm.indents}
+          allSuppliers={allSuppliers}
+          handleClose={() => {
             setShowApproveMultipleForm({
               show: false,
               indents: []
             })
-          }
+            getIndents()
+          }}
         />
       )}
       <CreateProductInward
@@ -320,72 +316,16 @@ const Dashboard = () => {
                             indents:
                               indentsArray &&
                               indentsArray.map(indent => {
-                                console.log(indent)
                                 return {
-                                  product: indent['StockName'],
-                                  division: indent['Division'],
-                                  qty_request: indent['Qty'],
-                                  supplier: (
-                                    <Autocomplete
-                                      value={allSuppliers[0]}
-                                      onChange={(event, value) => {
-                                        setSupplier(value)
-                                      }}
-                                      options={allSuppliers}
-                                      getOptionLabel={option => option.CompanyName}
-                                      renderOption={(props, option) => <Box {...props}>{option.CompanyName}</Box>}
-                                      renderInput={params => (
-                                        <TextField
-                                          {...params}
-                                          name='Supplier'
-                                          label='Choose a Supplier'
-                                          inputProps={{
-                                            ...params.inputProps
-                                          }}
-                                        />
-                                      )}
-                                    />
-                                  ),
-                                  expected_date: (
-                                    <LocalizationProvider dateAdapter={AdapterDateFns} fullWidth>
-                                      <DatePicker
-                                        name='invoice_date'
-                                        fullWidth
-                                        label='Expected Date'
-                                        value={new Date(indent.ExpectedDate)}
-                                        onChange={e => {
-                                          console.log(e)
-                                        }}
-                                        renderInput={params => <TextField {...params} />}
-                                      />
-                                    </LocalizationProvider>
-                                  ),
-                                  qty: (
-                                    <TextField
-                                      value={indent.Quantity}
-                                      type='number'
-                                      label='Quantity'
-                                      onChange={e => {
-                                        onChange(e)
-                                      }}
-                                      placeholder='10'
-                                      InputProps={{
-                                        endAdornment: <InputAdornment position='end'>{indent.UnitName}</InputAdornment>
-                                      }}
-                                    />
-                                  ),
-                                  unit_p: (
-                                    <TextField
-                                      // value={indent.Quantity}
-                                      type='number'
-                                      label='Unit Price'
-                                      onChange={e => {
-                                        onChange(e)
-                                      }}
-                                      placeholder='10'
-                                    />
-                                  ),
-                                  total: 0
+                                  StockName: indent['StockName'],
+                                  Division: indent['Division'],
+                                  Qty: indent['Qty'],
+                                  supplier: '',
+                                  expected_date: '',
+                                  qty: '',
+                                  unit_p: '',
+                                  total: 0,
+                                  indent
                                 }
                               })
                           })

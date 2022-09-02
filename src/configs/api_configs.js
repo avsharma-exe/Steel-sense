@@ -50,7 +50,8 @@ export default {
       getAll: "/indent/get-all",
       approve: "/indent/approve",
       createPurchaseOrder: "/indent/createPurchaseOrder",
-      getIncomingOrder: "/indent/getIncomingOrder"
+      getIncomingOrder: "/indent/getIncomingOrder",
+      createMultiplePurchaseOrder: "/indent/createMultiplePurchaseOrder"
     },
     stockInOut: {
       createStockInward: "stockInOut/createStockInward",

@@ -13,23 +13,21 @@ export default async function handler(req, res) {
     const inward = body.inward
     delete body.inward
     let ExpectedDate = body.ExpectedDate
-    ExpectedDate = ExpectedDate ? ExpectedDate.split("-").reverse() : ExpectedDate
-    ExpectedDate = ExpectedDate.join("-")
-    
+    ExpectedDate = ExpectedDate ? ExpectedDate.split('-').reverse() : ExpectedDate
+    ExpectedDate = ExpectedDate.join('-')
+
     let indent = body.indent
     delete body.InvoiceDate
     delete body.ExpectedDate
     delete body.indent
-
-    const updateProductStockIndentParticulars = await Indent.Update.indentParticular(body.Quantity, ExpectedDate, indent)
-    console.log(body)
+    const updateProductStockIndentParticulars = await Indent.Update.indentParticular(
+      body.Quantity,
+      ExpectedDate,
+      indent
+    )
     const createProductStockInwardVoucher = await Indent.Create.productStockInwardVoucher(body)
-    console.log(createProductStockInwardVoucher) 
-    console.log(createProductStockInwardVoucher.insertId)
     inward['P_Stock_In_Voucher_ID'] = createProductStockInwardVoucher.insertId
-    console.log(inward)
     const createProductStockInward = await Indent.Create.productStockInward(inward)
-    console.log(createProductStockInward, updateProductStockIndentParticulars)
     if (createProductStockInward) {
       res.send({
         error: false,
