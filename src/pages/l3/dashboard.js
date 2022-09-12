@@ -45,15 +45,15 @@ const Dashboard = () => {
     if (incommingOrders.status === 200) {
       let orders = []
       await incommingOrders.data.incommingOrders.forEach(order => {
-        if (order.length > 0) {
-          let expectedDate = order[0].ExpectedDate.split('T')[0]
+        if (order) {
+          let expectedDate = order.ExpectedDate.split('T')[0]
           let newDate = expectedDate.split('-')
           newDate = new Date(newDate[0], parseInt(newDate[1]) - 1, newDate[2])
 
           orders.push({
-            name: order[0].PName,
-            qty: order[0].Quantity,
-            t_info: order[0].TruckInfo,
+            name: order.PName,
+            qty: order.Quantity,
+            t_info: order.TruckInfo,
             expectedDate: displayDate(newDate),
             inward: (
               <Button
@@ -63,7 +63,7 @@ const Dashboard = () => {
                 onClick={() =>
                   setCreateStockInward({
                     show: true,
-                    data: order[0]
+                    data: order
                   })
                 }
               >

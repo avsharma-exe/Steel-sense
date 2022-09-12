@@ -96,6 +96,7 @@ const CreateMultiplePurchaseOrder = ({ indentsList, handleClose, allSuppliers })
 
   const approveAndCreateMultipleOrder = async () => {
     setLoading(true)
+    console.log("indents" , indents)
     const approvalList =
       indents &&
       indents.map(indent => {
@@ -122,6 +123,8 @@ const CreateMultiplePurchaseOrder = ({ indentsList, handleClose, allSuppliers })
         }
         return null
       })
+
+    console.log("approvalList" , approvalList)
     await secureApi
       .post(
         api_configs.indent.createMultiplePurchaseOrder,

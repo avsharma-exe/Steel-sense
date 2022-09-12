@@ -10,12 +10,10 @@ export default async function handler(req, res) {
 
   let Co_ID = req.query.company
   let divisions = req.query['division[]']
-  console.log(divisions)
+  
   try {
-    let incommingOrders = []
-    for(let i = 0; i < divisions.length; i++){
-        incommingOrders.push(await Indent.Read.getPurchaseOrder(Co_ID , divisions[i]));
-    }
+    let incommingOrders = await Indent.Read.getIncommingOrders(Co_ID , divisions)
+    
     
       res.send({
         error: false,

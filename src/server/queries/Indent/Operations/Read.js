@@ -6,7 +6,8 @@ const Read = {
   getIndentParticulars,
   getIndentByID,
   getPurchaseOrder,
-  getAllIndentsOfACompanyByDiv
+  getAllIndentsOfACompanyByDiv,
+  getIncommingOrders
 }
 
 /**
@@ -102,6 +103,18 @@ function getIndentParticulars(indent_id) {
   })
 }
 
+function getIncommingOrders(company_id , divisions) {
+  return executeQuery({
+    query: `SELECT * FROM Product_Stock_Inward_Voucher
+    left join Product_Stock_Indent_Particulars on Product_Stock_Indent_Particulars.P_Stock_Indent_ID = Product_Stock_Inward_Voucher.Indent_ID
+    left join Product_Master on Product_Master.P_ID = Product_Stock_Inward_Voucher.P_ID
+    left join Product_Price_Details on Product_Price_Details.P_ID = Product_Stock_Inward_Voucher.P_ID
+    left join Product_Stock_Inward on Product_Stock_Inward.P_Stock_In_Voucher_ID = Product_Stock_Inward_Voucher.P_Stock_In_Voucher_ID
+    left join Company_Master on Product_Stock_Inward_Voucher.Supplier_ID = Company_Master.Co_ID
+    where Product_Stock_Inward_Voucher.Co_ID = ? and Product_Stock_Inward_Voucher.Div_ID IN (?) and Product_Stock_Inward.status = 0`,
+    values: [company_id , divisions]
+  })
+}
 
 function getPurchaseOrder(company_id , div_id) {
   return executeQuery({

@@ -11,27 +11,34 @@ export default async function handler(req, res) {
   console.log(body)
   try {
     let approvalList = req.body
+    console.log("approvalList" , approvalList)
     let i = 0;
     for (let inward of approvalList) {
-      delete approvalList[i].inward
-      let ExpectedDate = approvalList[i].ExpectedDate
+      let Inward = inward.inward
+      delete inward.inward
+      let ExpectedDate = inward.ExpectedDate
       ExpectedDate = ExpectedDate ? ExpectedDate.split('-').reverse() : ExpectedDate
       ExpectedDate = ExpectedDate.join('-')
-      let user = approvalList[i].User_ID
-      let indent = approvalList[i].indent
-      delete approvalList[i].InvoiceDate
-      delete approvalList[i].ExpectedDate
-      delete approvalList[i].indent
-      const updateProductStockIndentParticulars = await Indent.Update.indentMultipleParticular(
-        approvalList[i].Quantity,
+      let user = inward.User_ID
+      let indent = inward.indent
+      delete inward.User_ID
+      delete inward.InvoiceDate
+      delete inward.ExpectedDate
+      delete inward.indent
+      inward["CreatedBy"] = user
+      await Indent.Update.indentMultipleParticular(
+        inward.Quantity,
         ExpectedDate,
         indent,
         99
       )
-      const updateApprovedBy = await Indent.Update.updateIndentApprovedBy(user, approvalList[i].Indent_ID)
-      const createProductStockInwardVoucher = await Indent.Create.productStockInwardVoucher(approvalList[i])
-      inward['P_Stock_In_Voucher_ID'] = createProductStockInwardVoucher.insertId
-      const createProductStockInward = await Indent.Create.productStockInward(inward)
+      
+      await Indent.Update.updateIndentApprovedBy(user, inward.Indent_ID)
+      const createProductStockInwardVoucher = await Indent.Create.productStockInwardVoucher(inward)
+      console.log(createProductStockInwardVoucher)
+      Inward['P_Stock_In_Voucher_ID'] = createProductStockInwardVoucher.insertId
+      const createProductStockInward = await Indent.Create.productStockInward(Inward)
+      console.log(createProductStockInward)
       i++;
     }
 
