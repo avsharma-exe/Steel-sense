@@ -1,4 +1,5 @@
 import Indent from '../../../server/queries/Indent/Indent'
+import BillEntries from 'src/server/queries/BillEntries/BillEntries'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -8,10 +9,18 @@ export default async function handler(req, res) {
   }
 
   let body = req.body
-  console.log(body)
+
+  
   try {
     let approvalList = req.body
-    console.log("approvalList" , approvalList)
+    
+    const newBillEntry = await BillEntries.Create.createNewBillEntry({
+      Bill_Name: "",
+      CreatedBy: approvalList[0] ? approvalList[0].User_ID : null,
+      status: 0
+    })
+    console.log(newBillEntry)
+
     let i = 0;
     for (let inward of approvalList) {
       let Inward = inward.inward
@@ -35,8 +44,9 @@ export default async function handler(req, res) {
       
       await Indent.Update.updateIndentApprovedBy(user, inward.Indent_ID)
       const createProductStockInwardVoucher = await Indent.Create.productStockInwardVoucher(inward)
-      console.log(createProductStockInwardVoucher)
+      
       Inward['P_Stock_In_Voucher_ID'] = createProductStockInwardVoucher.insertId
+      Inward['Bill_Entry_ID'] = newBillEntry.insertId
       const createProductStockInward = await Indent.Create.productStockInward(Inward)
       console.log(createProductStockInward)
       i++;

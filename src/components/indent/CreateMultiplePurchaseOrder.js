@@ -265,7 +265,7 @@ const CreateMultiplePurchaseOrder = ({ indentsList, handleClose, allSuppliers })
               row['total'] = displayAmount(indents[index].unit_p * indents[index].qty)
 
               return (
-                <TableRow hover role='checkbox' tabIndex={-1} key={row.code}>
+                <TableRow hover role='checkbox' tabIndex={-1} key={row.code} >
                   {columns.map(column => {
                     const value = row[column.id]
 
