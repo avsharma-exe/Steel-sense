@@ -31,7 +31,7 @@ function getBillEntries(co_id) {
             join Product_Master on Product_Master.P_ID = Product_Stock_Inward_Voucher.P_ID
             join Product_Price_Details on Product_Price_Details.P_ID = Product_Stock_Inward_Voucher.P_ID
 
-            where Product_Stock_Inward_Voucher.Co_ID = ? AND Product_Stock_Inward.status = 50`,
+            where Product_Stock_Inward_Voucher.Co_ID = ? AND Product_Stock_Inward.status = 50 AND Bill_Entry_ID is NULL`,
     values: [co_id]
   })
 }

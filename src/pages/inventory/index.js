@@ -178,6 +178,7 @@ const Inventory = () => {
                 }
               }}
               reload={getProducts}
+              maxHeight={true}
             />
           ) : showLoader ? (
             <CircularProgress

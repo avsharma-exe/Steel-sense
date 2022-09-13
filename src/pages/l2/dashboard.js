@@ -9,7 +9,7 @@ import {
   Creation
 } from 'mdi-material-ui'
 import BasicTable from 'src/components/utils/BasicTable'
-import EyeOutline from 'mdi-material-ui/EyeOutline'
+
 import PencilOutline from 'mdi-material-ui/PencilOutline'
 import Box from '@mui/material/Box'
 import Tooltip from '@mui/material/Tooltip'
@@ -31,6 +31,7 @@ import DialogContentText from '@mui/material/DialogContentText'
 import CreateProductInward from 'src/components/indent/CreateProductInward'
 import displayDate from 'src/helpers/dateHelper'
 import useUserDivisions from 'src/hooks/useUserDivisions'
+import CreateMultiplePurchaseOrder from 'src/components/indent/CreateMultiplePurchaseOrder'
 
 const Dashboard = () => {
   const userDetails = useUserDetails()
@@ -38,6 +39,10 @@ const Dashboard = () => {
   const [billEntries, setBillEntries] = useState([])
   const [indentRequest, setIndentRequest] = useState([])
   const [invoiceDue, setInvoiceDue] = useState([])
+  const [showApproveMultipleForm, setShowApproveMultipleForm] = useState({
+    show: false,
+    indents: []
+  })
 
   const [showProductStockInwardVoucher, setShowProductStockInwardVoucher] = useState({
     show: false,
@@ -51,6 +56,15 @@ const Dashboard = () => {
 
   const [indents, setIndents] = useState([])
   const [indentsArray, setIndentsArray] = useState([])
+  const [allSuppliers, setAllSuppliers] = useState([])
+
+  const getSuppliers = async () => {
+    await secureApi.get(api_configs.supplier.getAll, { params: { coid: userDetails.Co_ID } }).then(res => {
+      if (res.status === 200) {
+        setAllSuppliers(res.data.allCompanies)
+      }
+    })
+  }
 
   const getBillEntires = () => {
     secureApi
@@ -62,7 +76,7 @@ const Dashboard = () => {
       .then(resp => {
         if (resp.status === 200) {
           console.log(resp.data.allBillEntries)
-          let billEntries = resp.data.allBillEntries.map(entry => {
+          let billEntries = resp.data.allBillEntries && resp.data.allBillEntries.map(entry => {
             let newDate = entry.InvoiceDate.split('-')
             return {
               party_name: entry.CompanyName,
@@ -70,7 +84,7 @@ const Dashboard = () => {
               stock_name: entry.PName,
               qty: entry.Quantity + ' ' + entry.Unit,
               unit_price: '₹' + entry.UnitPrice + ' per ' + entry.Unit,
-              
+
               tax: entry.TaxPercent === 0 ? '-' : entry.TaxPercent,
               total_price: '₹' + entry.TotalAmount,
               due_date: entry.DueOn ? entry.DueOn : '-',
@@ -78,14 +92,13 @@ const Dashboard = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <Tooltip title='Edit Bill Entry'>
                     <Box>
-                    <Link href={`/l2/edit-bill/${entry.P_Stock_In_Voucher_ID}?company=${entry.company}`} passHref>
-                      <IconButton size='small' sx={{ mr: 0.5 }}>
-                        <PencilOutline />
-                      </IconButton>
-                    </Link>
+                      <Link href={`/l2/edit-bill/${entry.P_Stock_In_Voucher_ID}?company=${entry.company}`} passHref>
+                        <IconButton size='small' sx={{ mr: 0.5 }}>
+                          <PencilOutline />
+                        </IconButton>
+                      </Link>
                     </Box>
                   </Tooltip>
-
                 </Box>
               )
             }
@@ -100,63 +113,65 @@ const Dashboard = () => {
     secureApi
       .get(api_configs.indent.getAll, {
         params: {
-          company: userDetails.Co_ID,
-          
+          company: userDetails.Co_ID
         }
       })
       .then(resp => {
         let indents = []
         setIndents(resp.data.allIndents)
         if (resp.status === 200) {
-          resp.data.allIndents.map(indent => {
-            let expectedDate = indent.ExpectedDate.split('T')[0]
-            let newDate = expectedDate.split('-')
-            newDate = new Date(newDate[0], parseInt(newDate[1]) - 1, newDate[2])
-            indents.push({
-              CreatedDT: indent.CreatedDT.split('T')[0],
-              StockName: indent.PName,
-              Qty: indent.Quantity,
-              ExpectedDate: displayDate(newDate),
-              CurrentStock: indent.CurrentStock,
-              Division: indent.DivisionName,
-              actions:
-                indent.CurrentStatus === 0 ? (
-                  <Button
-                    variant='contained'
-                    endIcon={<CheckCircleOutline />}
-                    color={'success'}
-                    style={{ color: 'white' }}
-                    onClick={() => {
-                      setConfirmDialog({
-                        show: true,
-                        data: indent
-                      })
-                    }}
-                  >
-                    Approve
-                  </Button>
-                ) : (
-                  <Button
-                    variant='contained'
-                    endIcon={<Creation />}
-                    color={'primary'}
-                    style={{ color: 'white' }}
-                    onClick={() => {
-                      setShowProductStockInwardVoucher({
-                        show: true,
-                        data: indent
-                      })
-                      setConfirmDialog({
-                        show: false,
-                        data: indent
-                      })
-                    }}
-                  >
-                    Purchase Order
-                  </Button>
-                )
-            })
-          })
+          resp.data.allIndents
+            ? resp.data.allIndents.map((indent, index) => {
+                let expectedDate = indent.ExpectedDate.split('T')[0]
+                let newDate = expectedDate.split('-')
+                newDate = new Date(newDate[0], parseInt(newDate[1]) - 1, newDate[2])
+                indents.push({
+                  indent,
+                  CreatedDT: indent.CreatedDT.split('T')[0],
+                  StockName: indent.PName,
+                  Qty: indent.Quantity + ' ' + indent.UnitName,
+                  ExpectedDate: displayDate(newDate),
+                  CurrentStock: indent.CurrentStock + ' ' + indent.UnitName,
+                  Division: indent.DivisionName,
+                  actions:
+                    indent.CurrentStatus === 0 ? (
+                      <Button
+                        variant='contained'
+                        endIcon={<CheckCircleOutline />}
+                        color={'success'}
+                        style={{ color: 'white' }}
+                        onClick={() => {
+                          setConfirmDialog({
+                            show: true,
+                            data: indent
+                          })
+                        }}
+                      >
+                        Approve
+                      </Button>
+                    ) : (
+                      <Button
+                        variant='contained'
+                        endIcon={<Creation />}
+                        color={'primary'}
+                        style={{ color: 'white' }}
+                        onClick={() => {
+                          setShowProductStockInwardVoucher({
+                            show: true,
+                            data: indent
+                          })
+                          setConfirmDialog({
+                            show: false,
+                            data: indent
+                          })
+                        }}
+                      >
+                        Purchase Order
+                      </Button>
+                    )
+                })
+              })
+            : null
           setIndentsArray(indents)
         }
       })
@@ -197,12 +212,24 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
-    getIndents()
-    getBillEntires()
+    Promise.all([getIndents(), getBillEntires(), getSuppliers()])
   }, [])
 
   return (
     <>
+      {showApproveMultipleForm.show && (
+        <CreateMultiplePurchaseOrder
+          indentsList={showApproveMultipleForm.indents}
+          allSuppliers={allSuppliers}
+          handleClose={() => {
+            setShowApproveMultipleForm({
+              show: false,
+              indents: []
+            })
+            getIndents()
+          }}
+        />
+      )}
       <CreateProductInward
         afterCreation={() => {
           sendApproval(true, true)
@@ -273,9 +300,42 @@ const Dashboard = () => {
           <Card sx={{ height: '100%' }}>
             <CardHeader
               title={
-                <Typography variant={'h6'} sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                  Indent Request By L3 <DownloadOutline sx={{ ml: 2, color: theme => theme.palette.success.main }} />
-                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                  <Typography variant={'h6'} sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                    Indent Request By L3 <DownloadOutline sx={{ ml: 2, color: theme => theme.palette.success.main }} />
+                  </Typography>
+                  <Box sx={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
+                    {userDetails.Role_ID == 4 ? null : (
+                      <Button
+                        size='small'
+                        type='submit'
+                        variant='contained'
+                        onClick={() =>
+                          setShowApproveMultipleForm({
+                            show: true,
+                            indents:
+                              indentsArray &&
+                              indentsArray.map(indent => {
+                                return {
+                                  StockName: indent['StockName'],
+                                  Division: indent['Division'],
+                                  Qty: indent['Qty'],
+                                  supplier: '',
+                                  expected_date: '',
+                                  qty: '',
+                                  unit_p: '',
+                                  total: 0,
+                                  indent
+                                }
+                              })
+                          })
+                        }
+                      >
+                        Approve Multiple
+                      </Button>
+                    )}
+                  </Box>
+                </Box>
               }
             ></CardHeader>
             <CardContent>

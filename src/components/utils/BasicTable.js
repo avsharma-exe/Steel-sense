@@ -38,7 +38,7 @@ import Refresh from 'mdi-material-ui/Refresh'
 //   }
 // ]
 
-const BasicTable = ({ rows, columns, onRowClickHandle, reload }) => {
+const BasicTable = ({ rows, columns, onRowClickHandle, reload, maxHeight }) => {
   // ** States
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
@@ -54,14 +54,16 @@ const BasicTable = ({ rows, columns, onRowClickHandle, reload }) => {
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-      {reload && <Refresh
-        sx={{
-          float: 'right',
-          cursor: "pointer"
-        }}
-        onClick={() => reload && reload()}
-      />}
-      <TableContainer sx={{ maxHeight: 300 }}>
+      {reload && (
+        <Refresh
+          sx={{
+            float: 'right',
+            cursor: 'pointer'
+          }}
+          onClick={() => reload && reload()}
+        />
+      )}
+      <TableContainer sx={{ maxHeight: maxHeight ? '100%' : 300 }}>
         <Table stickyHeader aria-label='sticky table'>
           <TableHead>
             <TableRow>
