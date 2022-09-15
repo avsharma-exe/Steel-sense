@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, forwardRef } from 'react'
+import { useState, forwardRef, useEffect } from 'react'
 
 // ** MUI Imports
 import Card from '@mui/material/Card'
@@ -51,6 +51,8 @@ const CustomInput = forwardRef(({ ...props }, ref) => {
   )
 })
 
+const invoiceNumberPad = '0000'
+
 const MUITableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: 0,
   padding: `${theme.spacing(1, 0)} !important`
@@ -68,13 +70,49 @@ const CalcWrapper = styled(Box)(({ theme }) => ({
 const now = new Date()
 const tomorrowDate = now.setDate(now.getDate() + 7)
 
-const Edit = props => {
+const EditMultiple = props => {
   // ** Props
-  const { invoiceNumber, companyDetails, billDetails, toggleAddCustomerDrawer, viewBillData, setViewBillData } = props
+  const {
+    invoiceNumber,
+    companyDetails,
+    supplierDetails,
+    billDetails,
+    toggleAddCustomerDrawer,
+    viewBillData,
+    setViewBillData,
+    billProducts,
+    billId
+  } = props
 
-  // ** States
+  useEffect(() => {
+    if (billId) {
+      let invoiceNumber =
+        viewBillData.dueDate.getFullYear() +
+        '' +
+        viewBillData.dueDate.getMonth() +
+        1 +
+        '' +
+        viewBillData.dueDate.getDate() +
+        '' +
+        invoiceNumberPad.substring(0, invoiceNumberPad.length - billId.length) +
+        billId
+      setViewBillData({ ...viewBillData, invoiceNumber: invoiceNumber })
+    }
+  }, [billId])
 
-  const [dueDate, setDueDate] = useState(new Date(tomorrowDate))
+  useEffect(() => {
+    if (billProducts.length > 0) {
+      let totalAmt = billProducts.reduce((acc, obj) => {
+        return acc + obj.TotalAmount
+      }, 0)
+
+      setViewBillData({
+        ...viewBillData,
+        subTotal: totalAmt,
+        total: totalAmt + (totalAmt * viewBillData.tax) / 100 - (totalAmt * viewBillData.discount) / 100
+      })
+    }
+  }, [viewBillData , billProducts])
 
   return (
     <Card>
@@ -105,12 +143,12 @@ const Edit = props => {
             <DatePickerWrapper sx={{ '& .react-datepicker-wrapper': { width: 'auto' } }}>
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xl: 'flex-end', xs: 'flex-start' } }}>
                 <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
-                  <Typography variant='h6' sx={{ mr: 1, width: '105px' }}>
+                  <Typography variant='body2' sx={{ mr: 1, width: '105px' }}>
                     Invoice
                   </Typography>
                   <TextField
                     size='small'
-                    value={invoiceNumber}
+                    value={viewBillData.invoiceNumber}
                     sx={{ width: { sm: '250px', xs: '170px' } }}
                     InputProps={{
                       disabled: true,
@@ -120,13 +158,25 @@ const Edit = props => {
                 </Box>
                 <Box sx={{ display: 'flex' }}>
                   <Typography variant='body2' sx={{ mr: 2, width: '100px' }}>
-                    Date Due:
+                    Invoice Date:
                   </Typography>
                   <DatePicker
                     id='due-date'
                     selected={viewBillData.dueDate}
                     customInput={<CustomInput />}
-                    onChange={date => setViewBillData({ ...viewBillData, dueDate: date })}
+                    onChange={date => {
+                      let invoiceNumber =
+                        date.getFullYear() +
+                        '' +
+                        date.getMonth() +
+                        1 +
+                        '' +
+                        date.getDate() +
+                        '' +
+                        invoiceNumberPad.substring(0, invoiceNumberPad.length - billId.length) +
+                        billId
+                      setViewBillData({ ...viewBillData, invoiceNumber: invoiceNumber, dueDate: date })
+                    }}
                   />
                 </Box>
               </Box>
@@ -137,67 +187,69 @@ const Edit = props => {
 
       <Divider sx={{ mt: 1, mb: 1 }} />
 
-      <CardContent sx={{ pb: 2 }}>
-        <Grid container>
-          <Grid item xs={12} sm={6} sx={{ mb: { lg: 0, xs: 4 } }}>
-            <Typography variant='subtitle2' sx={{ mb: 3, color: 'text.primary', letterSpacing: '.1px' }}>
-              Invoice To:
-            </Typography>
-            <Typography variant='body2' sx={{ mb: 2 }}>
-              {billDetails.CompanyName}
-            </Typography>
-            <Typography variant='body2' sx={{ mb: 2 }}>
-              {billDetails.Address1}
-            </Typography>
-            <Typography variant='body2' sx={{ mb: 2 }}>
-              {billDetails.Address2 + ' PinCode - ' + billDetails.Pincode}
-            </Typography>
-            <Typography variant='body2' sx={{ mb: 2 }}>
-              {billDetails.city_name + ', ' + billDetails.state_name + ', ' + billDetails.country_name}
-            </Typography>
-            <Typography variant='body2' sx={{ mb: 2 }}>
-              {/* {data.invoice.companyEmail} */}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} sm={6} sx={{ display: 'flex', justifyContent: ['flex-start', 'flex-end'] }}>
-            <div>
-              <Typography variant='subtitle2' sx={{ mb: 2.5, color: 'text.primary' }}>
-                GST Details:
+      {billDetails ? (
+        <CardContent sx={{ pb: 2 }}>
+          <Grid container>
+            <Grid item xs={12} sm={6} sx={{ mb: { lg: 0, xs: 4 } }}>
+              <Typography variant='subtitle2' sx={{ mb: 3, color: 'text.primary', letterSpacing: '.1px' }}>
+                Invoice To:
               </Typography>
-              <TableContainer>
-                <Table>
-                  <TableBody>
-                    <TableRow>
-                      <MUITableCell>
-                        <Typography variant='body2'>GST Number:</Typography>
-                      </MUITableCell>
-                      <MUITableCell>
-                        <Typography variant='body2'>{billDetails.GSTNumber}</Typography>
-                      </MUITableCell>
-                    </TableRow>
-                    <TableRow>
-                      <MUITableCell>
-                        <Typography variant='body2'>GSTIN UIN:</Typography>
-                      </MUITableCell>
-                      <MUITableCell>
-                        <Typography variant='body2'>{billDetails.GSTINUIN}</Typography>
-                      </MUITableCell>
-                    </TableRow>
-                    <TableRow>
-                      <MUITableCell>
-                        <Typography variant='body2'>CIN:</Typography>
-                      </MUITableCell>
-                      <MUITableCell>
-                        <Typography variant='body2'>{billDetails.CIN}</Typography>
-                      </MUITableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </div>
+              <Typography variant='body2' sx={{ mb: 2 }}>
+                {supplierDetails.CompanyName}
+              </Typography>
+              <Typography variant='body2' sx={{ mb: 2 }}>
+                {supplierDetails.Address1}
+              </Typography>
+              <Typography variant='body2' sx={{ mb: 2 }}>
+                {supplierDetails.Address2 + ' PinCode - ' + supplierDetails.Pincode}
+              </Typography>
+              <Typography variant='body2' sx={{ mb: 2 }}>
+                {supplierDetails.city_name + ', ' + supplierDetails.state_name + ', ' + supplierDetails.country_name}
+              </Typography>
+              <Typography variant='body2' sx={{ mb: 2 }}>
+                {/* {data.invoice.companyEmail} */}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={6} sx={{ display: 'flex', justifyContent: ['flex-start', 'flex-end'] }}>
+              <div>
+                <Typography variant='subtitle2' sx={{ mb: 2.5, color: 'text.primary' }}>
+                  GST Details:
+                </Typography>
+                <TableContainer>
+                  <Table>
+                    <TableBody>
+                      <TableRow>
+                        <MUITableCell>
+                          <Typography variant='body2'>GST Number:</Typography>
+                        </MUITableCell>
+                        <MUITableCell>
+                          <Typography variant='body2'>{supplierDetails.GSTNumber}</Typography>
+                        </MUITableCell>
+                      </TableRow>
+                      <TableRow>
+                        <MUITableCell>
+                          <Typography variant='body2'>GSTIN UIN:</Typography>
+                        </MUITableCell>
+                        <MUITableCell>
+                          <Typography variant='body2'>{supplierDetails.GSTINUIN}</Typography>
+                        </MUITableCell>
+                      </TableRow>
+                      <TableRow>
+                        <MUITableCell>
+                          <Typography variant='body2'>CIN:</Typography>
+                        </MUITableCell>
+                        <MUITableCell>
+                          <Typography variant='body2'>{supplierDetails.CIN}</Typography>
+                        </MUITableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </div>
+            </Grid>
           </Grid>
-        </Grid>
-      </CardContent>
+        </CardContent>
+      ) : null}
 
       <Divider sx={{ mb: 1.25 }} />
 
@@ -205,6 +257,7 @@ const Edit = props => {
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell>Sr no.</TableCell>
               <TableCell>Product</TableCell>
 
               <TableCell>qty</TableCell>
@@ -213,17 +266,22 @@ const Edit = props => {
             </TableRow>
           </TableHead>
           <TableBody>
-            <TableRow>
-              <TableCell>{billDetails.PName}</TableCell>
+            {billProducts.map((billData, index) => {
+              return (
+                <TableRow>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{billData.PName}</TableCell>
 
-              <TableCell>
-                {billDetails.Quantity} {billDetails.Unit}
-              </TableCell>
-              <TableCell>
-              ₹{billDetails.UnitPrice && displayAmount(billDetails.UnitPrice)} per {billDetails.Unit}
-              </TableCell>
-              <TableCell>₹{billDetails.TotalAmount && displayAmount(billDetails.TotalAmount)}</TableCell>
-            </TableRow>
+                  <TableCell>
+                    {billData.Quantity} {billData.Unit}
+                  </TableCell>
+                  <TableCell>
+                    {billData.UnitPrice && displayAmount(billData.UnitPrice)} per {billData.Unit}
+                  </TableCell>
+                  <TableCell>{billData.TotalAmount && displayAmount(billData.TotalAmount)}</TableCell>
+                </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
       </TableContainer>
@@ -235,21 +293,8 @@ const Edit = props => {
             <CalcWrapper>
               <Typography variant='body2'>Subtotal:</Typography>
               <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.primary', lineHeight: '.25px' }}>
-                ₹{billDetails.TotalAmount && displayAmount(billDetails.TotalAmount)}
+                {displayAmount(viewBillData.subTotal)}
               </Typography>
-            </CalcWrapper>
-            <CalcWrapper>
-              <Typography variant='body2'>Discount:</Typography>
-              <TextField
-                size='small'
-                value={viewBillData.discount}
-                onChange={e => setViewBillData({ ...viewBillData, discount: e.target.value })}
-                type='number'
-                sx={{ width: '100px', '& .MuiInputBase-input': { color: 'text.secondary' } }}
-                InputProps={{
-                  endAdornment: <InputAdornment position='end'>%</InputAdornment>
-                }}
-              />
             </CalcWrapper>
             <CalcWrapper>
               <Typography variant='body2'>Tax:</Typography>
@@ -264,11 +309,25 @@ const Edit = props => {
                 }}
               />
             </CalcWrapper>
+            <CalcWrapper>
+              <Typography variant='body2'>Discount:</Typography>
+              <TextField
+                size='small'
+                value={viewBillData.discount}
+                onChange={e => setViewBillData({ ...viewBillData, discount: e.target.value })}
+                type='number'
+                sx={{ width: '100px', '& .MuiInputBase-input': { color: 'text.secondary' } }}
+                InputProps={{
+                  endAdornment: <InputAdornment position='end'>%</InputAdornment>
+                }}
+              />
+            </CalcWrapper>
+
             <Divider sx={{ mt: 6, mb: 1.5 }} />
             <CalcWrapper>
               <Typography variant='body2'>Total:</Typography>
               <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.primary', lineHeight: '.25px' }}>
-              ₹{billDetails.TotalAmount && displayAmount(billDetails.TotalAmount - (billDetails.TotalAmount * viewBillData.tax / 100) - (billDetails.TotalAmount * viewBillData.discount / 100))}
+                {displayAmount(viewBillData.total)}
               </Typography>
             </CalcWrapper>
           </Grid>
@@ -286,10 +345,10 @@ const Edit = props => {
           id='invoice-note'
           sx={{ '& .MuiInputBase-input': { color: 'text.secondary' } }}
           defaultValue='It was a pleasure working with you and your team. We hope you will keep us in mind for future freelance projects. Thank You!'
-        />*/}
+        /> */}
       </CardContent>
     </Card>
   )
 }
 
-export default Edit
+export default EditMultiple

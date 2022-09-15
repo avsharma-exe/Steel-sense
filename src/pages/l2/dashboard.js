@@ -212,7 +212,7 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
-    Promise.all([getIndents(), getBillEntires(), getSuppliers()])
+    Promise.all([getIndents(), getSuppliers()])
   }, [])
 
   return (
@@ -354,7 +354,7 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item md={12}>
+        {/* <Grid item md={12}>
           <Card sx={{ height: '100%' }}>
             <CardHeader
               title={
@@ -381,8 +381,8 @@ const Dashboard = () => {
               />
             </CardContent>
           </Card>
-        </Grid>
-        <Grid item md={12}>
+        </Grid> */}
+        {/* <Grid item md={12}>
           <Card sx={{ height: '100%' }}>
             <CardHeader
               title={
@@ -405,7 +405,7 @@ const Dashboard = () => {
               />
             </CardContent>
           </Card>
-        </Grid>
+        </Grid> */}
       </Grid>
     </>
   )

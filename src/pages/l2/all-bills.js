@@ -7,6 +7,10 @@ import displayDate from 'src/helpers/dateHelper'
 import displayAmount from 'src/helpers/displayAmount'
 
 import Box from '@mui/material/Box'
+import CustomChip from 'src/@core/components/mui/chip'
+import Exclamation from 'mdi-material-ui/Exclamation'
+import CheckCircle from 'mdi-material-ui/CheckCircle'
+
 import Tooltip from '@mui/material/Tooltip'
 import IconButton from '@mui/material/IconButton'
 import Link from 'next/link'
@@ -20,18 +24,19 @@ import { useRouter } from 'next/router'
 const AllBills = () => {
   const router = useRouter()
   const userDetails = useUserDetails()
+  const [singleBillEntries, setSingleBillEntries] = useState([])
   const [billEntries, setBillEntries] = useState([])
 
-  const getAllBills = () => {
-    secureApi
-      .get(api_configs.stockInOut.getBillEntries, {
+  const getSingleBills = async () => {
+    await secureApi
+      .get(api_configs.billEntry.getSingleBillEntries, {
         params: {
           company: userDetails.Co_ID
         }
       })
       .then(resp => {
         if (resp.status === 200) {
-          let billEntries = resp.data.allBillEntries.map(entry => {
+          let billEntries = resp.data.allBills.map(entry => {
             let newDate = entry.InvoiceDate.split('-')
             return {
               party_name: <Typography data={entry}>{entry.CompanyName}</Typography>,
@@ -46,13 +51,75 @@ const AllBills = () => {
             }
           })
 
+          setSingleBillEntries(billEntries)
+        }
+      })
+  }
+
+  const getBillEntries = async () => {
+    await secureApi
+      .get(api_configs.billEntry.getBillEntries, {
+        params: {
+          company: userDetails.Co_ID
+        }
+      })
+      .then(resp => {
+        if (resp.status === 200) {
+          let billEntries = resp.data.allBills.map(entry => {
+            return {
+              supplier: <Typography>{entry.CompanyName}</Typography>,
+              Bill_Name: <Typography data={entry}>{entry.Bill_Name == '' ? 'NA' : '# ' + entry.Bill_Name}</Typography>,
+              status: renderStatus(entry.status),
+              sub_total: displayAmount(entry.SubTotal),
+              tax: entry.Tax == null ? 'NA' : entry.Tax + "%",
+              discount: entry.Discount == null ? 'NA' : entry.Discount + "%",
+              total: displayAmount(entry.Total),
+              invoice_date: entry.InvoiceDate == null ? 'NA' : displayDate(new Date(entry.InvoiceDate))
+            }
+          })
+
           setBillEntries(billEntries)
         }
       })
   }
 
+  const renderStatus = status => {
+    switch (status) {
+      case 0:
+        return (
+          <CustomChip
+            size='small'
+            skin='light'
+            color='warning'
+            label={'Action Required'}
+            icon={<Exclamation fontSize='small' />}
+          />
+        )
+      case 49:
+        return (
+          <CustomChip
+            size='small'
+            skin='light'
+            color='success'
+            label={'Bill Generated'}
+            icon={<CheckCircle fontSize='small' />}
+          />
+        )
+      default:
+        ;<CustomChip
+          size='small'
+          skin='light'
+          color='warning'
+          label={'Error Occured'}
+          icon={<Exclamation fontSize='small' />}
+        />
+    }
+  }
+
   // Call all bills when component mounts
-  useEffect(() => getAllBills(), [])
+  useEffect(() => {
+    Promise.all([getSingleBills(), getBillEntries()])
+  }, [])
 
   return (
     <>
@@ -62,17 +129,65 @@ const AllBills = () => {
             title={
               <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                 <Typography variant={'h6'} sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                  Bill Entries <ClipboardListOutline sx={{ ml: 2, color: theme => theme.palette.success.main }} />
+                  Bills Entries <ClipboardListOutline sx={{ ml: 2, color: theme => theme.palette.success.main }} />
                 </Typography>
                 <Box sx={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
                   {userDetails.Role_ID == 4 ? null : (
-                    <Button size='small' type='submit' variant='contained' onClick={() => {
-                      router.push('/l2/add-bill')
-                    }}>
+                    <Button
+                      size='small'
+                      type='submit'
+                      variant='contained'
+                      onClick={() => {
+                        router.push('/l2/add-bill')
+                      }}
+                    >
                       Add New Bill
                     </Button>
                   )}
                 </Box>
+              </Box>
+            }
+          ></CardHeader>
+          <CardContent>
+            <BasicTable
+              columns={[
+                { id: 'supplier', label: 'Supplier Name', minWidth: 170 },
+                { id: 'Bill_Name', label: 'Bill ID', minWidth: 170 },
+                { id: 'invoice_date', label: 'Invoice Date', minWidth: 170 },
+                { id: 'status', label: 'Status', minWidth: 170 },
+                { id: 'sub_total', label: 'Sub Total', minWidth: 170 },
+                { id: 'tax', label: 'Tax', minWidth: 170 },
+                { id: 'discount', label: 'Discount', minWidth: 170 },
+                { id: 'total', label: 'Total', minWidth: 170 }
+              ]}
+              rows={billEntries}
+              maxHeight={true}
+              onRowClickHandle={row => {
+                switch (row.Bill_Name.props.data.status) {
+                  case 0:
+                    router.push(
+                      `/l2/edit-bill/multiple/${row.Bill_Name.props.data.Bill_Entry_ID}?supplier=${row.Bill_Name.props.data.Supplier_ID}`
+                    )
+                    break
+                  case 49:
+                    router.push(
+                      `/l2/view-bill/multiple/${row.Bill_Name.props.data.Bill_Entry_ID}?supplier=${row.Bill_Name.props.data.Supplier_ID}`
+                    )
+                }
+              }}
+            />
+          </CardContent>
+        </Card>
+      </Grid>
+      <br />
+      <Grid item md={12}>
+        <Card sx={{ height: '100%' }}>
+          <CardHeader
+            title={
+              <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                <Typography variant={'h6'} sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                  Single Bills <ClipboardListOutline sx={{ ml: 2, color: theme => theme.palette.success.main }} />
+                </Typography>
               </Box>
             }
           ></CardHeader>
@@ -89,11 +204,12 @@ const AllBills = () => {
                 { id: 'total_price', label: 'Total Price', minWidth: 170 },
                 { id: 'due_date', label: 'Due Date', minWidth: 170 }
               ]}
-              rows={billEntries}
+              rows={singleBillEntries}
               maxHeight={true}
               onRowClickHandle={row => {
-                console.log(row)
-                router.push(`/l2/edit-bill/${row.party_name.props.data.P_Stock_In_Voucher_ID}?company=${row.party_name.props.data.company}`)
+                router.push(
+                  `/l2/edit-bill/${row.party_name.props.data.P_Stock_In_Voucher_ID}?company=${row.party_name.props.data.company}`
+                )
               }}
             />
           </CardContent>

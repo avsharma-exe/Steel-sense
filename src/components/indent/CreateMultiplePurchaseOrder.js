@@ -96,7 +96,7 @@ const CreateMultiplePurchaseOrder = ({ indentsList, handleClose, allSuppliers })
 
   const approveAndCreateMultipleOrder = async () => {
     setLoading(true)
-    console.log("indents" , indents)
+
     const approvalList =
       indents &&
       indents.map(indent => {
@@ -124,17 +124,15 @@ const CreateMultiplePurchaseOrder = ({ indentsList, handleClose, allSuppliers })
         return null
       })
 
-    console.log("approvalList" , approvalList)
     await secureApi
       .post(
         api_configs.indent.createMultiplePurchaseOrder,
-        approvalList.filter(function (el) {
-          return el != null
+        approvalList.filter(function (list) {
+          return list != null
         })
       )
       .then(resp => {
         if (resp.status === 200) {
-          // after approval
           toast.success('Approved & Purchase Order Created')
           handleClose()
         }
@@ -265,7 +263,7 @@ const CreateMultiplePurchaseOrder = ({ indentsList, handleClose, allSuppliers })
               row['total'] = displayAmount(indents[index].unit_p * indents[index].qty)
 
               return (
-                <TableRow hover role='checkbox' tabIndex={-1} key={row.code} >
+                <TableRow hover role='checkbox' tabIndex={-1} key={row.code}>
                   {columns.map(column => {
                     const value = row[column.id]
 

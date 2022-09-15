@@ -7,9 +7,6 @@ export default async function handler(req, res) {
 
     return
   }
-
-  let body = req.body
-
   
   try {
     let approvalList = req.body
@@ -17,9 +14,10 @@ export default async function handler(req, res) {
     const newBillEntry = await BillEntries.Create.createNewBillEntry({
       Bill_Name: "",
       CreatedBy: approvalList[0] ? approvalList[0].User_ID : null,
-      status: 0
+      status: 0,
+      Co_ID: approvalList[0] ? approvalList[0].Co_ID : null
     })
-    console.log(newBillEntry)
+    
 
     let i = 0;
     for (let inward of approvalList) {
