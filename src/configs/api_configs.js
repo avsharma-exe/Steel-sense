@@ -60,4 +60,10 @@ export default {
       getBillEntries: "stockInOut/getPurchaseOrderForBillEntry",
       getBillDetails: "stockInOut/getBillDetails"
     },
+    billEntry: {
+      getBillEntries: "bills/getBillEntries",
+      getSingleBillEntries: "bills/getSingleBillEntries",
+      getBillEntryDetails: "bills/getBillEntryDetails",
+      saveBill: "bills/saveBill"
+    }
 }
