@@ -46,6 +46,7 @@ const EditBill = ({ context }) => {
   const toggleAddCustomerDrawer = () => setAddCustomerOpen(!addCustomerOpen)
 
   const getBillDetails = async () => {
+    console.log('LOL')
     setDisplayLoader(true)
     await secureApi
       .get(api_configs.billEntry.getBillEntryDetails, {
@@ -79,6 +80,7 @@ const EditBill = ({ context }) => {
   }
 
   useEffect(() => {
+    console.log('calling', id, supplier)
     if (id && supplier) {
       Promise.all([getCompanyDetails(), getBillDetails(), getSupplierDetails()])
     }
@@ -98,11 +100,12 @@ const EditBill = ({ context }) => {
         Total: viewBillData.total,
         SubTotal: viewBillData.subTotal,
         InvoiceDate:
-          viewBillData.dueDate.getDate() +
+          viewBillData.dueDate.getFullYear() +
           '-' +
           (parseInt(viewBillData.dueDate.getMonth()) + 1) +
           '-' +
-          viewBillData.dueDate.getFullYear()
+          viewBillData.dueDate.getDate(),
+        billProducts: billProducts
       })
       .then(resp => {
         if (resp.status === 200) {
@@ -122,7 +125,8 @@ const EditBill = ({ context }) => {
             billDetails={billDetails.length != 0 ? billDetails[0] : {}}
             billProducts={billProducts}
             viewBillData={viewBillData}
-            setViewBillData={setViewBillData}
+            setBillProducts={data => setBillProducts(data)}
+            setViewBillData={data => setViewBillData(data)}
             supplierDetails={supplierDetails}
             toggleAddCustomerDrawer={toggleAddCustomerDrawer}
             billId={id}
