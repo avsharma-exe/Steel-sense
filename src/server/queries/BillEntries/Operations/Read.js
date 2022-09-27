@@ -4,7 +4,21 @@ const Read = {
   getBillEntries,
   getSingleBillEntry,
   getBillProducts,
-  getBillEntryDetails
+  getBillEntryDetails,
+  getBillDetails
+}
+
+
+/**
+ * Get bill details
+ * @param {*} bill_id
+ * @returns database data
+ */
+function getBillDetails(bill_id) {
+  return executeQuery({
+    query: `SELECT * from Bill_Entry where Bill_Entry_ID = ?`,
+    values: [bill_id]
+  })
 }
 
 /**

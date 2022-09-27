@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 
 // ** MUI Imports
 import Grid from '@mui/material/Grid'
@@ -8,7 +8,6 @@ import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 
 // ** Third Party Components
-import ReactToPdf from 'react-to-pdf'
 
 // **Components Imports
 
@@ -25,7 +24,7 @@ import api_configs from 'src/configs/api_configs'
 import useUserDetails from 'src/hooks/useUserDetails'
 import CircularProgress from '@mui/material/CircularProgress'
 
-const ViewBill = ({ context }) => {
+const PrintBill = ({ context }) => {
   const router = useRouter()
   const { id, supplier } = router.query
   const userDetails = useUserDetails()
@@ -91,28 +90,47 @@ const ViewBill = ({ context }) => {
 
   useEffect(() => {}, [viewBillData])
 
-  
-
+  const saveBill = async () => {
+    setUpdateLoader(true)
+    await secureApi
+      .patch(api_configs.billEntry.saveBill, {
+        Bill_Entry_ID: id,
+        Bill_Name: viewBillData.invoiceNumber,
+        status: 49,
+        Tax: viewBillData.tax,
+        Discount: viewBillData.discount,
+        Total: viewBillData.total,
+        SubTotal: viewBillData.subTotal,
+        InvoiceDate:
+          viewBillData.dueDate.getDate() +
+          '-' +
+          (parseInt(viewBillData.dueDate.getMonth()) + 1) +
+          '-' +
+          viewBillData.dueDate.getFullYear()
+      })
+      .then(resp => {
+        if (resp.status === 200) {
+          setUpdateLoader(false)
+          router.back()
+        }
+      })
+  }
 
   return (
     <>
-      <Grid container spacing={6}>
-        <Grid item xl={8} md={8} xs={12}>
-          <ViewBillComponent
-            invoiceNumber={1}
-            companyDetails={companyDetails}
-            billDetails={billDetails.length != 0 ? billDetails[0] : {}}
-            billProducts={billProducts}
-            viewBillData={viewBillData}
-            setViewBillData={() => setViewBillData()}
-            supplierDetails={supplierDetails}
-            toggleAddCustomerDrawer={toggleAddCustomerDrawer}
-            billId={id}
-          />
-        </Grid>
-      </Grid>
+      <ViewBillComponent
+        invoiceNumber={1}
+        companyDetails={companyDetails}
+        billDetails={billDetails.length != 0 ? billDetails[0] : {}}
+        billProducts={billProducts}
+        viewBillData={viewBillData}
+        setViewBillData={() => setViewBillData()}
+        supplierDetails={supplierDetails}
+        toggleAddCustomerDrawer={toggleAddCustomerDrawer}
+        billId={id}
+      />
     </>
   )
 }
 
-export default ViewBill
+export default PrintBill

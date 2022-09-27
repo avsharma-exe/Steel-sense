@@ -64,6 +64,7 @@ export default {
       getBillEntries: "bills/getBillEntries",
       getSingleBillEntries: "bills/getSingleBillEntries",
       getBillEntryDetails: "bills/getBillEntryDetails",
-      saveBill: "bills/saveBill"
+      saveBill: "bills/saveBill",
+      getBillDetails: "bills/getBillDetails"
     }
 }

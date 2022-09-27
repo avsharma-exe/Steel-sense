@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, forwardRef, useEffect } from 'react'
+import { useState, forwardRef, useEffect, useRef } from 'react'
 
 // ** MUI Imports
 import Card from '@mui/material/Card'
@@ -70,6 +70,15 @@ const CalcWrapper = styled(Box)(({ theme }) => ({
 const now = new Date()
 const tomorrowDate = now.setDate(now.getDate() + 7)
 
+// custom function to access previous props after rerender
+// function usePrevious(value) {
+//   const ref = useRef();
+//   useEffect(() => {
+//     ref.current = value;
+//   },[value]);
+//   return ref.current;
+// }
+
 const EditMultiple = props => {
   // ** Props
   const {
@@ -77,12 +86,16 @@ const EditMultiple = props => {
     companyDetails,
     supplierDetails,
     billDetails,
-    toggleAddCustomerDrawer,
+    setBillProducts,
     viewBillData,
     setViewBillData,
     billProducts,
     billId
   } = props
+
+  const [products, setProducts] = useState(billProducts)
+  
+  // const prevProducts = usePrevious(billProducts)
 
   useEffect(() => {
     if (billId) {
@@ -101,7 +114,9 @@ const EditMultiple = props => {
   }, [billId])
 
   useEffect(() => {
-    if (billProducts.length > 0) {
+    
+    if (billProducts && viewBillData) {
+      
       let totalAmt = billProducts.reduce((acc, obj) => {
         return acc + obj.TotalAmount
       }, 0)
@@ -112,7 +127,7 @@ const EditMultiple = props => {
         total: totalAmt + (totalAmt * viewBillData.tax) / 100 - (totalAmt * viewBillData.discount) / 100
       })
     }
-  }, [viewBillData , billProducts])
+  }, [viewBillData, billProducts])
 
   return (
     <Card>
@@ -262,6 +277,9 @@ const EditMultiple = props => {
 
               <TableCell>qty</TableCell>
               <TableCell>price per unit</TableCell>
+              <TableCell>Sub Total</TableCell>
+              <TableCell>Tax</TableCell>
+              <TableCell>Discount</TableCell>
               <TableCell>Total</TableCell>
             </TableRow>
           </TableHead>
@@ -278,6 +296,52 @@ const EditMultiple = props => {
                   <TableCell>
                     {billData.UnitPrice && displayAmount(billData.UnitPrice)} per {billData.Unit}
                   </TableCell>
+                  <TableCell>
+                    {billData.UnitPrice &&
+                      billData.Quantity &&
+                      displayAmount(parseInt(billData.UnitPrice) * parseInt(billData.Quantity))}
+                  </TableCell>
+                  <TableCell>
+                    <CalcWrapper>
+                      <TextField
+                        size='small'
+                        value={billProducts[index].TaxPercent}
+                        onChange={e => {
+                          let tempProductArr = billProducts
+                          let subTotal = parseInt(billData.UnitPrice) * parseInt(billData.Quantity)
+                          tempProductArr[index]['TaxPercent'] = e.target.value
+                          tempProductArr[index]['TotalAmount'] = subTotal - parseInt(subTotal * (tempProductArr[index]['DiscountPercent'] * 0.01)) + parseInt(subTotal * (e.target.value * 0.01)) 
+                          setBillProducts(tempProductArr)
+                        }}
+                        type='number'
+                        sx={{ width: '100px', '& .MuiInputBase-input': { color: 'text.secondary' } }}
+                        InputProps={{
+                          endAdornment: <InputAdornment position='end'>%</InputAdornment>
+                        }}
+                      />
+                    </CalcWrapper>
+                  </TableCell>
+                  <TableCell>
+                    <CalcWrapper>
+                      <TextField
+                        size='small'
+                        value={billProducts[index].DiscountPercent}
+                        onChange={e => {
+                          let tempProductArr = billProducts
+                          let subTotal = parseInt(billData.UnitPrice) * parseInt(billData.Quantity)
+                          tempProductArr[index]['DiscountPercent'] = e.target.value
+                          tempProductArr[index]['TotalAmount'] = subTotal - parseInt(subTotal * (e.target.value * 0.01)) + parseInt(subTotal * (tempProductArr[index]['TaxPercent'] * 0.01))
+                          setBillProducts(tempProductArr)
+                        }}
+                        type='number'
+                        sx={{ width: '100px', '& .MuiInputBase-input': { color: 'text.secondary' } }}
+                        InputProps={{
+                          endAdornment: <InputAdornment position='end'>%</InputAdornment>
+                        }}
+                      />
+                    </CalcWrapper>
+                  </TableCell>
+
                   <TableCell>{billData.TotalAmount && displayAmount(billData.TotalAmount)}</TableCell>
                 </TableRow>
               )
@@ -290,39 +354,6 @@ const EditMultiple = props => {
         <Grid container>
           <Grid item xs={12} sm={9} sx={{ order: { sm: 1, xs: 2 } }}></Grid>
           <Grid item xs={12} sm={3} sx={{ mb: { sm: 0, xs: 4 }, order: { sm: 2, xs: 1 } }}>
-            <CalcWrapper>
-              <Typography variant='body2'>Subtotal:</Typography>
-              <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.primary', lineHeight: '.25px' }}>
-                {displayAmount(viewBillData.subTotal)}
-              </Typography>
-            </CalcWrapper>
-            <CalcWrapper>
-              <Typography variant='body2'>Tax:</Typography>
-              <TextField
-                size='small'
-                value={viewBillData.tax}
-                onChange={e => setViewBillData({ ...viewBillData, tax: e.target.value })}
-                type='number'
-                sx={{ width: '100px', '& .MuiInputBase-input': { color: 'text.secondary' } }}
-                InputProps={{
-                  endAdornment: <InputAdornment position='end'>%</InputAdornment>
-                }}
-              />
-            </CalcWrapper>
-            <CalcWrapper>
-              <Typography variant='body2'>Discount:</Typography>
-              <TextField
-                size='small'
-                value={viewBillData.discount}
-                onChange={e => setViewBillData({ ...viewBillData, discount: e.target.value })}
-                type='number'
-                sx={{ width: '100px', '& .MuiInputBase-input': { color: 'text.secondary' } }}
-                InputProps={{
-                  endAdornment: <InputAdornment position='end'>%</InputAdornment>
-                }}
-              />
-            </CalcWrapper>
-
             <Divider sx={{ mt: 6, mb: 1.5 }} />
             <CalcWrapper>
               <Typography variant='body2'>Total:</Typography>
