@@ -246,7 +246,7 @@ const ViewBillComponent = props => {
                 return (
                   <TableRow>
                     <TableCell>{index + 1}</TableCell>
-                    <TableCell>{billData.PName}</TableCell>
+                    <TableCell>{billData.PName} </TableCell>
 
                     <TableCell>
                       {billData.Quantity} {billData.Unit}
