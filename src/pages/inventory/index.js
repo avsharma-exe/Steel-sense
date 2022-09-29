@@ -21,6 +21,8 @@ import CustomChip from 'src/@core/components/mui/chip'
 import { getStatusText } from 'src/helpers/statusHelper'
 import Exclamation from 'mdi-material-ui/Exclamation'
 import CheckCircle from 'mdi-material-ui/CheckCircle'
+import RowOptions from 'src/components/inventory/RowOptions'
+import UseProductForm from 'src/components/inventory/UseProductForm'
 
 const Inventory = () => {
   const userDetails = useUserDetails()
@@ -31,6 +33,10 @@ const Inventory = () => {
   const [editProduct, setEditProduct] = useState({})
   const [showEditProductForm, setShowEditProductForm] = useState(false)
   const [divs, setDivisions] = useState(null)
+  const [useProductForm, setUseProductForm] = useState({
+    show: false,
+    data: {}
+  })
   const [selectedRowData, setSelectedRowData] = useState({})
   const [openNew, setOpenNew] = useState(false)
   const [newRowData, setNewRowData] = useState({})
@@ -73,6 +79,7 @@ const Inventory = () => {
                 let allProducts = []
                 if (resp.data.allProducts) {
                   resp.data.allProducts.map((product, index) => {
+                    let selectedDiv = {}
                     let productRow = {
                       srNo: <Typography data={product}>{index + 1}</Typography>,
                       productName: <Typography>{product.PName}</Typography>,
@@ -84,7 +91,7 @@ const Inventory = () => {
                             size='small'
                             skin='light'
                             color='success'
-                            label={product.CurrentStock + " " + product.Unit}
+                            label={product.CurrentStock + ' ' + product.Unit}
                             icon={<CheckCircle fontSize='small' />}
                           />
                         ) : (
@@ -93,7 +100,7 @@ const Inventory = () => {
                             size='small'
                             skin='light'
                             color='error'
-                            label={product.CurrentStock + " " + product.Unit}
+                            label={product.CurrentStock + ' ' + product.Unit}
                             icon={<Exclamation fontSize='small' />}
                           />
                         ),
@@ -102,6 +109,7 @@ const Inventory = () => {
                           {divs.map(div => {
                             console.log(div.Div_ID, product.Div_ID, div.DivisionName, product.PName)
                             if (div.Div_ID === product.Div_ID) {
+                              selectedDiv = div
                               return <CustomChip size='small' skin='light' color='primary' label={div.DivisionName} />
                             }
                           })}
@@ -109,6 +117,24 @@ const Inventory = () => {
                       ),
                       status: getStatusText(product.status)
                     }
+                    if (userDetails.Role_ID === 4) {
+                      productRow['actions'] = (
+                        <Button
+                          variant='contained'
+                          color='success'
+                          onClick={() => {
+                            product["division"] = selectedDiv
+                            setUseProductForm({
+                              show: true,
+                              data: product
+                            })
+                          }}
+                        >
+                          use stock
+                        </Button>
+                      )
+                    }
+
                     allProducts.push(productRow)
                   })
                 }
@@ -131,6 +157,16 @@ const Inventory = () => {
 
   return (
     <>
+      <UseProductForm
+        productDetails={useProductForm.data}
+        show={useProductForm.show}
+        handleClose={() =>
+          setUseProductForm({
+            show: false,
+            data: {}
+          })
+        }
+      />
       {showAddProductForm ? (
         <AddProductForm onCloseHandle={setShowAddProductForm} getProducts={() => getProducts()} allDivs={divs} />
       ) : null}
@@ -165,11 +201,12 @@ const Inventory = () => {
                 { id: 'srNo', label: 'Sr No.' },
                 { id: 'productName', label: 'Product Name' },
                 { id: 'stock', label: 'Stock Available' },
-                { id: 'division', label: 'Division' },
-                { id: 'status', label: 'Status' }
-
-                // { id: 'actions', label: 'Actions', minWidth: 170 }
-              ]}
+                { id: 'division', label: 'Division', minWidth: 50 },
+                { id: 'status', label: 'Status', minWidth: 50 },
+                userDetails.Role_ID === 4 ? { id: 'actions', label: 'Actions', minWidth: 30 } : null
+              ].filter(function (el) {
+                return el != null
+              })}
               rows={products}
               onRowClickHandle={rowData => {
                 if (userDetails.Role_ID !== 4) {

@@ -20,6 +20,7 @@ import BasicTable from 'src/components/utils/BasicTable'
 
 import { ClipboardListOutline } from 'mdi-material-ui'
 import { useRouter } from 'next/router'
+import { displayInitials } from 'src/helpers/displayInitials'
 
 const AllBills = () => {
   const router = useRouter()
@@ -67,12 +68,28 @@ const AllBills = () => {
         if (resp.status === 200) {
           let billEntries = resp.data.allBills.map(entry => {
             return {
-              supplier: <Typography>{entry.CompanyName}</Typography>,
+              supplier: (
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  {displayInitials(entry.CompanyName)}
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Typography
+                      noWrap
+                      variant='body2'
+                      sx={{ color: 'text.primary', fontWeight: 500, lineHeight: '22px', letterSpacing: '.1px' }}
+                    >
+                      {entry.CompanyName}
+                    </Typography>
+                    <Typography noWrap variant='caption'>
+                      {/* {companyEmail} */}
+                    </Typography>
+                  </Box>
+                </Box>
+              ),
               Bill_Name: <Typography data={entry}>{entry.Bill_Name == '' ? 'NA' : '# ' + entry.Bill_Name}</Typography>,
               status: renderStatus(entry.status),
               sub_total: displayAmount(entry.SubTotal),
-              tax: entry.Tax == null ? 'NA' : entry.Tax + "%",
-              discount: entry.Discount == null ? 'NA' : entry.Discount + "%",
+              tax: entry.Tax == null ? 'NA' : entry.Tax + '%',
+              discount: entry.Discount == null ? 'NA' : entry.Discount + '%',
               total: displayAmount(entry.Total),
               invoice_date: entry.InvoiceDate == null ? 'NA' : displayDate(new Date(entry.InvoiceDate))
             }
@@ -151,7 +168,7 @@ const AllBills = () => {
           <CardContent>
             <BasicTable
               columns={[
-                { id: 'supplier', label: 'Supplier Name', minWidth: 170 },
+                { id: 'supplier', label: 'Supplier Name', minWidth: 270 },
                 { id: 'Bill_Name', label: 'Bill ID', minWidth: 170 },
                 { id: 'invoice_date', label: 'Invoice Date', minWidth: 170 },
                 { id: 'status', label: 'Status', minWidth: 170 },
