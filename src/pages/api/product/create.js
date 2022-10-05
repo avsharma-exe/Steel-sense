@@ -47,7 +47,6 @@ export default async function handler(req, res) {
         LastStock: stock.openingStock,
         LowStockLimit: stock.LowStockLimit,
         MaxStockLimit: stock.MaxStockLimit,
-        Co_ID: body.userDetails.Co_ID,
         Div_ID: division,
         ...userfeilds
       }

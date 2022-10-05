@@ -140,7 +140,7 @@ const AddProductForm = ({ onCloseHandle, getProducts, allDivs }) => {
       allStocks,
       userDetails: { User_ID: userDetails.User_ID, Co_ID: userDetails.Co_ID }
     }
-    console.log(product)
+    
 
     await secureApi
       .post(api_configs.product.create, product)
