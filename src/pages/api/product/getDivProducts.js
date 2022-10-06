@@ -8,69 +8,43 @@ export default async function handler(req, res) {
   }
 
   let Co_ID = req.query.company
+  let filters = JSON.parse(req.query.filters)
 
   let divisions =
     req.query['userDivisions[]'].length === 1 ? [req.query['userDivisions[]']] : req.query['userDivisions[]']
-
+  console.log(filters, divisions)
   try {
-    let allProducts = await Product.Read.getAllProductsIDsOfACompanyByDivision(Co_ID, divisions)
-    console.log(allProducts)
-    if (allProducts.length === 0){
+    let products = await Product.Read.getProductCount(Co_ID)
+    let total_products = products.length
+    let total_pages =
+      Math.round(total_products / filters.perPage) < total_products / filters.perPage
+        ? parseInt(Math.round(total_products / filters.perPage) + 1)
+        : Math.round(total_products / filters.perPage)
+    let offset = (filters.pageNo - 1) * filters.perPage
+
+    let allProducts = await Product.Read.getAllProductsIDsOfACompanyByDivisionWithFilters(
+      Co_ID,
+      divisions,
+      offset,
+      filters.perPage
+    )
+
+    if (allProducts.length === 0) {
       res.send({
         error: true,
-        msg: 'Products Not Found'
+        msg: 'Products Not Found',
+        total_pages,
+        total_products
       })
     } else {
       res.send({
         error: false,
-        allProducts
+        allProducts,
+        total_pages,
+        total_products
       })
     }
-
-
-    // for (let i = 0; i < getAllProducts.length; i++) {
-    //   let product = getAllProducts[i]
-    //   const productDetails = await Product.Read.getProductMasterData(product.P_ID)
-    //   const priceDetails = await Product.Read.getProductPriceDetailsData(product.P_ID)
-    //   const stockDetails = await Product.Read.getProductStockData(product.P_ID, product.Div_ID)
-
-    //   console.log(stockDetails)
-
-    //   let product_details = {
-    //     productDetails,
-    //     priceDetails,
-    //     stockDetails
-    //   }
-
-    //   // console.log("index" , getAllProducts.length , i)
-    //   allProducts.push(product_details)
-    //   if (i >= getAllProducts.length - 1) {
-    //     res.send({
-    //       error: false,
-    //       allProducts
-    //     })
-    //   }
-    // }
   } catch (e) {
     throw e
   }
-
-  // try {
-  //   let allProducts = await Product.Read.getAllDivsionProducts(Co_ID, divisions)
-
-  //   if (allProducts.length === 0)
-  //     res.send({
-  //       error: true,
-  //       msg: 'Products Not Found'
-  //     })
-
-  //   if (allProducts) {
-  //     res.send({
-  //       error: false,
-  //       allProducts
-  //     })
-  //   }
-  // } catch (e) {
-  //   throw e
-  // }
 }

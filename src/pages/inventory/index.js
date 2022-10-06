@@ -21,7 +21,7 @@ import CustomChip from 'src/@core/components/mui/chip'
 import { getStatusText } from 'src/helpers/statusHelper'
 import Exclamation from 'mdi-material-ui/Exclamation'
 import CheckCircle from 'mdi-material-ui/CheckCircle'
-import RowOptions from 'src/components/inventory/RowOptions'
+
 import UseProductForm from 'src/components/inventory/UseProductForm'
 
 const Inventory = () => {

@@ -9,36 +9,40 @@ export default async function handler(req, res) {
   }
 
   let Co_ID = req.query.company
-
+  let filters = JSON.parse(req.query.filters)
+  let searchterm = req.query.searchTerm
   try {
-    let allProducts = await Product.Read.getAllProductsIDsOfACompany(Co_ID)
-    if(allProducts.length === 0){
+    let products = await Product.Read.getProductCount(Co_ID, searchterm)
+    let total_products = products.length
+    let total_pages =
+      Math.round(total_products / filters.perPage) < total_products / filters.perPage
+        ? parseInt(Math.round(total_products / filters.perPage) + 1)
+        : Math.round(total_products / filters.perPage)
+    let offset = (filters.pageNo - 1) * filters.perPage
+
+    let allProducts = []
+
+    if (filters.division !== null) {
+      allProducts = await Product.Read.getAllProductsOfDivision(Co_ID, filters.division, offset, filters.perPage)
+    } else {
+      allProducts = await Product.Read.getAllProductsIDsOfACompany(Co_ID, offset, filters.perPage , searchterm)
+    }
+
+    console.log(allProducts)
+
+    if (allProducts.length === 0) {
       res.send({
         error: true,
-        msg: "Products Not Found"
+        msg: 'Products Not Found'
       })
     } else {
       res.send({
         error: false,
-        allProducts
+        allProducts,
+        total_pages,
+        total_products
       })
     }
-
-    // let p_id = getAllProducts.filter(p => {return(p.P_ID)})
-
-    // const productDetails = await Product.Read.getProductMasterData(p_id)
-    // const priceDetails = await Product.Read.getProductPriceDetailsData(p_id)
-    // const stockDetails = await Product.Read.getProductStockData(Co_ID,Div_ID)
-
-
-    // let product_details = {
-    //   productDetails,
-    //   priceDetails,
-    //   stockDetails
-    // }
-
-    // console.log("index" , getAllProducts.length , i)
-    // allProducts.push(product_details)
   } catch (e) {
     throw e
   }
