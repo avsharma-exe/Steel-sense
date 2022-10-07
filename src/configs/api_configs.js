@@ -50,9 +50,21 @@ export default {
       getAll: "/indent/get-all",
       approve: "/indent/approve",
       createPurchaseOrder: "/indent/createPurchaseOrder",
-      getIncomingOrder: "/indent/getIncomingOrder"
+      getIncomingOrder: "/indent/getIncomingOrder",
+      createMultiplePurchaseOrder: "/indent/createMultiplePurchaseOrder"
     },
     stockInOut: {
-      createStockInward: "stockInOut/createStockInward"
+      createStockInward: "stockInOut/createStockInward",
+      getAllInwards: "stockInOut/getAllCompanyInwards",
+      updateBillEntry: "stockInOut/updateBillEntry",
+      getBillEntries: "stockInOut/getPurchaseOrderForBillEntry",
+      getBillDetails: "stockInOut/getBillDetails"
+    },
+    billEntry: {
+      getBillEntries: "bills/getBillEntries",
+      getSingleBillEntries: "bills/getSingleBillEntries",
+      getBillEntryDetails: "bills/getBillEntryDetails",
+      saveBill: "bills/saveBill",
+      getBillDetails: "bills/getBillDetails"
     }
 }

@@ -17,23 +17,34 @@ export default async function handler(req, res) {
       ':' + date.getMinutes()
     body['CreatedDt'] = CreatedDt
     delete body.user
-    let status = body.status;
+    let status = body.status
     delete body.status
+    let voucher_id = body.P_Stock_In_Voucher_ID
+    delete body.P_Stock_In_Voucher_ID
+    let in_id = body.P_Stock_In_ID
+    delete body.P_Stock_In_ID
+
     console.log(body)
     let updateStock = null
     // add new inward stock
-    let result = await StockInOut.Create.createStockInwardVoucher(body).then(
+    let result = await StockInOut.Update.updateProductStockInwardVoucher(body, voucher_id).then(
       updateStock = await StockInOut.Update.updateStockInward(body['Quantity'], body['P_ID'])
     )
 
+
+
     if (result && updateStock) {
+      let statusUpdate = await StockInOut.Update.updateProductStockInwardStatus(status, in_id)
+      if( statusUpdate ){
       // TODO: add mail service to send the credentials
-      res.send({
-        error: false,
-        msg: 'Stock inward is success',
-        result,
-        updateStock,
-      })
+        res.send({
+          error: false,
+          msg: 'Stock inward is success',
+          result,
+          updateStock,
+          statusUpdate
+        })
+      }
     }
   } catch (e) {
     throw e

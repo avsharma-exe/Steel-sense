@@ -84,7 +84,7 @@ const AllSuppliers = () => {
                 </Typography>
               ),
               mobile: company.MobileNo,
-              actions: <TableActions editRow={rowData => editRow(rowData)} row={company} />
+              // actions: <TableActions editRow={rowData => editRow(rowData)} row={company} />
             })
           })
           setAllSuppliers(allSupplier)
@@ -172,7 +172,7 @@ const AllSuppliers = () => {
 
               { id: 'mobile', label: 'Mobile Number', minWidth: 170 },
 
-              { id: 'actions', label: 'Actions', minWidth: 170 }
+              // { id: 'actions', label: 'Actions', minWidth: 170 }
             ]}
             rows={allSuppliers}
             onRowClickHandle={rowData => {}}

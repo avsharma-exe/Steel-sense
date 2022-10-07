@@ -22,24 +22,25 @@ function getUserCompanyMap(user_id) {
 }
 
 /**
- * 
+ *
  * @param company ID
  * @returns database data
  */
 function getAllSuppliers(Co_ID) {
   return executeQuery({
-    query: "SELECT * from Company_Master join User_Master on Company_Master.CreatedBy = User_Master.User_ID join Company_User on Company_User.User_ID =  User_Master.User_ID join Company_Details on Company_Details.Co_ID = Company_Master.Co_ID where Company_Details.CompanyType = ? and Company_User.Co_ID = ?",
-    values: ["Supplier" , Co_ID]
+    query:
+      'SELECT * from Company_Master join User_Master on Company_Master.CreatedBy = User_Master.User_ID join Company_User on Company_User.User_ID =  User_Master.User_ID join Company_Details on Company_Details.Co_ID = Company_Master.Co_ID where Company_Details.CompanyType = ? and Company_User.Co_ID = ?',
+    values: ['Supplier', Co_ID]
   })
 }
 
 /**
- * @param 
+ * @param
  * @returns database data
  */
- function getAllCompanies() {
+function getAllCompanies() {
   return executeQuery({
-    query: "SELECT * from Company_Master join User_Master on Company_Master.CreatedBy = User_Master.User_ID",
+    query: 'SELECT * from Company_Master join User_Master on Company_Master.CreatedBy = User_Master.User_ID',
     values: []
   })
 }
@@ -63,10 +64,14 @@ function getCompanyMasterData(co_id) {
  */
 function getCompanyDetailsData(co_id) {
   return executeQuery({
-    query: `SELECT * FROM Company_Details WHERE Co_ID = ?`,
+    query: `SELECT *, cities.name as city_name , countries.name as country_name , states.name as state_name FROM Company_Details 
+    join Company_Master on Company_Master.Co_ID = Company_Details.Co_ID
+    LEFT JOIN states on Company_Details.State = states.id
+    LEFT JOIN cities on Company_Details.City = cities.id
+    LEFT JOIN countries on Company_Details.Country = countries.id
+    WHERE Company_Master.Co_ID = ?`,
     values: [co_id]
   })
 }
-
 
 export default Read

@@ -31,75 +31,34 @@ import { secureApi } from 'src/helpers/apiGenerator'
 import api_configs from 'src/configs/api_configs'
 import CircularProgress from '@mui/material/CircularProgress'
 
-const defaultProductDetails = {
-  PName: '',
-  PGroup: '',
-  PBrand: '',
-  PItemCode: '',
-  PPrintName: ''
-}
-
 const productDetailsSchema = yup.object().shape({
   PName: yup.string().required(),
-  PGroup: yup.string().required(),
-  PBrand: yup.string().required()
+  Unit: yup.string().required(),
+  PricePerUnit: yup.string().required()
 })
-
-const defaultPriceDetails = {
-  PurchasePrice: '',
-  SalePrice: '',
-  MinSalePrice: ''
-}
-
-const defaultPriceSchema = yup.object().shape({
-  PurchasePrice: yup.number().required(),
-  SalePrice: yup.number().required(),
-  MinSalePrice: yup.number()
-})
-
-const defaultStockDetails = {
-  unit: '',
-  CurrentStock: '',
-  LowStockLimit: '',
-  MaxStockLimit: ''
-}
 
 const stockDetailsSchema = yup.object().shape({
-  CurrentStock: yup.string().required()
+  CurrentStock: yup.string().required(),
+  LowStockLimit: yup.string().required(),
+  MaxStockLimit: yup.string().required()
 })
-
-const defaultGstDetails = {
-  HSN_SAC_Code: '',
-  CGST: '',
-  SGST: '',
-  Cess: '',
-  IGST: ''
-}
-
-const gstSchema = yup.object().shape({
-  CGST: yup.string().required(),
-  SGST: yup.string().required(),
-  Cess: yup.string().required(),
-  IGST: yup.string().required()
-})
-
-const defaultOtherDetails = {
-  saleDiscount: '',
-  lowLevelLimit: '',
-  productType: '',
-  serialno: ''
-}
-
-const otherDetailsSchema = yup.object().shape({})
 
 const EditProductForm = ({ product, onCloseHandle, getProducts }) => {
-  const [productDetails, setProductDetails] = useState(product.productDetails ? product.productDetails[0] : null)
+  const userDetails = useUserDetails();
+  const [productDetails, setProductDetails] = useState(
+    product
+      ? {
+          P_ID: product.P_ID,
+          PName: product.PName,
+          Unit: product.Unit,
+          PricePerUnit: product.PurchasePrice
+        }
+      : null
+  )
   const [value, setValue] = useState('product-info')
   const [loader, setLoader] = useState(false)
-  const [priceDetails, setPriceDetails] = useState(product.priceDetails ? product.priceDetails[0] : null)
-  const [stockDetails, setStockDetails] = useState(product.stockDetails ? product.stockDetails[0] : null)
-  const [gstDetails, setGstDetails] = useState(product.gstDetails ? product.gstDetails[0] : null)
-  const [otherDetails, setOtherDetails] = useState(defaultOtherDetails)
+  const [stockDetails, setStockDetails] = useState(product ? [product] : [])
+  const [stockDivisionTabs, setStockDivisionTabs] = useState(0)
 
   const {
     control: productDetailControl,
@@ -107,27 +66,11 @@ const EditProductForm = ({ product, onCloseHandle, getProducts }) => {
     formState: { errors: productDetailsError }
   } = useForm({
     defaultValues: {
-      PName: product.productDetails[0].PName,
-      PGroup: product.productDetails[0].PBrand,
-      PBrand: product.productDetails[0].PGroup,
-      PItemCode: '',
-      PPrintName: ''
+      PName: product.PName,
+      Unit: product.Unit,
+      PricePerUnit: product.PurchasePrice
     },
     resolver: yupResolver(productDetailsSchema)
-  })
-
-  const {
-    reset: priceDetailsReset,
-    control: priceDetailsControl,
-    handleSubmit: handlePriceDetailsSubmit,
-    formState: { errors: priceDetailsError }
-  } = useForm({
-    defaultValues: {
-      PurchasePrice: product.priceDetails[0].PurchasePrice,
-      SalePrice: product.priceDetails[0].SalePrice,
-      MinSalePrice: product.priceDetails[0].MinSalePrice
-    },
-    resolver: yupResolver(defaultPriceSchema)
   })
 
   const {
@@ -137,28 +80,11 @@ const EditProductForm = ({ product, onCloseHandle, getProducts }) => {
     formState: { errors: stockDetailsError }
   } = useForm({
     defaultValues: {
-      unit: '', // get unit name
-      CurrentStock: product.stockDetails[0].CurrentStock,
-      LowStockLimit: product.stockDetails[0].LowStockLimit,
-      MaxStockLimit: product.stockDetails[0].MaxStockLimit
+      CurrentStock: product.CurrentStock,
+      LowStockLimit: product.LowStockLimit,
+      MaxStockLimit: product.MaxStockLimit
     },
     resolver: yupResolver(stockDetailsSchema)
-  })
-
-  const {
-    reset: gstDetailsReset,
-    control: gstDetailsControl,
-    handleSubmit: handleGstDetailsSubmit,
-    formState: { errors: gstDetailsError }
-  } = useForm({
-    defaultValues: {
-      HSN_SAC_Code: product.gstDetails[0].HSN_SAC_Code,
-      CGST: product.gstDetails[0].CGST,
-      SGST: product.gstDetails[0].SGST,
-      Cess: product.gstDetails[0].Cess,
-      IGST: product.gstDetails[0].IGST
-    },
-    resolver: yupResolver(gstSchema)
   })
 
   const handleTabsChange = (event, newValue) => {
@@ -168,33 +94,12 @@ const EditProductForm = ({ product, onCloseHandle, getProducts }) => {
   const saveProductDetails = async e => {
     e.preventDefault()
     setLoader(true)
-    await secureApi
-      .patch(api_configs.product.updateProductMaster, {
-        productDetails
-      })
-      .then(resp => {
-        if (resp.status === 200) {
-          toast.success('Product Details Updated')
-          getProducts()
-        }
-      })
-    setLoader(false)
-  }
-
-  const saveProductPricing = async e => {
-    e.preventDefault()
-    setLoader(true)
-
-    await secureApi
-      .patch(api_configs.product.updatePriceDetails, {
-        priceDetails
-      })
-      .then(resp => {
-        if (resp.status === 200) {
-          toast.success('Price Details Updated')
-          getProducts()
-        }
-      })
+    await secureApi.patch(api_configs.product.updateProductMaster, productDetails).then(resp => {
+      if (resp.status === 200) {
+        toast.success('Product Details Updated')
+        getProducts()
+      }
+    })
     setLoader(false)
   }
 
@@ -204,28 +109,12 @@ const EditProductForm = ({ product, onCloseHandle, getProducts }) => {
 
     await secureApi
       .patch(api_configs.product.updateStockDetails, {
-        stockDetails
+        stockDetails,
+        userDetails
       })
       .then(resp => {
         if (resp.status === 200) {
           toast.success('Stock Details Updated')
-          getProducts()
-        }
-      })
-    setLoader(false)
-  }
-
-  const saveGSTDetails = async e => {
-    e.preventDefault()
-    setLoader(true)
-
-    await secureApi
-      .patch(api_configs.product.updateGSTDetails, {
-        gstDetails
-      })
-      .then(resp => {
-        if (resp.status === 200) {
-          toast.success('GST Details Updated')
           getProducts()
         }
       })
@@ -250,193 +139,59 @@ const EditProductForm = ({ product, onCloseHandle, getProducts }) => {
             sx={{ borderBottom: theme => `1px solid ${theme.palette.divider}` }}
           >
             <Tab value='product-info' label='Product Details' />
-            <Tab value='price-details' label='Price Details' />
             <Tab value='stock-details' label='Stock Details' />
-            <Tab value='gst-details' label='Gst Details' />
           </TabList>
           <TabPanel value='product-info'>
-            {loader ? (
-              <CircularProgress
-                sx={{
-                  color: 'common.black',
-                  width: '20px !important',
-                  height: '20px !important',
-                  mr: theme => theme.spacing(2)
-                }}
-              />
-            ) : (
-              <form onSubmit={e => saveProductDetails(e)}>
-                <Grid container spacing={5}>
-                  <Grid item xs={12} sm={6}>
-                    <FormControl fullWidth>
-                      <Controller
-                        name='PName'
-                        control={productDetailControl}
-                        rules={{ required: true }}
-                        render={({ field: { value, onChange } }) => (
-                          <TextField
-                            value={productDetails.PName}
-                            label='Product Name'
-                            onChange={e => {
-                              onChange(e)
-                              setProductDetails({ ...productDetails, PName: e.target.value })
-                            }}
-                            error={Boolean(productDetailsError.PName)}
-                            aria-describedby='stepper-linear-account-username'
-                          />
-                        )}
-                      />
-                      {productDetailsError.PName && (
-                        <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                          This field is required
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <FormControl fullWidth>
-                      <Controller
-                        name='PGroup'
-                        control={productDetailControl}
-                        rules={{ required: true }}
-                        render={({ field: { value, onChange } }) => (
-                          <TextField
-                            value={productDetails.PGroup}
-                            label='Product Group'
-                            onChange={e => {
-                              onChange(e)
-                              setProductDetails({ ...productDetails, PGroup: e.target.value })
-                            }}
-                            error={Boolean(productDetailsError.PGroup)}
-                            aria-describedby='stepper-linear-account-username'
-                          />
-                        )}
-                      />
-                      {productDetailsError.PGroup && (
-                        <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                          This field is required
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <FormControl fullWidth>
-                      <Controller
-                        name='PBrand'
-                        control={productDetailControl}
-                        rules={{ required: true }}
-                        render={({ field: { value, onChange } }) => (
-                          <TextField
-                            value={productDetails.PBrand}
-                            label='Product Brand'
-                            onChange={e => {
-                              onChange(e)
-                              setProductDetails({ ...productDetails, PBrand: e.target.value })
-                            }}
-                            placeholder='group'
-                            error={Boolean(productDetailsError.PBrand)}
-                            aria-describedby='stepper-linear-account-username'
-                          />
-                        )}
-                      />
-                      {productDetailsError.PBrand && (
-                        <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                          This field is required
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <FormControl fullWidth>
-                      <Controller
-                        name='PItemCode'
-                        control={productDetailControl}
-                        rules={{ required: true }}
-                        render={({ field: { value, onChange } }) => (
-                          <TextField
-                            value={productDetails.PItemCode}
-                            label='Item Code'
-                            onChange={e => {
-                              onChange(e)
-                              setProductDetails({ ...productDetails, PItemCode: e.target.value })
-                            }}
-                            placeholder='group'
-                            error={Boolean(productDetailsError.PItemCode)}
-                            aria-describedby='stepper-linear-account-username'
-                          />
-                        )}
-                      />
-                      {productDetailsError.PItemCode && (
-                        <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                          This field is required
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <FormControl fullWidth>
-                      <Controller
-                        name='PPrintName'
-                        control={productDetailControl}
-                        rules={{ required: true }}
-                        render={({ field: { value, onChange } }) => (
-                          <TextField
-                            value={productDetails.PPrintName}
-                            label='Print Name'
-                            onChange={e => {
-                              onChange(e)
-                              setProductDetails({ ...productDetails, PPrintName: e.target.value })
-                            }}
-                            placeholder='group'
-                            error={Boolean(productDetailsError.PPrintName)}
-                            aria-describedby='stepper-linear-account-username'
-                          />
-                        )}
-                      />
-                      {productDetailsError.PPrintName && (
-                        <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                          This field is required
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Button size='large' variant='outlined' color='secondary' disabled>
-                      Back
-                    </Button>
-                    <Button size='large' type='submit' variant='contained'>
-                      Save
-                    </Button>
-                  </Grid>
-                </Grid>
-              </form>
-            )}
-          </TabPanel>
-          <TabPanel value='stock-details'>
-            <form onSubmit={e => saveStockDetails(e)}>
+            <form onSubmit={e => saveProductDetails(e)}>
               <Grid container spacing={5}>
                 <Grid item xs={12} sm={6}>
                   <FormControl fullWidth>
                     <Controller
-                      name='unit'
-                      control={stockDetailsControl}
+                      name='PName'
+                      control={productDetailControl}
                       rules={{ required: true }}
                       render={({ field: { value, onChange } }) => (
                         <TextField
-                          value={value}
+                          value={productDetails.PName}
+                          label='Product Name'
+                          onChange={e => {
+                            onChange(e)
+                            setProductDetails({ ...productDetails, PName: e.target.value })
+                          }}
+                          error={Boolean(productDetailsError.PName)}
+                          aria-describedby='stepper-linear-account-username'
+                        />
+                      )}
+                    />
+                    {productDetailsError.PName && (
+                      <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
+                        This field is required
+                      </FormHelperText>
+                    )}
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth>
+                    <Controller
+                      name='Unit'
+                      control={productDetailControl}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange } }) => (
+                        <TextField
+                          value={productDetails.Unit}
                           label='Unit'
                           onChange={e => {
                             onChange(e)
-                            setStockDetails({ ...stockDetails, unit: e.target.value })
+                            setProductDetails({ ...productDetails, Unit: e.target.value })
                           }}
-                          error={Boolean(stockDetailsError.unit)}
+                          error={Boolean(productDetailsError.Unit)}
                           aria-describedby='stepper-linear-account-username'
                         />
                       )}
                     />
-                    {stockDetailsError.unit && (
+                    {productDetailsError.Unit && (
                       <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                        {stockDetailsError.unit.message}
+                        This field is required
                       </FormHelperText>
                     )}
                   </FormControl>
@@ -444,335 +199,207 @@ const EditProductForm = ({ product, onCloseHandle, getProducts }) => {
                 <Grid item xs={12} sm={6}>
                   <FormControl fullWidth>
                     <Controller
-                      name='CurrentStock'
-                      control={stockDetailsControl}
+                      name='PricePerUnit'
+                      control={productDetailControl}
                       rules={{ required: true }}
                       render={({ field: { value, onChange } }) => (
                         <TextField
-                          value={value}
-                          label='Current Stock'
+                          value={productDetails.PricePerUnit}
+                          label='Purchase Price Per Unit'
                           onChange={e => {
                             onChange(e)
-                            setStockDetails({ ...stockDetails, CurrentStock: e.target.value })
+                            setProductDetails({ ...productDetails, PricePerUnit: e.target.value })
                           }}
-                          error={Boolean(stockDetailsError.CurrentStock)}
+                          placeholder='group'
+                          error={Boolean(productDetailsError.PricePerUnit)}
                           aria-describedby='stepper-linear-account-username'
                         />
                       )}
                     />
-                    {stockDetailsError.CurrentStock && (
+                    {productDetailsError.PricePerUnit && (
                       <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                        {stockDetailsError.CurrentStock.message}
+                        This field is required
                       </FormHelperText>
                     )}
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <Controller
-                      name='LowStockLimit'
-                      control={stockDetailsControl}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <TextField
-                          value={value}
-                          label='Low Stock Limit'
-                          onChange={e => {
-                            onChange(e)
-                            setStockDetails({ ...stockDetails, LowStockLimit: e.target.value })
-                          }}
-                          error={Boolean(stockDetailsError.LowStockLimit)}
-                          aria-describedby='stepper-linear-account-username'
-                        />
-                      )}
-                    />
-                    {stockDetailsError.LowStockLimit && (
-                      <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                        {stockDetailsError.LowStockLimit.message}
-                      </FormHelperText>
-                    )}
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <Controller
-                      name='MaxStockLimit'
-                      control={stockDetailsControl}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <TextField
-                          value={value}
-                          label='Max Stock Limit'
-                          onChange={e => {
-                            onChange(e)
-                            setStockDetails({ ...stockDetails, MaxStockLimit: e.target.value })
-                          }}
-                          error={Boolean(stockDetailsError.MaxStockLimit)}
-                          aria-describedby='stepper-linear-account-username'
-                        />
-                      )}
-                    />
-                    {stockDetailsError.MaxStockLimit && (
-                      <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                        {stockDetailsError.MaxStockLimit.message}
-                      </FormHelperText>
-                    )}
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+
+                <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between', float: 'right' }}>
                   <Button size='large' variant='outlined' color='secondary' disabled>
                     Back
                   </Button>
                   <Button size='large' type='submit' variant='contained'>
-                    Save
+                    {loader ? (
+                      <CircularProgress
+                        sx={{
+                          color: 'common.white',
+                          width: '20px !important',
+                          height: '20px !important',
+                          mr: theme => theme.spacing(2)
+                        }}
+                      />
+                    ) : (
+                      'Save'
+                    )}
                   </Button>
                 </Grid>
               </Grid>
             </form>
           </TabPanel>
-          <TabPanel value='price-details'>
-            <form onSubmit={e => saveProductPricing(e)}>
+          <TabPanel value='stock-details'>
+            <TabContext value={stockDivisionTabs}>
               <Grid container spacing={5}>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <Controller
-                      name='PurchasePrice'
-                      control={priceDetailsControl}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <TextField
-                          value={value}
-                          label='Purchase Price'
-                          onChange={e => {
-                            onChange(e)
-                            setPriceDetails({ ...priceDetails, PurchasePrice: e.target.value })
-                          }}
-                          startAdornment={<InputAdornment position='start'>₹</InputAdornment>}
-                          error={Boolean(priceDetailsError.PurchasePrice)}
-                          aria-describedby='stepper-linear-account-username'
-                        />
-                      )}
-                    />
-                    {priceDetailsError.PurchasePrice && (
-                      <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                        {priceDetailsError.PurchasePrice.message}
-                      </FormHelperText>
-                    )}
-                  </FormControl>
+                <Grid item sm={3} xs={12}>
+                  <TabList
+                    orientation='vertical'
+                    onChange={(e, newIndex) => {
+                      stockDetailsReset({
+                        CurrentStock: product.stockDetails[newIndex].CurrentStock,
+                        LowStockLimit: product.stockDetails[newIndex].LowStockLimit,
+                        MaxStockLimit: product.stockDetails[newIndex].MaxStockLimit
+                      })
+                      setStockDivisionTabs(newIndex)
+                    }}
+                    aria-label='vertical division tabs'
+                  >
+                    {stockDetails.map((stock, index) => {
+                      return <Tab value={index} label={stock.DivisionName} />
+                    })}
+                  </TabList>
                 </Grid>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <Controller
-                      name='SalePrice'
-                      control={priceDetailsControl}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <TextField
-                          value={value}
-                          label='Sale Price'
-                          onChange={e => {
-                            onChange(e)
-                            setPriceDetails({ ...priceDetails, SalePrice: e.target.value })
-                          }}
-                          startAdornment={<InputAdornment position='start'>₹</InputAdornment>}
-                          error={Boolean(priceDetailsError.SalePrice)}
-                          aria-describedby='stepper-linear-account-username'
-                        />
-                      )}
-                    />
-                    {priceDetailsError.SalePrice && (
-                      <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                        {priceDetailsError.SalePrice.message}
-                      </FormHelperText>
-                    )}
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <Controller
-                      name='MinSalePrice'
-                      control={priceDetailsControl}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <TextField
-                          value={value}
-                          label='Min Sale Price'
-                          onChange={e => {
-                            onChange(e)
-                            setPriceDetails({ ...priceDetails, MinSalePrice: e.target.value })
-                          }}
-                          startAdornment={<InputAdornment position='start'>₹</InputAdornment>}
-                          error={Boolean(priceDetailsError.MinSalePrice)}
-                          aria-describedby='stepper-linear-account-username'
-                        />
-                      )}
-                    />
-                    {priceDetailsError.MinSalePrice && (
-                      <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                        {priceDetailsError.MinSalePrice.message}
-                      </FormHelperText>
-                    )}
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Button size='large' variant='outlined' color='secondary' disabled>
-                    Back
-                  </Button>
-                  <Button size='large' type='submit' variant='contained'>
-                    Save
-                  </Button>
+                <Grid item sm={9} xs={12}>
+                  {stockDetails.map((s, index) => {
+                    return (
+                      <TabPanel value={index}>
+                        <form onSubmit={e => saveStockDetails(e)}>
+                          <Grid container spacing={5}>
+                            <Grid item xs={12} sm={6}>
+                              <FormControl fullWidth>
+                                <Controller
+                                  name='CurrentStock'
+                                  control={stockDetailsControl}
+                                  rules={{ required: true }}
+                                  render={({ field: { value, onChange } }) => (
+                                    <TextField
+                                      value={value}
+                                      disabled
+                                      label='Current Stock'
+                                      onChange={e => {
+                                        onChange(e)
+                                        const newStock = stockDetails.map(stock => {
+                                          if (stock.P_Stock_ID === s.P_Stock_ID) {
+                                            return { ...stock, CurrentStock: e.target.value }
+                                          }
+
+                                          return stock
+                                        })
+                                        setStockDetails(newStock)
+                                      }}
+                                      error={Boolean(stockDetailsError.CurrentStock)}
+                                      aria-describedby='stepper-linear-account-username'
+                                    />
+                                  )}
+                                />
+                                {stockDetailsError.CurrentStock && (
+                                  <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
+                                    {stockDetailsError.CurrentStock.message}
+                                  </FormHelperText>
+                                )}
+                              </FormControl>
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                              <FormControl fullWidth>
+                                <Controller
+                                  name='LowStockLimit'
+                                  control={stockDetailsControl}
+                                  rules={{ required: true }}
+                                  render={({ field: { value, onChange } }) => (
+                                    <TextField
+                                      value={value}
+                                      label='Low Stock Limit'
+                                      onChange={e => {
+                                        onChange(e)
+                                        const newStock = stockDetails.map(stock => {
+                                          if (stock.P_Stock_ID === s.P_Stock_ID) {
+                                            return { ...stock, LowStockLimit: e.target.value }
+                                          }
+
+                                          return stock
+                                        })
+                                        setStockDetails(newStock)
+                                      }}
+                                      error={Boolean(stockDetailsError.LowStockLimit)}
+                                      aria-describedby='stepper-linear-account-username'
+                                    />
+                                  )}
+                                />
+                                {stockDetailsError.LowStockLimit && (
+                                  <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
+                                    {stockDetailsError.LowStockLimit.message}
+                                  </FormHelperText>
+                                )}
+                              </FormControl>
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                              <FormControl fullWidth>
+                                <Controller
+                                  name='MaxStockLimit'
+                                  control={stockDetailsControl}
+                                  rules={{ required: true }}
+                                  render={({ field: { value, onChange } }) => (
+                                    <TextField
+                                      value={value}
+                                      label='Max Stock Limit'
+                                      onChange={e => {
+                                        onChange(e)
+                                        const newStock = stockDetails.map(stock => {
+                                          if (stock.P_Stock_ID === s.P_Stock_ID) {
+                                            return { ...stock, MaxStockLimit: e.target.value }
+                                          }
+
+                                          return stock
+                                        })
+                                        setStockDetails(newStock)
+                                      }}
+                                      error={Boolean(stockDetailsError.MaxStockLimit)}
+                                      aria-describedby='stepper-linear-account-username'
+                                    />
+                                  )}
+                                />
+                                {stockDetailsError.MaxStockLimit && (
+                                  <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
+                                    {stockDetailsError.MaxStockLimit.message}
+                                  </FormHelperText>
+                                )}
+                              </FormControl>
+                            </Grid>
+                            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                              <Button size='large' variant='outlined' color='secondary' disabled>
+                                Back
+                              </Button>
+                              <Button size='large' type='submit' variant='contained'>
+                                {loader ? (
+                                  <CircularProgress
+                                    sx={{
+                                      color: 'common.white',
+                                      width: '20px !important',
+                                      height: '20px !important',
+                                      mr: theme => theme.spacing(2)
+                                    }}
+                                  />
+                                ) : (
+                                  'Save'
+                                )}
+                              </Button>
+                            </Grid>
+                          </Grid>
+                        </form>
+                      </TabPanel>
+                    )
+                  })}
                 </Grid>
               </Grid>
-            </form>
-          </TabPanel>
-          <TabPanel value='gst-details'>
-            <form onSubmit={e => saveGSTDetails(e)}>
-              <Grid container spacing={5}>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <Controller
-                      name='HSN_SAC_Code'
-                      control={gstDetailsControl}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <TextField
-                          value={value}
-                          label='HSN / SAC Code'
-                          onChange={e => {
-                            onChange(e)
-                            setGstDetails({ ...gstDetails, HSN_SAC_Code: e.target.value })
-                          }}
-                          error={Boolean(gstDetailsError.HSN_SAC_Code)}
-                          aria-describedby='stepper-linear-account-username'
-                        />
-                      )}
-                    />
-                    {gstDetailsError.HSN_SAC_Code && (
-                      <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                        {gstDetailsError.HSN_SAC_Code.message}
-                      </FormHelperText>
-                    )}
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} spacing={8}>
-                  <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.primary' }}>
-                    GST Rules
-                  </Typography>
-                </Grid>
-                <Grid item xs={6} sm={6}>
-                  <FormControl fullWidth>
-                    <Controller
-                      name='CGST'
-                      control={gstDetailsControl}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <TextField
-                          value={value}
-                          label='CGST'
-                          onChange={e => {
-                            onChange(e)
-                            setGstDetails({ ...gstDetails, CGST: e.target.value })
-                          }}
-                          error={Boolean(gstDetailsError.CGST)}
-                          aria-describedby='stepper-linear-account-username'
-                        />
-                      )}
-                    />
-                    {gstDetailsError.CGST && (
-                      <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                        {gstDetailsError.CGST.message}
-                      </FormHelperText>
-                    )}
-                  </FormControl>
-                </Grid>
-                <Grid item xs={6} sm={6}>
-                  <FormControl fullWidth>
-                    <Controller
-                      name='Cess'
-                      control={gstDetailsControl}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <TextField
-                          value={value}
-                          label='CESS'
-                          onChange={e => {
-                            onChange(e)
-                            setGstDetails({ ...gstDetails, Cess: e.target.value })
-                          }}
-                          error={Boolean(gstDetailsError.Cess)}
-                          aria-describedby='stepper-linear-account-username'
-                        />
-                      )}
-                    />
-                    {gstDetailsError.Cess && (
-                      <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                        {gstDetailsError.Cess.message}
-                      </FormHelperText>
-                    )}
-                  </FormControl>
-                </Grid>
-                <Grid item xs={6} sm={6}>
-                  <FormControl fullWidth>
-                    <Controller
-                      name='SGST'
-                      control={gstDetailsControl}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <TextField
-                          value={value}
-                          label='SGST'
-                          onChange={e => {
-                            onChange(e)
-                            setGstDetails({ ...gstDetails, SGST: e.target.value })
-                          }}
-                          error={Boolean(gstDetailsError.SGST)}
-                          aria-describedby='stepper-linear-account-username'
-                        />
-                      )}
-                    />
-                    {gstDetailsError.SGST && (
-                      <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                        {gstDetailsError.SGST.message}
-                      </FormHelperText>
-                    )}
-                  </FormControl>
-                </Grid>
-                <Grid item xs={6} sm={6}>
-                  <FormControl fullWidth>
-                    <Controller
-                      name='IGST'
-                      control={gstDetailsControl}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <TextField
-                          value={value}
-                          label='IGST'
-                          onChange={e => {
-                            onChange(e)
-                            setGstDetails({ ...gstDetails, IGST: e.target.value })
-                          }}
-                          error={Boolean(gstDetailsError.IGST)}
-                          aria-describedby='stepper-linear-account-username'
-                        />
-                      )}
-                    />
-                    {gstDetailsError.IGST && (
-                      <FormHelperText sx={{ color: 'error.main' }} id='stepper-linear-account-username'>
-                        {gstDetailsError.IGST.message}
-                      </FormHelperText>
-                    )}
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Button size='large' variant='outlined' color='secondary' disabled>
-                    Back
-                  </Button>
-                  <Button size='large' type='submit' variant='contained'>
-                    Save
-                  </Button>
-                </Grid>
-              </Grid>
-            </form>
+            </TabContext>
           </TabPanel>
         </TabContext>
       </DialogContent>

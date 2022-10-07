@@ -7,25 +7,43 @@ export default async function handler(req, res) {
     return
   }
 
-  let Co_ID = req.query.coid
-  let Div_ID = req.query.div_id
+  let Co_ID = req.query.company
+  let filters = JSON.parse(req.query.filters)
 
-  // console.log(Co_ID,Div_ID)
-
+  let divisions =
+    req.query['userDivisions[]'].length === 1 ? [req.query['userDivisions[]']] : req.query['userDivisions[]']
+  console.log(filters, divisions)
   try {
-    let allProducts = await Product.Read.getAllDivsionProducts(Co_ID,Div_ID)
-    if(allProducts.length === 0) res.send({
-      error: true,
-      msg: "Products Not Found"
-    })
+    let products = await Product.Read.getProductCount(Co_ID)
+    let total_products = products.length
+    let total_pages =
+      Math.round(total_products / filters.perPage) < total_products / filters.perPage
+        ? parseInt(Math.round(total_products / filters.perPage) + 1)
+        : Math.round(total_products / filters.perPage)
+    let offset = (filters.pageNo - 1) * filters.perPage
 
-    if (allProducts) {
+    let allProducts = await Product.Read.getAllProductsIDsOfACompanyByDivisionWithFilters(
+      Co_ID,
+      divisions,
+      offset,
+      filters.perPage
+    )
 
-        res.send({
-          error: false,
-          allProducts
-        })
-      }
+    if (allProducts.length === 0) {
+      res.send({
+        error: true,
+        msg: 'Products Not Found',
+        total_pages,
+        total_products
+      })
+    } else {
+      res.send({
+        error: false,
+        allProducts,
+        total_pages,
+        total_products
+      })
+    }
   } catch (e) {
     throw e
   }

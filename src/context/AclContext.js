@@ -11,6 +11,7 @@ import ClipboardListOutline from 'mdi-material-ui/ClipboardListOutline'
 import HomeOutline from 'mdi-material-ui/HomeOutline'
 import AccountOutline from 'mdi-material-ui/AccountOutline'
 import Domain from 'mdi-material-ui/Domain'
+
 import ShieldOutline from 'mdi-material-ui/ShieldOutline'
 
 // ** Next Import
@@ -87,30 +88,35 @@ const AclProvider = ({ children }) => {
             path: '/inventory',
             icon: DatabaseOutline
           },
-          {
-            title: 'Bill Entry',
-            path: '/l2/bill-entry',
-            icon: DatabaseArrowDownOutline
-          },
-          {
-            title: 'Invoice Due',
-            path: '/l2/invoice-due',
-            icon: DatabaseArrowUpOutline
-          },
-          {
-            title: 'Quotation',
-            path: '/l2/quotation',
-            icon: ClipboardListOutline
-          },
-          {
-            title: 'Purchase Order',
-            path: '/l2/purchase-order',
-            icon: ClipboardListOutline
-          },
+          // {
+          //   title: 'Bill Entry',
+          //   path: '/l2/bill-entry',
+          //   icon: DatabaseArrowDownOutline
+          // },
+          // {
+          //   title: 'Invoice Due',
+          //   path: '/l2/invoice-due',
+          //   icon: DatabaseArrowUpOutline
+          // },
+          // {
+          //   title: 'Quotation',
+          //   path: '/l2/quotation',
+          //   icon: ClipboardListOutline
+          // },
+          // {
+          //   title: 'Purchase Order',
+          //   path: '/l2/purchase-order',
+          //   icon: ClipboardListOutline
+          // },
           {
             title: 'Suppliers',
             path: '/l2/all-suppliers',
             icon: Domain
+          },
+          {
+            title: 'Bill Entries',
+            path: '/l2/all-bills',
+            icon: ClipboardListOutline
           }
         ]
       case 'L3':
@@ -125,21 +131,21 @@ const AclProvider = ({ children }) => {
             path: '/inventory',
             icon: DatabaseOutline
           },
-          {
-            title: 'Stock Inward',
-            path: '/l3/stockInward',
-            icon: DatabaseArrowDownOutline
-          },
-          {
-            title: 'Stock Usage',
-            path: '/l3/stockOutward',
-            icon: DatabaseArrowUpOutline
-          },
-          {
-            title: 'Indent',
-            path: '/l3/indent',
-            icon: ClipboardListOutline
-          }
+          // {
+          //   title: 'Stock Inward',
+          //   path: '/l3/stockInward',
+          //   icon: DatabaseArrowDownOutline
+          // },
+          // {
+          //   title: 'Stock Usage',
+          //   path: '/l3/stockOutward',
+          //   icon: DatabaseArrowUpOutline
+          // },
+          // {
+          //   title: 'Indent',
+          //   path: '/l3/indent',
+          //   icon: ClipboardListOutline
+          // }
         ]
     }
   }

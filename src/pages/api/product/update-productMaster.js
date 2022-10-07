@@ -9,18 +9,30 @@ export default async function handler(req, res) {
 
   let body = req.body
   try {
-      const productDetails = body.productDetails
+
+      const productDetails = body
+
+      console.log(body)
+
       // console.log(productDetails)
       const product_ID = productDetails.P_ID
-      delete productDetails.P_ID
-      // Update User details in COmpnay_User
-      let result = await Product.Update.updateProductMaster(productDetails,product_ID)
+      const productMaster = {
+        PName: productDetails.PName
+      }
 
-      if (result) {
+      productDetails["purchasePrice"] = productDetails.PricePerUnit
+
+      delete productDetails.PricePerUnit;
+      delete productDetails.PName;
+      delete productDetails.P_ID;
+      // Update User details in COmpnay_User
+      let resultProductMaster = await Product.Update.updateProductMaster(productDetails,product_ID)
+      let resultPriceMaster = await Product.Update.updatePriceDetails(productDetails , product_ID)
+
+      if (resultProductMaster && resultPriceMaster) {
         res.send({
           error: false,
           msg: 'Product Master updated successfully',
-          result,
         })
       }
   } catch (e) {

@@ -1,27 +1,22 @@
+import CustomChip from 'src/@core/components/mui/chip'
+
+
 const statusMap = {
-  0: 'Draft',
-  50: 'Active',
-  99: 'Inactive'
+  0: <CustomChip size='small' skin='light' color='primary' label='Draft' />,
+  50: <CustomChip size='small' skin='light' color='success' label='Active' />,
+  99: <CustomChip size='small' skin='light' color='warning' label='In Active' />
 }
 
-const indentStatusMap = {
-  0: 'Under Approval',
-  50: 'Approved',
-  99: 'Ordered'
+const indentStatus = {
+  0: <CustomChip size='small' skin='light' color='warning' label='Under Approval' />,
+  50: <CustomChip size='small' skin='light' color='success' label='Approved' />,
+  99: <CustomChip size='small' skin='light' color='primary' label='Ordered' />,
 }
 
 export const getStatusText = status => {
-  let statusText = ''
-  Object.entries(statusMap).forEach(item => {
-    if (item[0] == status) statusText = item[1]
-  })
-  return statusText
+  return statusMap[status]
 }
 
 export const getIndentStatusText = status => {
-  let statusText = ''
-  Object.entries(indentStatusMap).forEach(item => {
-    if (item[0] == status) statusText = item[1]
-  })
-  return statusText
+  return indentStatus[status]
 }
