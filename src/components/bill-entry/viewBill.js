@@ -235,8 +235,8 @@ const ViewBillComponent = props => {
                 <TableCell>qty</TableCell>
                 <TableCell>price per unit</TableCell>
                 <TableCell>subtotal</TableCell>
-                <TableCell>tax</TableCell>
                 <TableCell>discount</TableCell>
+                <TableCell>tax</TableCell>
 
                 <TableCell>Total</TableCell>
               </TableRow>
@@ -259,8 +259,8 @@ const ViewBillComponent = props => {
                         billData.Quantity &&
                         displayAmount(parseInt(billData.UnitPrice) * parseInt(billData.Quantity))}{' '}
                     </TableCell>
-                    <TableCell>{billData.TaxPercent}%</TableCell>
                     <TableCell>{billData.DiscountPercent}%</TableCell>
+                    <TableCell>{billData.TaxPercent}%</TableCell>
                     <TableCell>{billData.TotalAmount && displayAmount(billData.TotalAmount)}</TableCell>
                   </TableRow>
                 )

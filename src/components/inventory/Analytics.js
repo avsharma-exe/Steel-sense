@@ -35,7 +35,7 @@ const data = [
   }
 ]
 
-const Analytics = ({ totalProducts = 1890 }) => {
+const Analytics = ({ totalProducts = 0 }) => {
   return (
     <Card sx={{ width: '90%', mt: 6 }}>
       <CardHeader

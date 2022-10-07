@@ -1,6 +1,11 @@
 import { cryptPassword } from '../../../helpers/encrypt'
 import Product from '../../../server/queries/Product/Product'
 
+
+/**
+ * 
+ *This API si for inventory management only
+ */
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     res.status(400).send({ message: 'Only GET requests allowed' })
@@ -27,8 +32,6 @@ export default async function handler(req, res) {
     } else {
       allProducts = await Product.Read.getAllProductsIDsOfACompany(Co_ID, offset, filters.perPage , searchterm)
     }
-
-    console.log(allProducts)
 
     if (allProducts.length === 0) {
       res.send({

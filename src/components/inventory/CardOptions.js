@@ -10,7 +10,7 @@ import { styled } from '@mui/material/styles'
 import MenuItem from '@mui/material/MenuItem'
 import { PencilOutline, Download } from 'mdi-material-ui'
 import useUserDetails from 'src/hooks/useUserDetails'
-const CardOptions = ({ onEditHandle, onUseStockHandle }) => {
+const CardOptions = ({ onEditHandle, onUseStockHandle, onViewStockHandle }) => {
   const userDetails = useUserDetails()
   // ** State
   const [anchorEl, setAnchorEl] = useState(null)
@@ -51,7 +51,7 @@ const CardOptions = ({ onEditHandle, onUseStockHandle }) => {
         ) : null}
 
         {userDetails.Role_ID !== 4 ? (
-          <MenuItem onClick={onUseStockHandle}>
+          <MenuItem onClick={onViewStockHandle}>
             <EyeOutline fontSize='small' sx={{ mr: 2 }} />
             View
           </MenuItem>

@@ -16,7 +16,7 @@ import CardOptions from 'src/components/inventory/CardOptions'
 import displayAmount from 'src/helpers/displayAmount'
 import useUserDetails from 'src/hooks/useUserDetails'
 
-const ProductCard = ({ product, onEditHandle, onUseStockHandle }) => {
+const ProductCard = ({ product, onEditHandle, onUseStockHandle, onViewStockHandle }) => {
   const userDetails = useUserDetails()
   const [showEdit, setShowEdit] = useState(false)
 
@@ -24,7 +24,12 @@ const ProductCard = ({ product, onEditHandle, onUseStockHandle }) => {
     <div>
       <Card sx={{ m: 2 }}>
         <CardContent sx={{ p: theme => `${theme.spacing(4, 5)} !important` }}>
-          <CardOptions id={product.P_ID} onEditHandle={() => onEditHandle(product)} onUseStockHandle={() => onUseStockHandle(product)}/>
+          <CardOptions
+            id={product.P_ID}
+            onEditHandle={() => onEditHandle(product)}
+            onUseStockHandle={() => onUseStockHandle(product)}
+            onViewStockHandle={() => onViewStockHandle(product)}
+          />
 
           <Typography variant='h6' sx={{ mb: 2 }}>
             {product && product.PName}
@@ -33,7 +38,8 @@ const ProductCard = ({ product, onEditHandle, onUseStockHandle }) => {
             Unit{': '} <Typography sx={{ mb: 2 }}>{product && product.Unit}</Typography>
           </Typography>
           <Typography variant='body2'>
-            Purchase price per {product && product.Unit}{': '}
+            Purchase price per {product && product.Unit}
+            {': '}
             <Typography sx={{ mb: 2 }}>{product && displayAmount(product.PurchasePrice)}</Typography>
           </Typography>
         </CardContent>
