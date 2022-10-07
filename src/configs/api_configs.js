@@ -29,6 +29,7 @@ export default {
     product: {
         create: "/product/create",
         getAll: "/product/getAll",
+        getAllProducts: '/product/getAllProducts',
         updateProductMaster: "/product/update-productMaster",
         updatePriceDetails: "/product/update-priceDetails",
         updateStockDetails: "/product/update-stockDetails",
@@ -65,6 +66,7 @@ export default {
       getSingleBillEntries: "bills/getSingleBillEntries",
       getBillEntryDetails: "bills/getBillEntryDetails",
       saveBill: "bills/saveBill",
-      getBillDetails: "bills/getBillDetails"
+      getBillDetails: "bills/getBillDetails",
+      saveNewBill: "bills/saveNewBill"
     }
 }

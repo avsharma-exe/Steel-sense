@@ -172,9 +172,7 @@ const AllBills = () => {
                 { id: 'Bill_Name', label: 'Bill ID', minWidth: 170 },
                 { id: 'invoice_date', label: 'Invoice Date', minWidth: 170 },
                 { id: 'status', label: 'Status', minWidth: 170 },
-                { id: 'sub_total', label: 'Sub Total', minWidth: 170 },
-                { id: 'tax', label: 'Tax', minWidth: 170 },
-                { id: 'discount', label: 'Discount', minWidth: 170 },
+                
                 { id: 'total', label: 'Total', minWidth: 170 }
               ]}
               rows={billEntries}
@@ -197,7 +195,7 @@ const AllBills = () => {
         </Card>
       </Grid>
       <br />
-      <Grid item md={12}>
+      {/* <Grid item md={12}>
         <Card sx={{ height: '100%' }}>
           <CardHeader
             title={
@@ -231,7 +229,7 @@ const AllBills = () => {
             />
           </CardContent>
         </Card>
-      </Grid>
+      </Grid> */}
     </>
   )
 }
