@@ -24,6 +24,8 @@ import MenuItem from '@mui/material/MenuItem'
 import TableCell from '@mui/material/TableCell'
 import CardContent from '@mui/material/CardContent'
 import Autocomplete from '@mui/material/Autocomplete'
+import CustomChip from 'src/@core/components/mui/chip'
+
 
 // ** Icon Imports
 import Plus from 'mdi-material-ui/Plus'
@@ -122,7 +124,10 @@ const Add = props => {
     setSelectedClient,
     toggleAddCustomerDrawer,
     companyDetails,
-    products
+    products,
+    handleAddNewCustomer,
+    productList,
+    setProductList
   } = props
 
   // ** States
@@ -134,14 +139,7 @@ const Add = props => {
   const [tax, setTax] = useState(0)
   const [total, settotal] = useState(0)
 
-  const [productList, setProductList] = useState([
-    {
-      product: {},
-      qty: 0,
-      pricePerPiece: 0,
-      total: 0
-    }
-  ])
+  
 
   // ** Hook
   const theme = useTheme()
@@ -161,10 +159,6 @@ const Add = props => {
       console.log(clients.filter(i => i.Co_ID === event.target.value))
       setSelectedClient(clients.filter(i => i.Co_ID === event.target.value)[0])
     }
-  }
-
-  const handleAddNewCustomer = () => {
-    toggleAddCustomerDrawer()
   }
 
   return (
@@ -192,7 +186,7 @@ const Add = props => {
               </Box>
             </Box>
           </Grid>
-          <Grid item xl={6} xs={12}>
+          {/* <Grid item xl={6} xs={12}>
             <DatePickerWrapper sx={{ '& .react-datepicker-wrapper': { width: 'auto' } }}>
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xl: 'flex-end', xs: 'flex-start' } }}>
                 <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
@@ -233,7 +227,7 @@ const Add = props => {
                 </Box>
               </Box>
             </DatePickerWrapper>
-          </Grid>
+          </Grid> */}
         </Grid>
       </CardContent>
 
@@ -247,7 +241,7 @@ const Add = props => {
             </Typography>
             <Select size='small' value={selected} onChange={handleInvoiceChange} sx={{ mb: 4, width: '200px' }}>
               {/* ** TODO: Add Supplier Drawer Form ** */}
-              {/* <CustomSelectItem value=''>
+              <CustomSelectItem value=''>
                 <Button
                   fullWidth
                   size='small'
@@ -256,9 +250,9 @@ const Add = props => {
                   startIcon={<Plus fontSize='small' />}
                   sx={{ '&:hover': { backgroundColor: 'transparent' } }}
                 >
-                  Add New Customer
+                  Add New Supplier
                 </Button>
-              </CustomSelectItem> */}
+              </CustomSelectItem>
               {clients &&
                 clients.map(client => (
                   <MenuItem key={client.CompanyName} value={client.Co_ID}>
@@ -360,7 +354,24 @@ const Add = props => {
                           }}
                           options={products}
                           getOptionLabel={option => option.PName}
-                          renderOption={(props, option) => <Box {...props}>{option.PName}</Box>}
+                          renderOption={(props, option) => (
+                            <Box {...props}>
+                             <CustomChip
+                                size='small'
+                                skin='light'
+                                color='secondary'
+                                label={option.PName}
+                                sx={{ mb: 4 }}
+                              />
+                              <CustomChip
+                                size='small'
+                                skin='light'
+                                color='primary'
+                                label={option.DivisionName}
+                                sx={{ mb: 4 }}
+                              />
+                            </Box>
+                          )}
                           renderInput={params => (
                             <TextField
                               {...params}
@@ -445,11 +456,13 @@ const Add = props => {
                           className='col-title'
                           sx={{ mb: { md: 2, xs: 0 }, color: 'text.primary' }}
                         >
-                          Total Price
+                          Sub Total
                         </Typography>
                         <Typography variant='body2'>{displayAmount(productList[i] && productList[i].total)}</Typography>
                       </Grid>
+                      
                     </Grid>
+                    
                     <InvoiceAction>
                       <IconButton
                         size='small'
@@ -513,32 +526,7 @@ const Add = props => {
                 )}
               </Typography>
             </CalcWrapper>
-            <CalcWrapper>
-              <Typography variant='body2'>Tax:</Typography>
-              <TextField
-                size='small'
-                value={tax}
-                onChange={e => setTax(e.target.value)}
-                type='number'
-                sx={{ width: '100px', '& .MuiInputBase-input': { color: 'text.secondary' } }}
-                InputProps={{
-                  endAdornment: <InputAdornment position='end'>%</InputAdornment>
-                }}
-              />
-            </CalcWrapper>
-            <CalcWrapper>
-              <Typography variant='body2'>Discount:</Typography>
-              <TextField
-                size='small'
-                value={discount}
-                onChange={e => setDiscount(e.target.value)}
-                type='number'
-                sx={{ width: '100px', '& .MuiInputBase-input': { color: 'text.secondary' } }}
-                InputProps={{
-                  endAdornment: <InputAdornment position='end'>%</InputAdornment>
-                }}
-              />
-            </CalcWrapper>
+       
 
             <Divider sx={{ mt: 6, mb: 1.5 }} />
             <CalcWrapper>
@@ -566,8 +554,6 @@ const Add = props => {
       </CardContent>
 
       <Divider sx={{ my: 1 }} />
-
-      
     </Card>
   )
 }

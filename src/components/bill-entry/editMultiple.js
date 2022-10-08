@@ -278,8 +278,8 @@ const EditMultiple = props => {
               <TableCell>qty</TableCell>
               <TableCell>price per unit</TableCell>
               <TableCell>Sub Total</TableCell>
-              <TableCell>Tax</TableCell>
               <TableCell>Discount</TableCell>
+              <TableCell>Tax</TableCell>
               <TableCell>Total</TableCell>
             </TableRow>
           </TableHead>
@@ -305,26 +305,6 @@ const EditMultiple = props => {
                     <CalcWrapper>
                       <TextField
                         size='small'
-                        value={billProducts[index].TaxPercent}
-                        onChange={e => {
-                          let tempProductArr = billProducts
-                          let subTotal = parseInt(billData.UnitPrice) * parseInt(billData.Quantity)
-                          tempProductArr[index]['TaxPercent'] = e.target.value
-                          tempProductArr[index]['TotalAmount'] = subTotal - parseInt(subTotal * (tempProductArr[index]['DiscountPercent'] * 0.01)) + parseInt(subTotal * (e.target.value * 0.01)) 
-                          setBillProducts(tempProductArr)
-                        }}
-                        type='number'
-                        sx={{ width: '100px', '& .MuiInputBase-input': { color: 'text.secondary' } }}
-                        InputProps={{
-                          endAdornment: <InputAdornment position='end'>%</InputAdornment>
-                        }}
-                      />
-                    </CalcWrapper>
-                  </TableCell>
-                  <TableCell>
-                    <CalcWrapper>
-                      <TextField
-                        size='small'
                         value={billProducts[index].DiscountPercent}
                         onChange={e => {
                           let tempProductArr = billProducts
@@ -342,6 +322,27 @@ const EditMultiple = props => {
                     </CalcWrapper>
                   </TableCell>
 
+                  <TableCell>
+                    <CalcWrapper>
+                      <TextField
+                        size='small'
+                        value={billProducts[index].TaxPercent}
+                        onChange={e => {
+                          let tempProductArr = billProducts
+                          let subTotal = parseInt(billData.UnitPrice) * parseInt(billData.Quantity)
+                          tempProductArr[index]['TaxPercent'] = e.target.value
+                          tempProductArr[index]['TotalAmount'] = subTotal - parseInt(subTotal * (tempProductArr[index]['DiscountPercent'] * 0.01)) + parseInt(subTotal * (e.target.value * 0.01)) 
+                          setBillProducts(tempProductArr)
+                        }}
+                        type='number'
+                        sx={{ width: '100px', '& .MuiInputBase-input': { color: 'text.secondary' } }}
+                        InputProps={{
+                          endAdornment: <InputAdornment position='end'>%</InputAdornment>
+                        }}
+                      />
+                    </CalcWrapper>
+                  </TableCell>
+                  
                   <TableCell>{billData.TotalAmount && displayAmount(billData.TotalAmount)}</TableCell>
                 </TableRow>
               )

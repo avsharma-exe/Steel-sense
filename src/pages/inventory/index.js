@@ -1,45 +1,77 @@
-// ** MUI Imports
-import Card from '@mui/material/Card'
-import Grid from '@mui/material/Grid'
-import Typography from '@mui/material/Typography'
-import CardHeader from '@mui/material/CardHeader'
-import CardContent from '@mui/material/CardContent'
-import DownloadOutline from 'mdi-material-ui/DownloadOutline'
-import Domain from 'mdi-material-ui/Domain'
-import { Box } from '@mui/material'
-import BasicTable from 'src/components/utils/BasicTable'
-import Button from '@mui/material/Button'
 import { useState, useEffect } from 'react'
+// ** MUI Imports
+import Grid from '@mui/material/Grid'
+import { Typography } from '@mui/material'
+import Pagination from '@mui/material/Pagination'
+import CircularProgress from '@mui/material/CircularProgress'
+
+// ** Custom Components
 import AddProductForm from '../../components/inventory/AddProductForm'
+import EditProductForm from 'src/components/inventory/EditProductForm'
+import UseProductForm from 'src/components/inventory/UseProductForm'
+import ProductCard from 'src/components/inventory/ProductCard'
+import Filters from 'src/components/inventory/Filters'
+import Search from 'src/components/inventory/Search'
+import Analytics from 'src/components/inventory/Analytics'
+import ViewProductDetails from 'src/components/inventory/ViewProductDetails'
+
+// ** Helpers
 import { secureApi } from 'src/helpers/apiGenerator'
 import api_configs from 'src/configs/api_configs'
 import useUserDetails from 'src/hooks/useUserDetails'
-import CircularProgress from '@mui/material/CircularProgress'
-import EditProductForm from 'src/components/inventory/EditProductForm'
 import useUserDivisions from 'src/hooks/useUserDivisions'
-import CustomChip from 'src/@core/components/mui/chip'
-import { getStatusText } from 'src/helpers/statusHelper'
-import Exclamation from 'mdi-material-ui/Exclamation'
-import CheckCircle from 'mdi-material-ui/CheckCircle'
-
-import UseProductForm from 'src/components/inventory/UseProductForm'
+import { AllInclusiveBox } from 'mdi-material-ui'
 
 const Inventory = () => {
   const userDetails = useUserDetails()
   const userDivisions = useUserDivisions()
   const [products, setProducts] = useState([])
+  const [totalProducts, setTotalProducts] = useState(0)
   const [showAddProductForm, setShowAddProductForm] = useState(false)
   const [showLoader, setShowLoader] = useState(false)
   const [editProduct, setEditProduct] = useState({})
   const [showEditProductForm, setShowEditProductForm] = useState(false)
   const [divs, setDivisions] = useState(null)
+  const [stockDetails, setStockDetails] = useState({
+    show: false,
+    data: {}
+  })
+  const [filters, setFilters] = useState({
+    perPage: 6,
+    division: null,
+    status: null,
+    pageNo: 1
+  })
+  const [totalPages, setTotalPages] = useState(0)
+  const [searchTerm, setSearchTerm] = useState({
+    term: '',
+    typing: false,
+    typingTimeout: 0
+  })
+
   const [useProductForm, setUseProductForm] = useState({
     show: false,
     data: {}
   })
-  const [selectedRowData, setSelectedRowData] = useState({})
-  const [openNew, setOpenNew] = useState(false)
-  const [newRowData, setNewRowData] = useState({})
+
+  const onEditHandle = data => {
+    setEditProduct(data)
+    setShowEditProductForm(true)
+  }
+
+  const onUseStockHandle = product => {
+    setUseProductForm({
+      show: true,
+      data: product
+    })
+  }
+
+  const onViewStockHandle = product => {
+    setStockDetails({
+      show: true,
+      data: product
+    })
+  }
 
   const getAllDivisions = async () => {
     let allDivs = await secureApi(api_configs.division.getAll, {
@@ -71,81 +103,27 @@ const Inventory = () => {
               params: {
                 company: userDetails.Co_ID,
                 div_id: userDetails.Div_ID,
-                userDivisions
+                userDivisions,
+                filters,
+                searchTerm: searchTerm.term
               }
             })
             .then(resp => {
               if (resp.status === 200) {
-                let allProducts = []
-                if (resp.data.allProducts) {
-                  resp.data.allProducts.map((product, index) => {
-                    let selectedDiv = {}
-                    let productRow = {
-                      srNo: <Typography data={product}>{index + 1}</Typography>,
-                      productName: <Typography>{product.PName}</Typography>,
-
-                      stock:
-                        product.CurrentStock > product.LowStockLimit ? (
-                          // <Chip label={product.CurrentStock} color='success' />
-                          <CustomChip
-                            size='small'
-                            skin='light'
-                            color='success'
-                            label={product.CurrentStock + ' ' + product.Unit}
-                            icon={<CheckCircle fontSize='small' />}
-                          />
-                        ) : (
-                          // <Chip label={product.CurrentStock} color='danger' />
-                          <CustomChip
-                            size='small'
-                            skin='light'
-                            color='error'
-                            label={product.CurrentStock + ' ' + product.Unit}
-                            icon={<Exclamation fontSize='small' />}
-                          />
-                        ),
-                      division: (
-                        <Typography>
-                          {divs.map(div => {
-                            console.log(div.Div_ID, product.Div_ID, div.DivisionName, product.PName)
-                            if (div.Div_ID === product.Div_ID) {
-                              selectedDiv = div
-                              return <CustomChip size='small' skin='light' color='primary' label={div.DivisionName} />
-                            }
-                          })}
-                        </Typography>
-                      ),
-                      status: getStatusText(product.status)
-                    }
-                    if (userDetails.Role_ID === 4) {
-                      productRow['actions'] = (
-                        <Button
-                          variant='contained'
-                          color='success'
-                          onClick={() => {
-                            product["division"] = selectedDiv
-                            setUseProductForm({
-                              show: true,
-                              data: product
-                            })
-                          }}
-                        >
-                          use stock
-                        </Button>
-                      )
-                    }
-
-                    allProducts.push(productRow)
-                  })
-                }
-
-                setProducts(allProducts)
+                setProducts(resp.data.allProducts)
+                setTotalPages(resp.data.total_pages)
+                setTotalProducts(resp.data.total_products)
                 setShowLoader(false)
               }
             })
         : null
     }
   }
+
+
+  useEffect(() => {
+    getProducts()
+  }, [filters])
 
   useEffect(() => {
     getAllDivisions()
@@ -167,6 +145,16 @@ const Inventory = () => {
           })
         }
       />
+      <ViewProductDetails
+        show={stockDetails.show}
+        product={stockDetails.data}
+        handleClose={() =>
+          setStockDetails({
+            show: false,
+            data: {}
+          })
+        }
+      />
       {showAddProductForm ? (
         <AddProductForm onCloseHandle={setShowAddProductForm} getProducts={() => getProducts()} allDivs={divs} />
       ) : null}
@@ -177,60 +165,78 @@ const Inventory = () => {
           getProducts={() => getProducts()}
         />
       ) : null}
-      <Card sx={{ height: '100%' }}>
-        <CardHeader
-          title={
-            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-              <Typography variant={'h6'}>Inventory</Typography>
-              <Box sx={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
-                {userDetails.Role_ID == 4 ? null : (
-                  <Button size='small' type='submit' variant='contained' onClick={() => setShowAddProductForm(true)}>
-                    Add Product
-                  </Button>
-                )}
-              </Box>
-            </Box>
-          }
-        />
-        {/* <Divider /> */}
+      <Grid container>
+        <Grid md={3} xl={3} sm={12}>
+          <Typography variant='h6' sx={{ mb: 2 }}>
+            Search for Products{' '}
+            {showLoader && (
+              <CircularProgress
+                sx={{
+                  color: 'common.black',
+                  width: '20px !important',
+                  height: '20px !important',
+                  ml: 3,
+                  mt: 1,
+                  mr: theme => theme.spacing(2)
+                }}
+              />
+            )}
+          </Typography>
+          <Typography variant='body2' sx={{ mb: 4 }}>
+            Type Name, Unit or Division
+          </Typography>
+          <Search
+            searchTerm={searchTerm.term}
+            handleOnChange={value => {
+              if (searchTerm.typingTimeout) clearTimeout(searchTerm.typingTimeout)
 
-        <CardContent>
-          {products.length > 0 ? (
-            <BasicTable
-              columns={[
-                { id: 'srNo', label: 'Sr No.' },
-                { id: 'productName', label: 'Product Name' },
-                { id: 'stock', label: 'Stock Available' },
-                { id: 'division', label: 'Division', minWidth: 50 },
-                { id: 'status', label: 'Status', minWidth: 50 },
-                userDetails.Role_ID === 4 ? { id: 'actions', label: 'Actions', minWidth: 30 } : null
-              ].filter(function (el) {
-                return el != null
-              })}
-              rows={products}
-              onRowClickHandle={rowData => {
-                if (userDetails.Role_ID !== 4) {
-                  setEditProduct(rowData.srNo.props.data)
-                  setShowEditProductForm(true)
-                }
-              }}
-              reload={getProducts}
-              maxHeight={true}
-            />
-          ) : showLoader ? (
-            <CircularProgress
-              sx={{
-                color: 'common.black',
-                width: '20px !important',
-                height: '20px !important',
-                mr: theme => theme.spacing(2)
-              }}
-            />
-          ) : (
-            <Typography>No Products Found</Typography>
-          )}
-        </CardContent>
-      </Card>
+              setSearchTerm({
+                term: value,
+                typing: false,
+                typingTimeout: setTimeout(() => {
+                  setFilters({ ...filters, pageNo: 1 })
+                  getProducts()
+                } , 1000)
+              })
+            }}
+          />
+          <Analytics totalProducts={totalProducts} />
+        </Grid>
+        <Grid md={9} xl={9} sm={12}>
+          <Filters
+            divisions={divs}
+            addProductClickHandle={() => setShowAddProductForm(true)}
+            filters={filters}
+            handleFilterChange={value => setFilters(value)}
+          />
+          <Grid container>
+            {products?.length > 0
+              ? products.map(product => {
+                  return (
+                    <Grid md={4} xl={4} sm={4}>
+                      <ProductCard
+                        product={product}
+                        onEditHandle={product => onEditHandle(product)}
+                        onUseStockHandle={product => onUseStockHandle(product)}
+                        onViewStockHandle={product => onViewStockHandle(product)}
+                      />
+                    </Grid>
+                  )
+                })
+              : null}
+          </Grid>
+          <Pagination
+            count={totalPages}
+            page={filters.pageNo}
+            onChange={(event, value) => {
+              setFilters({ ...filters, pageNo: value })
+            }}
+            color='primary'
+            sx={{ float: 'right', mt: 3 }}
+          />
+        </Grid>
+        <Grid md={4} xl={4} sm={12}></Grid>
+      </Grid>
     </>
   )
 }
