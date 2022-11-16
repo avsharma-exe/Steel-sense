@@ -50,7 +50,7 @@ const UseProductForm = ({ handleClose, handleSubmit, show, productDetails }) => 
   const marks = [
     {
       value: 1,
-      label: '1' + productDetails.Unit
+      label: '1 ' + productDetails.Unit
     },
     // {
     //   value: productDetails.LowStockLimit,
@@ -58,9 +58,10 @@ const UseProductForm = ({ handleClose, handleSubmit, show, productDetails }) => 
     // },
     {
       value: productDetails.CurrentStock,
-      label: productDetails.CurrentStock + '' + productDetails.Unit
+      label: productDetails.CurrentStock + ' ' + productDetails.Unit
     }
   ]
+
   return (
     <Drawer
       open={show}
@@ -79,21 +80,21 @@ const UseProductForm = ({ handleClose, handleSubmit, show, productDetails }) => 
           <b>Product - </b>
           <span style={{ fontSize: '20px' }}>{productDetails ? productDetails.PName : ''}</span>
         </Typography>
-        <Typography sx={{ mb: 6 }}>
+        {/* <Typography sx={{ mb: 6 }}>
           <b>Division - </b>
           <span style={{ fontSize: '20px' }}>
             {productDetails.division ? productDetails.division.DivisionName : ''}
           </span>
-        </Typography>
+        </Typography> */}
         <Typography sx={{ mb: 6 }}>
           <b>Current Stock - </b>
-          <span style={{ fontSize: '20px' }}>
+          <span style={{ fontSize: '20px', color: 'green' }}>
             {productDetails ? productDetails.CurrentStock : ''} {productDetails.Unit}
           </span>
         </Typography>
         <Typography sx={{ mb: 6 }}>
           <b>Low Stock Limit- </b>
-          <span style={{ fontSize: '20px' }}>
+          <span style={{ fontSize: '20px', color: 'red' }}>
             {productDetails ? productDetails.LowStockLimit : ''} {productDetails.Unit}
           </span>
         </Typography>
@@ -113,14 +114,16 @@ const UseProductForm = ({ handleClose, handleSubmit, show, productDetails }) => 
           <TextField
             value={stockUsed}
             label='Quantity to Use'
-            onChange={e => setStockUsed(e.target.value)}
+            onChange={e => {
+              setStockUsed(e.target.value)
+            }}
             InputProps={{
               endAdornment: <InputAdornment position='end'>{productDetails && productDetails.Unit}</InputAdornment>
             }}
           />
         </Grid>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Button size='large' type='submit' variant='contained' sx={{ mr: 3 }}>
+          <Button size='large' type='submit' variant='contained' sx={{ mr: 3 }} onClick={() => handleSubmit(stockUsed)}>
             Save
           </Button>
           <Button size='large' variant='outlined' color='secondary' onClick={handleClose}>

@@ -94,7 +94,7 @@ const CreateProductInward = props => {
   })
 
   const onSubmit = async data => {
-    console.log(data)
+    
 
     const createPurchaseOrder = await secureApi.post(api_configs.indent.createPurchaseOrder, {
       Co_ID: userDetails.Co_ID,

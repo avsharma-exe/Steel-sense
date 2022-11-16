@@ -13,6 +13,7 @@ export default async function handler(req, res) {
     
     const newBillEntry = await BillEntries.Create.createNewBillEntry({
       Bill_Name: "",
+      Supplier_ID: approvalList[0] ? approvalList[0].Supplier_ID : null,
       CreatedBy: approvalList[0] ? approvalList[0].User_ID : null,
       status: 0,
       Co_ID: approvalList[0] ? approvalList[0].Co_ID : null

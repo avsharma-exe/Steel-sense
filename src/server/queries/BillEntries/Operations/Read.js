@@ -28,7 +28,7 @@ function getBillDetails(bill_id) {
  */
 function getBillEntries(company) {
   return executeQuery({
-    query: `SELECT Supplier_ID, SubTotal, Bill_Entry_ID, Bill_Name, Bill_Entries.status, Company_Master.CompanyName, Tax, Discount, Total, InvoiceDate  FROM Bill_Entries JOIN Company_Master ON Bill_Entries.Supplier_ID = Company_Master.Co_ID where Bill_Entries.Co_ID = ?`,
+    query: `SELECT Supplier_ID, DueOn,SubTotal, Bill_Entry_ID, Bill_Name, Bill_Entries.status, Company_Master.CompanyName, Tax, Discount, Total, InvoiceDate  FROM Bill_Entries JOIN Company_Master ON Bill_Entries.Supplier_ID = Company_Master.Co_ID where Bill_Entries.Co_ID = ?`,
     values: [company]
   })
 }
@@ -68,7 +68,7 @@ function getBillEntryDetails(bill_entry_id) {
     LEFT JOIN states on Company_Details.State = states.id
     LEFT JOIN cities on Company_Details.City = cities.id
     LEFT JOIN countries on Company_Details.Country = countries.id
-    where Bill_Entry_ID = 3`,
+    where Bill_Entry_ID = ?`,
     values: [bill_entry_id]
   })
 }

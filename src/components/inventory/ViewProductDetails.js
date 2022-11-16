@@ -26,6 +26,7 @@ import useUserDetails from 'src/hooks/useUserDetails'
 import DatePicker from '@mui/lab/DatePicker'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import AdapterDateFns from '@mui/lab/AdapterDateFns'
+import CircularProgress from '@mui/material/CircularProgress'
 
 // ** Third Party Imports
 import * as yup from 'yup'
@@ -96,8 +97,10 @@ const DivisionCard = ({ stock, product }) => {
 const ViewProductDetails = ({ show, product, handleClose }) => {
   const [productDetails, setProductDetails] = useState({})
   const [productStock, setProductStock] = useState([])
+  const [loader, setLoader] = useState(false)
 
   const getProductDetails = async () => {
+    setLoader(true)
     const productDetails = await secureApi.get(api_configs.product.getProductByID, {
       params: {
         product: product.P_ID,
@@ -108,6 +111,7 @@ const ViewProductDetails = ({ show, product, handleClose }) => {
     if (productDetails.status === 200) {
       setProductDetails(productDetails.data.product.length > 0 ? productDetails.data.product[0] : {})
       setProductStock(productDetails.data.p_stock.length > 0 ? productDetails.data.p_stock : [])
+      setLoader(false)
     }
   }
 
@@ -131,17 +135,58 @@ const ViewProductDetails = ({ show, product, handleClose }) => {
       <Box sx={{ p: 5 }}>
         <Typography sx={{ mb: 6 }}>
           <b>Product - </b>
-          <span style={{ fontSize: '20px' }}>{productDetails ? productDetails.PName : ''}</span>
+          <span style={{ fontSize: '20px' }}>
+            {loader ? (
+              <CircularProgress
+                sx={{
+                  color: 'common.black',
+                  width: '20px !important',
+                  height: '20px !important',
+                  mr: theme => theme.spacing(2)
+                }}
+              />
+            ) : productDetails ? (
+              productDetails.PName
+            ) : (
+              ''
+            )}
+          </span>
         </Typography>
 
         <Typography sx={{ mb: 6 }}>
           <b>Unit - </b>
-          <span style={{ fontSize: '20px' }}>{productDetails ? productDetails.UnitName : ''}</span>
+          <span style={{ fontSize: '20px' }}>
+            {loader ? (
+              <CircularProgress
+                sx={{
+                  color: 'common.black',
+                  width: '20px !important',
+                  height: '20px !important',
+                  mr: theme => theme.spacing(2)
+                }}
+              />
+            ) : productDetails ? (
+              productDetails.UnitName
+            ) : (
+              ''
+            )}
+          </span>
         </Typography>
 
-        {productStock.map(stock => {
-          return <DivisionCard stock={stock} product={product} />
-        })}
+        {loader ? (
+          <CircularProgress
+            sx={{
+              color: 'common.black',
+              width: '20px !important',
+              height: '20px !important',
+              mr: theme => theme.spacing(2)
+            }}
+          />
+        ) : (
+          productStock.map(stock => {
+            return <DivisionCard stock={stock} product={product} />
+          })
+        )}
       </Box>
     </Drawer>
   )

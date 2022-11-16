@@ -12,7 +12,7 @@ export default async function handler(req, res) {
 
   let divisions =
     req.query['userDivisions[]'].length === 1 ? [req.query['userDivisions[]']] : req.query['userDivisions[]']
-  console.log(filters, divisions)
+
   try {
     let products = await Product.Read.getProductCount(Co_ID)
     let total_products = products.length

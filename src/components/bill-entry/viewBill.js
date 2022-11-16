@@ -148,7 +148,14 @@ const ViewBillComponent = props => {
                         <Typography variant='body3'>{billDetails && displayBillDate(new Date(billDetails.InvoiceDate))}</Typography>
                       </MUITableCell>
                     </TableRow>
-                    
+                    <TableRow>
+                      <MUITableCell>
+                        <Typography variant='body3'>Due Date:</Typography>
+                      </MUITableCell>
+                      <MUITableCell>
+                        <Typography variant='body3'>{billDetails && displayBillDate(new Date(billDetails.DueOn))}</Typography>
+                      </MUITableCell>
+                    </TableRow>
                   </TableBody>
                 </Table>
               </Box>

@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // ** MUI Imports
 import Button from '@mui/material/Button'
@@ -53,9 +53,10 @@ const CreateMultiplePurchaseOrder = ({ indentsList, handleClose, allSuppliers })
   const [loading, setLoading] = useState(false)
   const [indents, setIndents] = useState(
     indentsList.map(indent => {
-      return { ...indent, supplier: allSuppliers[0], qty: '', unit_p: '', expected_date: new Date(), total: 0 }
+      return { ...indent, supplier: null, qty: '', unit_p: '', expected_date: new Date(), total: 0 }
     })
   )
+
   const columns = [
     { id: 'StockName', label: 'Product', minWidth: 170 },
     { id: 'Division', label: 'Division', minWidth: 100 },
@@ -101,7 +102,7 @@ const CreateMultiplePurchaseOrder = ({ indentsList, handleClose, allSuppliers })
       indents &&
       indents.map(indent => {
         if (indent.qty !== '' && indent.unit_p !== '' && indent.total !== 0) {
-          const date = new Date('2022-09-09T06:36:17.000Z')
+          let date = new Date(indent.expected_date)
           return {
             User_ID: userDetails.User_ID,
             Co_ID: userDetails.Co_ID,
@@ -173,11 +174,7 @@ const CreateMultiplePurchaseOrder = ({ indentsList, handleClose, allSuppliers })
                   onChange={(event, value) => {
                     setIndents(current =>
                       current.map(obj => {
-                        if (obj.indent.indent.indent_id === row.indent.indent.indent_id) {
-                          return { ...obj, supplier: value }
-                        }
-
-                        return obj
+                        return { ...obj, supplier: value }
                       })
                     )
                   }}
@@ -204,6 +201,7 @@ const CreateMultiplePurchaseOrder = ({ indentsList, handleClose, allSuppliers })
                     label='Expected Date'
                     value={indents[index].expected_date}
                     onChange={e => {
+                      
                       setIndents(current =>
                         current.map(obj => {
                           if (obj.indent.indent.indent_id === row.indent.indent.indent_id) {

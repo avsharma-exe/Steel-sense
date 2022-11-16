@@ -8,7 +8,8 @@ const Create = {
   createProductGSTDetails,
   createProductOtherDetails,
   createProductDescription,
-  createProductCompanyDivision
+  createProductCompanyDivision,
+  createStockUsageLog
 }
 
 /**
@@ -103,6 +104,13 @@ function createProductDescription(body) {
 function createProductCompanyDivision(body) {
   return executeQuery({
     query: 'INSERT INTO Product_Company_Division SET ?',
+    values: body
+  })
+}
+
+function createStockUsageLog(body) {
+  return executeQuery({
+    query: 'INSERT INTO Stock_Usage SET ?',
     values: body
   })
 }

@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     let billEntryDetails = await BillEntries.Read.getBillEntryDetails(billEntry)
     console.log(billEntryDetails)
     let billEntryProducts = await BillEntries.Read.getBillProducts(billEntry)
-    console.log(billEntryProducts)
+    
     if (billEntryDetails && billEntryProducts)
       res.send({
         error: false,

@@ -5,12 +5,11 @@ import { useState, useEffect } from 'react'
 import Grid from '@mui/material/Grid'
 
 // ** Third Party Components
-import axios from 'axios'
+import toast from 'react-hot-toast'
 
 // **Components Imports
 import EditMultiple from 'src/components/bill-entry/editMultiple'
 import Actions from 'src/components/bill-entry/actions'
-// import AddNewCustomers from 'src/views/apps/invoice/add/AddNewCustomer'
 
 // ** Third Party Styles Imports
 import 'react-datepicker/dist/react-datepicker.css'
@@ -18,7 +17,6 @@ import { secureApi } from 'src/helpers/apiGenerator'
 import { useRouter } from 'next/router'
 import api_configs from 'src/configs/api_configs'
 import useUserDetails from 'src/hooks/useUserDetails'
-import CircularProgress from '@mui/material/CircularProgress'
 
 const EditBill = ({ context }) => {
   const router = useRouter()
@@ -46,8 +44,6 @@ const EditBill = ({ context }) => {
   const toggleAddCustomerDrawer = () => setAddCustomerOpen(!addCustomerOpen)
 
   const getBillDetails = async () => {
-    console.log('LOL')
-    setDisplayLoader(true)
     await secureApi
       .get(api_configs.billEntry.getBillEntryDetails, {
         params: {
@@ -80,13 +76,10 @@ const EditBill = ({ context }) => {
   }
 
   useEffect(() => {
-    console.log('calling', id, supplier)
     if (id && supplier) {
       Promise.all([getCompanyDetails(), getBillDetails(), getSupplierDetails()])
     }
   }, [id, supplier])
-
-  useEffect(() => {}, [viewBillData])
 
   const saveBill = async () => {
     setUpdateLoader(true)
@@ -100,6 +93,12 @@ const EditBill = ({ context }) => {
         Total: viewBillData.total,
         SubTotal: viewBillData.subTotal,
         InvoiceDate:
+          viewBillData.invoiceDate.getFullYear() +
+          '-' +
+          (parseInt(viewBillData.invoiceDate.getMonth()) + 1) +
+          '-' +
+          viewBillData.invoiceDate.getDate(),
+        DueOn:
           viewBillData.dueDate.getFullYear() +
           '-' +
           (parseInt(viewBillData.dueDate.getMonth()) + 1) +
@@ -109,8 +108,8 @@ const EditBill = ({ context }) => {
       })
       .then(resp => {
         if (resp.status === 200) {
+          toast.success('Bill Updated Successfully')
           setUpdateLoader(false)
-          router.back()
         }
       })
   }
