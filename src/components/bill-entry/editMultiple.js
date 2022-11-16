@@ -115,7 +115,7 @@ const EditMultiple = props => {
 
   useEffect(() => {
     
-    if (billProducts && viewBillData) {
+    if (billProducts !== null && viewBillData !== null) {
       
       let totalAmt = billProducts.reduce((acc, obj) => {
         return acc + obj.TotalAmount
@@ -163,7 +163,7 @@ const EditMultiple = props => {
                   </Typography>
                   <TextField
                     size='small'
-                    value={viewBillData.invoiceNumber}
+                    value={viewBillData.Bill_Name}
                     sx={{ width: { sm: '250px', xs: '170px' } }}
                     InputProps={{
                       disabled: true,
@@ -174,6 +174,29 @@ const EditMultiple = props => {
                 <Box sx={{ display: 'flex' }}>
                   <Typography variant='body2' sx={{ mr: 2, width: '100px' }}>
                     Invoice Date:
+                  </Typography>
+                  <DatePicker
+                    id='invoice-date'
+                    selected={viewBillData.InvoiceDate}
+                    customInput={<CustomInput />}
+                    onChange={date => {
+                      let invoiceNumber =
+                        date.getFullYear() +
+                        '' +
+                        date.getMonth() +
+                        1 +
+                        '' +
+                        date.getDate() +
+                        '' +
+                        invoiceNumberPad.substring(0, invoiceNumberPad.length - billId.length) +
+                        billId
+                      setViewBillData({ ...viewBillData, invoiceNumber: invoiceNumber, invoiceDate: date })
+                    }}
+                  />
+                </Box>
+                <Box sx={{ display: 'flex', mt: 2 }}>
+                  <Typography variant='body2' sx={{ mr: 2, width: '100px' }}>
+                    Due Date:
                   </Typography>
                   <DatePicker
                     id='due-date'

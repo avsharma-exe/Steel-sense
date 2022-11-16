@@ -5,6 +5,7 @@ import { Typography } from '@mui/material'
 import Pagination from '@mui/material/Pagination'
 import CircularProgress from '@mui/material/CircularProgress'
 
+
 // ** Custom Components
 import AddProductForm from '../../components/inventory/AddProductForm'
 import EditProductForm from 'src/components/inventory/EditProductForm'
@@ -21,6 +22,10 @@ import api_configs from 'src/configs/api_configs'
 import useUserDetails from 'src/hooks/useUserDetails'
 import useUserDivisions from 'src/hooks/useUserDivisions'
 import { AllInclusiveBox } from 'mdi-material-ui'
+
+// ** Third Party
+import toast from 'react-hot-toast'
+
 
 const Inventory = () => {
   const userDetails = useUserDetails()
@@ -97,6 +102,7 @@ const Inventory = () => {
   const getProducts = () => {
     {
       setShowLoader(true)
+
       divs
         ? secureApi
             .get(userDivisions.includes('0') ? api_configs.product.getAll : api_configs.product.getDivProducts, {
@@ -120,6 +126,22 @@ const Inventory = () => {
     }
   }
 
+  const useStock = async stockUsed => {
+    await secureApi
+      .patch(api_configs.product.useProduct, {
+        product: { ...useProductForm.data, stockUsed, user: userDetails.User_ID }
+      })
+      .then(resp => {
+        if (resp.status === 200) {
+          getProducts()
+          setUseProductForm({
+            show: false,
+            data: {}
+          })
+          toast.success('Stock Updated Successfully')
+        }
+      })
+  }
 
   useEffect(() => {
     getProducts()
@@ -144,6 +166,7 @@ const Inventory = () => {
             data: {}
           })
         }
+        handleSubmit={stockUsed => useStock(stockUsed)}
       />
       <ViewProductDetails
         show={stockDetails.show}
@@ -196,7 +219,7 @@ const Inventory = () => {
                 typingTimeout: setTimeout(() => {
                   setFilters({ ...filters, pageNo: 1 })
                   getProducts()
-                } , 1000)
+                }, 1000)
               })
             }}
           />

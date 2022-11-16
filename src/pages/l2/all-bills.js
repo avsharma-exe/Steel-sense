@@ -21,6 +21,7 @@ import BasicTable from 'src/components/utils/BasicTable'
 import { ClipboardListOutline } from 'mdi-material-ui'
 import { useRouter } from 'next/router'
 import { displayInitials } from 'src/helpers/displayInitials'
+import BillOptions from 'src/components/bill-entry/billOptions'
 
 const AllBills = () => {
   const router = useRouter()
@@ -86,12 +87,25 @@ const AllBills = () => {
                 </Box>
               ),
               Bill_Name: <Typography data={entry}>{entry.Bill_Name == '' ? 'NA' : '# ' + entry.Bill_Name}</Typography>,
-              status: renderStatus(entry.status),
+              status: renderStatus(entry.status, entry.DueOn),
               sub_total: displayAmount(entry.SubTotal),
               tax: entry.Tax == null ? 'NA' : entry.Tax + '%',
               discount: entry.Discount == null ? 'NA' : entry.Discount + '%',
               total: displayAmount(entry.Total),
-              invoice_date: entry.InvoiceDate == null ? 'NA' : displayDate(new Date(entry.InvoiceDate))
+              invoice_date: entry.InvoiceDate == null ? 'NA' : displayDate(new Date(entry.InvoiceDate)),
+              due_date: entry.DueOn == null ? 'NA' : displayDate(new Date(entry.DueOn)),
+              options: (
+                <BillOptions
+                  status={entry.status}
+                  bill={entry}
+                  viewBill={() => {
+                    router.push(`/l2/view-bill/multiple/${entry.Bill_Entry_ID}?supplier=${entry.Supplier_ID}`)
+                  }}
+                  editBill={() => {
+                    router.push(`/l2/edit-bill/multiple/${entry.Bill_Entry_ID}?supplier=${entry.Supplier_ID}`)
+                  }}
+                />
+              )
             }
           })
 
@@ -100,7 +114,20 @@ const AllBills = () => {
       })
   }
 
-  const renderStatus = status => {
+  const renderStatus = (status, DueOn) => {
+    const dueDate = new Date(DueOn)
+    const currentDate = new Date()
+    if (DueOn !== null && currentDate.getTime() < dueDate.getTime())
+      return (
+        <CustomChip
+          size='small'
+          skin='light'
+          color='error'
+          label={'Bill Due'}
+          icon={<Exclamation fontSize='small' />}
+        />
+      )
+
     switch (status) {
       case 0:
         return (
@@ -171,25 +198,27 @@ const AllBills = () => {
                 { id: 'supplier', label: 'Supplier Name', minWidth: 270 },
                 { id: 'Bill_Name', label: 'Bill ID', minWidth: 170 },
                 { id: 'invoice_date', label: 'Invoice Date', minWidth: 170 },
+                { id: 'due_date', label: 'Due Date', minWidth: 170 },
                 { id: 'status', label: 'Status', minWidth: 170 },
-                
-                { id: 'total', label: 'Total', minWidth: 170 }
+
+                { id: 'total', label: 'Total', minWidth: 170 },
+                { id: 'options', label: 'Options', minWidth: 5 }
               ]}
               rows={billEntries}
               maxHeight={true}
-              onRowClickHandle={row => {
-                switch (row.Bill_Name.props.data.status) {
-                  case 0:
-                    router.push(
-                      `/l2/edit-bill/multiple/${row.Bill_Name.props.data.Bill_Entry_ID}?supplier=${row.Bill_Name.props.data.Supplier_ID}`
-                    )
-                    break
-                  case 49:
-                    router.push(
-                      `/l2/view-bill/multiple/${row.Bill_Name.props.data.Bill_Entry_ID}?supplier=${row.Bill_Name.props.data.Supplier_ID}`
-                    )
-                }
-              }}
+              // onRowClickHandle={row => {
+              //   switch (row.Bill_Name.props.data.status) {
+              //     case 0:
+              //       router.push(
+              //         `/l2/edit-bill/multiple/${row.Bill_Name.props.data.Bill_Entry_ID}?supplier=${row.Bill_Name.props.data.Supplier_ID}`
+              //       )
+              //       break
+              //     case 49:
+              //       router.push(
+              //         `/l2/view-bill/multiple/${row.Bill_Name.props.data.Bill_Entry_ID}?supplier=${row.Bill_Name.props.data.Supplier_ID}`
+              //       )
+              //   }
+              // }}
             />
           </CardContent>
         </Card>

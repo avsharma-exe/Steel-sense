@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   let updateArray = []
   try {
     const { Bill_Entry_ID, billProducts } = body
-    console.log(billProducts)
+    
     delete body['billProducts']
 
     let saveBill = await BillEntries.Update.updateBillEntry(body, Bill_Entry_ID)

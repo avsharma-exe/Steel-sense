@@ -36,7 +36,8 @@ export default {
         updateGSTDetails: "/product/update-gstDetails",
         getLowStockDetails: "/product/getLowStockDetails",
         getProductByID: "/product/getProductByID",
-        getDivProducts: "/product/getDivProducts"
+        getDivProducts: "/product/getDivProducts",
+        useProduct: "/product/useProduct"
     },
     division: {
       getAll: "/division/get-all",

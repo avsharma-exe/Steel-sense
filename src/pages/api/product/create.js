@@ -11,15 +11,23 @@ export default async function handler(req, res) {
 
   try {
     let date = new Date()
-      // 2021-07-02 23:29:08.000000
-    date = date.getFullYear() + "-" +
-           parseInt(date.getMonth() + 1) +
-           "-" + date.getDate() + " " +
-           date.getHours() + ":" +
-           date.getMinutes()
-    let userfeilds = { CreatedBy: body.userDetails.User_ID,
-                       UpdateBy: body.userDetails.User_ID,
-                       CreatedDT: date, UpdatedDT: date }
+    // 2021-07-02 23:29:08.000000
+    date =
+      date.getFullYear() +
+      '-' +
+      parseInt(date.getMonth() + 1) +
+      '-' +
+      date.getDate() +
+      ' ' +
+      date.getHours() +
+      ':' +
+      date.getMinutes()
+    let userfeilds = {
+      CreatedBy: body.userDetails.User_ID,
+      UpdateBy: body.userDetails.User_ID,
+      CreatedDT: date,
+      UpdatedDT: date
+    }
 
     const productDetails = {
       PName: body.productDetails.productName,
@@ -37,10 +45,9 @@ export default async function handler(req, res) {
       ...userfeilds
     }
 
-    await Object.keys(body.allStocks).forEach(async division => {
-
+    Object.keys(body.allStocks).forEach(async division => {
       let stock = body.allStocks[division]
-      console.log(division, ' ---- ', body.allStocks[division], ' ------ ', )
+      console.log(division, ' ---- ', body.allStocks[division], ' ------ ')
       const productStockDetails = {
         P_ID: addProductDetails.insertId,
         CurrentStock: stock.openingStock,
@@ -54,9 +61,7 @@ export default async function handler(req, res) {
       await Product.Create.createProductStockDetails(productStockDetails)
     })
 
-
-
-    await Object.keys(body.allStocks).map(async division => {
+    Object.keys(body.allStocks).map(async division => {
       await Product.Create.createProductCompanyDivision({
         Co_ID: body.userDetails.Co_ID,
         P_ID: addProductDetails.insertId,
@@ -67,7 +72,6 @@ export default async function handler(req, res) {
     })
 
     const addProductPriceDetails = await Product.Create.createProductPriceDetails(priceDetails)
-
 
     if (addProductPriceDetails) {
       res.send({
